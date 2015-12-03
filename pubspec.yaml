@@ -1,0 +1,10 @@
+name: yacht_transformer
+version: 0.0.1
+description: Yet another css/html transformer
+sdk: '^1.0.0'
+dependencies:
+  csslib: any
+  html: any
+dev_dependencies:
+  test: any
+  dev_test: any
