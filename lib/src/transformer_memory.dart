@@ -1,4 +1,4 @@
-library yacht_transformer.src.transformer_memory;
+library yacht.src.transformer_memory;
 
 import 'transformer.dart';
 

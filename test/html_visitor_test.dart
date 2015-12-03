@@ -1,7 +1,7 @@
-library yacht_transformer.test.html_visitor_test;
+library yacht.test.html_visitor_test;
 
 import 'package:dev_test/test.dart';
-import 'package:yacht_transformer/src/html_printer.dart';
+import 'package:yacht/src/html_printer.dart';
 import 'package:html/dom.dart';
 
 main() {

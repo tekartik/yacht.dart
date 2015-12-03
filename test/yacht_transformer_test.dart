@@ -1,11 +1,11 @@
 @TestOn("vm")
-library yacht_transformer.test.yacht_transformer_test;
+library yacht.test.yacht_test;
 
 import 'package:dev_test/test.dart';
-import 'package:yacht_transformer/yacht_transformer.dart';
+import 'package:yacht/yacht.dart';
 
 main() {
-  group('yacht_transformer', () {
+  group('yacht', () {
     test('create', () {
       YachtTransformer transformer = new YachtTransformer.asPlugin();
       expect(transformer, isNotNull);

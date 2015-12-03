@@ -1,4 +1,4 @@
-name: yacht_transformer
+name: yacht
 version: 0.0.1
 description: Yet another css/html transformer
 sdk: '^1.0.0'

@@ -1,4 +1,4 @@
-library yacht_transformer.src.html_printer;
+library yacht.src.html_printer;
 
 import 'html_visitor.dart';
 import 'package:html/dom.dart';

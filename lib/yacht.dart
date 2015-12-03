@@ -1,8 +1,8 @@
-library yacht_transformer;
+library yacht;
 
 //import 'package:barback/barback.dart' as barback;
 import 'src/transformer_barback.dart';
-import 'src/yacht_transformer_impl.dart';
+import 'src/yacht_impl.dart';
 
 class YachtTransformer extends BarbackTransformer with YachtTransformerMixin {
   YachtTransformer.asPlugin([BarbackSettings settings])

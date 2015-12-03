@@ -1,9 +1,9 @@
-library yacht_transformer.test.yacht_transformer_impl_test;
+library yacht.test.yacht_impl_test;
 
 import 'package:dev_test/test.dart';
-import 'package:yacht_transformer/src/yacht_transformer_impl.dart';
-import 'package:yacht_transformer/src/transformer_memory.dart';
-import 'package:yacht_transformer/src/transformer.dart';
+import 'package:yacht/src/yacht_impl.dart';
+import 'package:yacht/src/transformer_memory.dart';
+import 'package:yacht/src/transformer.dart';
 import 'dart:async';
 import 'transformer_memory_test.dart';
 
@@ -15,7 +15,7 @@ class YachtTransformer extends Object with YachtTransformerMixin {
 assetId(String path) => new AssetId(null, path);
 main() {
   group('StringAssets', () {});
-  group('yacht_transformer_impl', () {
+  group('yacht_impl', () {
     test('isPrimary', () {
       void _checkPrimary(AssetId id, Matcher expected) {
         YachtTransformer transformer = new YachtTransformer();

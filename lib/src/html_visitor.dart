@@ -1,4 +1,4 @@
-library yacht_transformer.src.html_visitor;
+library yacht.src.html_visitor;
 
 //import 'visitor.dart' as visitor;
 import 'visitor.dart' show Visitor, VisitorAsync;

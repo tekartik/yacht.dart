@@ -1,10 +1,9 @@
-library yacht_transformer.src.yacht_transformer_impl;
+library yacht.src.yacht_impl;
 
 import 'transformer.dart';
 import 'package:path/path.dart';
 import 'dart:async';
-import 'package:yacht_transformer/src/html_printer.dart';
-import 'package:yacht_transformer/src/html_visitor.dart';
+import 'package:yacht/src/html_printer.dart';
 import 'package:html/dom.dart';
 
 class _YachtIsPrimaryTransform extends AssetTransform
@@ -85,6 +84,7 @@ abstract class YachtTransformerMixin {
         // print
         String output = await htmlPrintDocument(document, options: options);
 
+        /*
         if (false) {
           // quick debug
           HtmlDocumentNodeLinesPrinter builder =
@@ -99,6 +99,7 @@ abstract class YachtTransformerMixin {
           print('input: ${input}');
           print('output: ${output}');
         }
+        */
 
         transform.addOutputFromString(primaryId, output);
       } else {

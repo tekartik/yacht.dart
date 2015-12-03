@@ -1,5 +1,5 @@
 @TestOn("vm")
-library yacht_transformer_example_simple.test.build_test;
+library yacht_example_simple.test.build_test;
 
 import 'package:dev_test/test.dart';
 import 'dart:io';
