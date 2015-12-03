@@ -4,20 +4,52 @@ import 'package:dev_test/test.dart';
 import 'package:yacht/src/html_printer.dart';
 import 'package:html/dom.dart';
 
-HtmlLines htmlLines(List data) {
-  HtmlLines lines = new HtmlLines();
-  _addItem(List item) {
-    lines.add(htmlLine(item[0], item[1]));
-  }
-  if (data.isNotEmpty) {
-    // not a list, might be a line data [0, "test"] directly
-    if (data.first is List) {
-      for (var item in data) {
-        _addItem(item);
-      }
-    } else {
-      _addItem(data);
+// Allow for [0,'<a>'] or ['</a>'] or '<a>'
+_addItem(HtmlLines lines, dynamic item) {
+  int depth = 0;
+  String content;
+  if (item is List) {
+    int index = 0;
+    if (item.length > 1) {
+      depth = item[index++];
     }
+    content = item[index++];
+  } else {
+    content = item;
+  }
+  lines.add(htmlLine(depth, content));
+}
+
+@deprecated // use htmlLines
+HtmlLines htmlMultiHtmlLines(List data) {
+  HtmlLines lines = new HtmlLines();
+  for (var item in data) {
+    _addItem(lines, item);
+  }
+  return lines;
+}
+
+// Allow for [[0,'<a>'],[0,'</a']]
+// ['<a>', '</a>']
+
+HtmlLines htmlLines(dynamic data) {
+  HtmlLines lines = new HtmlLines();
+
+  if (data is List) {
+    if (data.isNotEmpty) {
+      // not a list, might be a line data [0, "test"] directly
+      if (data.first is int) {
+        _addItem(lines, data);
+      } else if (data is List) {
+        for (var item in data) {
+          _addItem(lines, item);
+        }
+      } else {
+        throw 'invalid param: ${data}';
+      }
+    }
+  } else {
+    _addItem(lines, data);
   }
 
   return lines;
@@ -64,6 +96,18 @@ main() {
       expect(lines1, lines2);
       lines2 = htmlLines([1, "sub"]);
       expect(lines1, isNot(lines2));
+      expect(lines1, htmlLines('test'));
+      expect(lines1, htmlLines(['test']));
+      expect(
+          lines1,
+          htmlLines([
+            ['test']
+          ]));
+      expect(
+          lines1,
+          htmlLines([
+            [0, 'test']
+          ]));
     });
   });
   group('html_printer', () {
@@ -73,6 +117,14 @@ main() {
     });
 
     test('element', () async {
+      Element element = new Element.html('<a></a>');
+      expect(element.outerHtml, '<a></a>');
+      HtmlElementPrinter printer = new HtmlElementPrinter();
+      await printer.visitElement(element);
+      expect(printer.lines, htmlLines(['<a>', '</a>']));
+    });
+
+    test('element_with_text', () async {
       Element element = new Element.html('<a>link</a>');
       expect(element.outerHtml, '<a>link</a>');
       HtmlElementPrinter printer = new HtmlElementPrinter();

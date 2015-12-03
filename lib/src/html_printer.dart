@@ -198,6 +198,69 @@ List<String> _voidTags = [
   'wbr'
 ];
 
+// source https://developer.mozilla.org/en/docs/Web/HTML/Inline_elemente
+List<String> _inlineTags = [
+  'b',
+  'big',
+  'i',
+  'small',
+  'tt',
+  'abbr',
+  'acronym',
+  'cite',
+  'code',
+  'dfn',
+  'em',
+  'kbd',
+  'strong',
+  'samp',
+  'time',
+  'var',
+  'a',
+  'bdo',
+  'br',
+  'img',
+  'map',
+  'object',
+  'q',
+  'script',
+  'span',
+  'sub',
+  'sup',
+  'button',
+  'input',
+  'label',
+  'select',
+  'textarea'
+];
+
+List<String> _innerInlineTags = [
+  'meta', 'title', 'link', // for head
+  "h1", "h2", "h3", "h4", "h5", "h6", // for title
+]..addAll(_inlineTags);
+
+//
+// helps
+//
+bool _inlineContentForTag(String tagName) {
+  if (_innerInlineTags.contains(tagName)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/*
+bool _doNotConvertContentForTag(String tagName) {
+  switch (tagName) {
+    case 'pre':
+      return true;
+    default:
+      return false;
+  }
+}
+*/
+
 String elementBeginTag(Element element) {
   StringBuffer sb = new StringBuffer();
   sb.write('<${element.localName}');
@@ -229,6 +292,8 @@ abstract class HtmlLinesBuilderMixin {
   // implemented by BaseVisitor
   Future<Node> visitChildren(Node node);
 
+  bool inline;
+
   // @override
   _add(String content) {
     lines.add(htmlLine(depth, content));
@@ -237,6 +302,8 @@ abstract class HtmlLinesBuilderMixin {
   // @override
   Future<Node> visit(Node node) async {
     if (node is Element) {
+      String tag = node.localName;
+      inline = _inlineContentForTag(tag);
       _add(elementBeginTag(node));
       depth++;
       await visitChildren(node);

@@ -19,6 +19,35 @@ abstract class YachtTransformerMixin {
   // Override to set a flag
   bool setIsPrimary(bool isPrimary) => isPrimary;
 
+  set htmlLines(HtmlLines lines) {}
+
+  HtmlPrinterOptions _options;
+  HtmlPrinterOptions get options {
+    if (_options == null) {
+      _options = new HtmlPrinterOptions.fromBarbackSettings(settings);
+    }
+    return _options;
+  }
+
+  runElementTransform(Transform transform) async {
+    String input = await transform.readPrimaryAsString();
+
+    // only for testing
+    if (input == null) {
+      return null;
+    }
+
+    // trim extra spaces
+    Element element = new Element.html(input.trim());
+
+    // extract lines
+    HtmlElementPrinter printer = new HtmlElementPrinter();
+    await printer.visitElement(element);
+    HtmlLines outHtmlLines = printer.lines;
+    // test subclass may override this to get the lines emitted
+    htmlLines = outHtmlLines;
+  }
+
   run(AssetTransform transform) {
     AssetId primaryId = transform.primaryId;
     String basename = posix.basename(primaryId.path);
@@ -81,8 +110,16 @@ abstract class YachtTransformerMixin {
 
         HtmlPrinterOptions options =
             new HtmlPrinterOptions.fromBarbackSettings(settings);
+
+        // extract lines
+        HtmlDocumentPrinter printer = new HtmlDocumentPrinter();
+        await printer.visitDocument(document);
+        HtmlLines outHtmlLines = printer.lines;
+        // test subclass my override this to get the lines emitted
+        htmlLines = outHtmlLines;
+
         // print
-        String output = await htmlPrintDocument(document, options: options);
+        String output = await htmlPrintLines(outHtmlLines, options: options);
 
         /*
         if (false) {

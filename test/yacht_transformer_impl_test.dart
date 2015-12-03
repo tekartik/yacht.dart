@@ -3,13 +3,49 @@ library yacht.test.yacht_impl_test;
 import 'package:dev_test/test.dart';
 import 'package:yacht/src/yacht_impl.dart';
 import 'package:yacht/src/transformer_memory.dart';
+import 'package:yacht/src/html_printer.dart';
 import 'package:yacht/src/transformer.dart';
 import 'dart:async';
 import 'transformer_memory_test.dart';
+import 'html_printer_test.dart';
+
+const String minHtml = '''
+<!doctype html>
+<html>
+<head>
+</head>
+<body>
+</body>
+</html>''';
+const String minInHtml =
+    '<!doctype html><html><head></head><body></body></html>';
 
 class YachtTransformer extends Object with YachtTransformerMixin {
+  @override
   BarbackSettings settings;
+  @override
+  HtmlLines htmlLines;
   YachtTransformer([this.settings]);
+}
+
+// check for index.html
+Future checkYachtTransform(YachtTransformer transformer,
+    StringAssets inputAssets, StringAssets outputsExpected) async {
+  YachtTransformer transformer = new YachtTransformer();
+
+  AssetId primaryId = assetId("index.html");
+  StringAsset primaryAsset = inputAssets[primaryId];
+  var transform = new StringTransform(primaryAsset, inputAssets);
+  expect(transform, isNot(new isInstanceOf<IsPrimaryTransform>()));
+  expect(transform, isNot(new isInstanceOf<DeclaringTransform>()));
+  expect(transform.isConsumed, isNull);
+  expect(transform.outputs, {});
+
+  // await needed here
+  await transformer.run(transform);
+
+  expect(transform.outputs, outputsExpected,
+      reason: "outputs(${primaryAsset.id})");
 }
 
 assetId(String path) => new AssetId(null, path);
@@ -82,20 +118,7 @@ main() {
       }
       AssetId id = assetId('test.html');
       _checkTransform(
-          stringAsset(id, ''),
-          null,
-          isNull,
-          stringAssets([
-            id.path,
-            '''
-<!doctype html>
-<html>
-<head>
-</head>
-<body>
-</body>
-</html>'''
-          ]));
+          stringAsset(id, ''), null, isNull, stringAssets([id.path, minHtml]));
 
       _checkTransform(
           stringAsset(
@@ -131,6 +154,63 @@ main() {
 </body>
 </html>'''
           ]));
+    });
+    test('checkYachtTransform', () {
+      //checkYachtTransform()
+      Future _checkTransform(StringAsset primaryAsset, StringAssets inputAssets,
+          Matcher isConsumed, StringAssets outputsExpected) async {
+        YachtTransformer transformer = new YachtTransformer();
+
+        var transform = new StringTransform(primaryAsset, inputAssets);
+        expect(transform, isNot(new isInstanceOf<IsPrimaryTransform>()));
+
+        expect(transform.isConsumed, isNull);
+        expect(transform.outputs, {});
+
+        // await needed here
+        await transformer.run(transform);
+
+        expect(transform.isConsumed, isConsumed,
+            reason: "isConsumed(${primaryAsset.id})");
+        expect(transform.outputs, outputsExpected,
+            reason: "outputs(${primaryAsset.id})");
+      }
+
+      AssetId id = assetId('index.html');
+      _checkTransform(stringAsset(id, minInHtml), null, isNull,
+          stringAssets([id.path, minHtml]));
+    });
+
+    test('checkYachtTransformElement', () {
+      //checkYachtTransform()
+      Future _checkTransform(
+          String html, StringAssets inputAssets, HtmlLines lines) async {
+        YachtTransformer transformer = new YachtTransformer();
+
+        AssetId id = assetId("index.html");
+        StringAsset asset = stringAsset(id, html);
+        var transform = new StringTransform(asset, inputAssets);
+
+        transformer.runElementTransform(transform);
+        expect(transform, isNot(new isInstanceOf<IsPrimaryTransform>()));
+
+        expect(transform.isConsumed, isNull);
+        expect(transform.outputs, {});
+        expect(transformer.htmlLines, isNull);
+
+        // await needed here
+        await transformer.runElementTransform(transform);
+
+        expect(transformer.htmlLines, lines);
+      }
+
+      /*
+      AssetId id = assetId('index.html');
+      _checkTransform(stringAsset(id, minInHtml), null, isNull,
+          stringAssets([id.path, minHtml]));
+          */
+      _checkTransform('<a></a>', null, htmlLines(['<a>', '</a>']));
+      //TODO_checkTransform('<a>text</a>', null, htmlLines(['<a>text</a>']));
     });
   });
 }
