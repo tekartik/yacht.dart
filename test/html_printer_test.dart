@@ -95,9 +95,29 @@ main() {
       expect(printer.lines, htmlLines([]));
     });
 
-    test('document_html', () async {
+    test('document_html_empty', () async {
       Document document = new Document.html('');
       expect(document.outerHtml, '<html><head></head><body></body></html>');
+
+      //print(document.outerHtml);
+      HtmlDocumentPrinter builder = new HtmlDocumentPrinter();
+      await builder.visitDocument(document);
+      expect(
+          builder.lines,
+          htmlLines([
+            [0, '<html>'],
+            [1, '<head>'],
+            [1, '</head>'],
+            [1, '<body>'],
+            [1, '</body>'],
+            [0, '</html>']
+          ]));
+      //print(builder.nodes);
+    });
+
+    test('document_html_basic', () async {
+      Document document = new Document.html(
+          '<!DOCTYPE html><html><head></head><body></body></html>');
 
       //print(document.outerHtml);
       HtmlDocumentPrinter builder = new HtmlDocumentPrinter();
@@ -119,12 +139,34 @@ main() {
   group('utils', () {
     test('htmlPrintLines', () {
       expect(htmlPrintLines(htmlLines([])), '${htmlDoctype}\n');
+      expect(
+          htmlPrintLines(htmlLines([0, '<html/>'])), '${htmlDoctype}\n<html/>');
+      expect(
+          htmlPrintLines(htmlLines([1, '<html/>'])), '${htmlDoctype}\n<html/>');
+      expect(htmlPrintLines(htmlLines([2, '<html/>'])),
+          '${htmlDoctype}\n  <html/>');
+    });
+
+    test('htmlPrintDocument', () async {
+      Document document = new Document();
+      expect(await htmlPrintDocument(document), '${htmlDoctype}\n');
+      document = new Document.html('');
+      expect(await htmlPrintDocument(document),
+          '${htmlDoctype}\n<html>\n<head>\n</head>\n<body>\n</body>\n</html>');
+      document = new Document.html(
+          '<!DOCTYPE html><html><head></head><body></body></html>');
+      expect(await htmlPrintDocument(document),
+          '${htmlDoctype}\n<html>\n<head>\n</head>\n<body>\n</body>\n</html>');
+      //document = new Document.html('<!DOCTYPE html><html><head></head><body></body></html>\n');
+      //expect(await htmlPrintDocument(document), '${htmlDoctype}\n<html>\n<head>\n</head>\n<body>\n</body>\n</html>\n');
+      /*
       expect(htmlPrintLines(htmlLines([0, '<html/>'])),
           '${htmlDoctype}\n<html/>\n');
       expect(htmlPrintLines(htmlLines([1, '<html/>'])),
           '${htmlDoctype}\n<html/>\n');
       expect(htmlPrintLines(htmlLines([2, '<html/>'])),
           '${htmlDoctype}\n  <html/>\n');
+          */
     });
   });
 }

@@ -4,12 +4,18 @@ import 'html_visitor.dart';
 import 'package:html/dom.dart';
 import 'dart:async';
 import 'package:collection/collection.dart';
+import 'package:barback/src/transformer/barback_settings.dart';
 
 const String htmlDoctype = '<!doctype html>';
 
 class HtmlPreprocessorOptions {}
 
 class HtmlPrinterOptions {
+  HtmlPrinterOptions();
+  HtmlPrinterOptions.fromBarbackSettings(BarbackSettings settings) {
+    //TODO
+  }
+
   /// start for index min
   int indentDepthMin = 2;
   String indent = '  ';
@@ -20,14 +26,21 @@ String _htmlPrintLines(HtmlLines htmlLines, HtmlPrinterOptions options) {
   sb.writeln(htmlDoctype);
   String indent = options.indent;
   int indentDepthMin = options.indentDepthMin;
+
+  bool addLn = false;
   for (HtmlLine line in htmlLines) {
+    if (addLn) {
+      sb.writeln('');
+    } else {
+      addLn = true;
+    }
     int depth = 1 + line.depth - indentDepthMin;
     // depth might be negative
     for (int i = 0; i < depth; i++) {
       sb.write(indent);
     }
 
-    sb.writeln(line.content);
+    sb.write(line.content);
   }
   return sb.toString();
 }
@@ -39,8 +52,8 @@ String htmlPrintLines(HtmlLines htmlLines, {HtmlPrinterOptions options}) {
   return _htmlPrintLines(htmlLines, options);
 }
 
-Future<String> htmlPrintDocument(
-    Document doc, HtmlPrinterOptions options) async {
+Future<String> htmlPrintDocument(Document doc,
+    {HtmlPrinterOptions options}) async {
   if (options == null) {
     options = new HtmlPrinterOptions();
   }
@@ -49,35 +62,92 @@ Future<String> htmlPrintDocument(
   return _htmlPrintLines(printer.lines, options);
 }
 
-/// an output line with a given depth
-class HtmlLine {
-  HtmlLine(this.depth, this.content);
+//
+// Printer lines
+//
+
+abstract class PrinterLine {
   final int depth;
-  final String content;
+
+  PrinterLine(this.depth);
 
   @override
-  toString() => '$depth:$content';
+  toString() => '$depth';
 
   @override
-  int get hashCode => depth.hashCode + content.hashCode;
-
-  String toOutputString({String indent}) {
-    StringBuffer sb = new StringBuffer();
-    for (int i = 0; i < depth; i++) {
-      sb.write(' ');
-    }
-    sb.write(content);
-    return sb.toString();
-  }
+  int get hashCode => depth.hashCode;
 
   @override
   bool operator ==(o) {
-    if (o is HtmlLine) {
-      return o.depth == depth && o.content == content;
+    if (o is PrinterLine) {
+      return o.depth == depth;
     }
     return false;
   }
 }
+
+class NodeLine extends PrinterLine {
+  final Node node;
+  NodeLine(int depth, this.node) : super(depth);
+  @override
+  toString() => '$depth:$node';
+
+  @override
+  int get hashCode => super.hashCode + node.hashCode;
+  @override
+  bool operator ==(o) {
+    if (super == (o)) {
+      return o.node == node;
+    }
+    return false;
+  }
+}
+
+/// an output line with a given depth
+class HtmlLine extends PrinterLine {
+  final String content;
+  HtmlLine(int depth, this.content) : super(depth);
+  @override
+  toString() => '$depth:$content';
+
+  @override
+  int get hashCode => super.hashCode + content.hashCode;
+
+  @override
+  bool operator ==(o) {
+    if (super == (o)) {
+      return o.content == content;
+    }
+    return false;
+  }
+}
+
+abstract class NodeLinesBuilderMixin {
+  NodeLines lines = new NodeLines();
+  int depth = 0;
+
+  // implemented by BaseVisitor
+  Future<Node> visitChildren(Node node);
+
+  // @override
+  Future<Node> visit(Node node) async {
+    lines.add(new NodeLine(depth, node));
+    depth++;
+    var result = await visitChildren(node);
+    depth--;
+    return result;
+  }
+}
+
+class HtmlElementNodeLinesBuilder extends HtmlElementVisitor
+    with NodeLinesBuilderMixin {}
+
+class HtmlDocumentNodeLinesPrinter extends HtmlDocumentVisitor
+    with NodeLinesBuilderMixin {}
+
+//
+// lines
+//
 
 class HtmlLines extends DelegatingList<HtmlLine> {
   final List<HtmlLine> _l;
@@ -88,6 +158,27 @@ class HtmlLines extends DelegatingList<HtmlLine> {
         super(l);
 }
 
+class PrinterLines extends DelegatingList<PrinterLine> {
+  final List<PrinterLine> _l;
+
+  PrinterLines() : this.from(<PrinterLine>[]);
+  PrinterLines.from(l)
+      : _l = l,
+        super(l);
+}
+
+class NodeLines extends DelegatingList<NodeLine> {
+  final List<NodeLine> _l;
+
+  NodeLines() : this.from(<NodeLine>[]);
+  NodeLines.from(l)
+      : _l = l,
+        super(l);
+}
+
+//
+// tags
+//
 List<String> _voidTags = [
   'area',
   'base',

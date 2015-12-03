@@ -1,0 +1,12 @@
+name: yacht_transformer_example_simple
+version: 0.1.0
+description: Simple output
+dependencies:
+  yacht_transformer:
+    path: ../..
+dev_dependencies:
+  test: any
+  dev_test: any
+  process_run: any
+transformers:
+ - yacht_transformer
