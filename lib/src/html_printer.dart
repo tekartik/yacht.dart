@@ -446,6 +446,11 @@ abstract class HtmlLinesBuilderMixin {
       // inlineContent = _inlineContentForTag(tag) || tryToInline;
       inlineContent = tryToInline;
 
+      // end line for head tags
+      bool _isHeadTag = isHeadTag(tag);
+if (_isHeadTag) {
+  _addLine();
+}
       // Don't inline for html
       if (tag == 'html') {
         inlineContent = false;
@@ -472,6 +477,12 @@ abstract class HtmlLinesBuilderMixin {
       if (!inlineContent) {
         _addLine();
       }
+
+      // close line for head tag
+      if (_isHeadTag) {
+        _addLine();
+      }
+
     } else {
       // make sure new line starts deeper
       //beginLineDepth = depth;

@@ -63,6 +63,27 @@ main() {
 </head>
 <body>Hello World! </body>
 </html>''');
+
+      _checkFile('include.html', '''
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Included Title</title>
+</head>
+<body></body>
+</html>''');
+
+
+      _checkFile('import.html', '''
+<!doctype html>
+<html>
+<head>
+  <style>body { color: red; } html { color: black; }</style>
+</head>
+<body>
+</body>
+</html>''');
     });
   });
 }

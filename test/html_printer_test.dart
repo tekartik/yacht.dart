@@ -363,8 +363,16 @@ main() {
 
     test('element_base_debug', () async {
       // copy the test here and make it solo
-      checkHtmlElement("<p>some <span>text</span>\n</p>",
-          htmlLines('<p>some <span>text</span> </p>'));
+      checkHtmlElement(
+          '<head><meta charset="utf-8"><title>Included Title</title>  </head>',
+          htmlLines([
+            '<head>',
+            [
+              1,
+              ['<meta charset="utf-8">', '<title>Included Title</title>']
+            ],
+            '</head>'
+          ]));
     });
 
     test('anchor_with_inner_element', () {

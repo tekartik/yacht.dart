@@ -27,6 +27,17 @@ transformers:
 ````
 ````
 
+### Tidy html
+
+This is a purely opiniated formatting, keep some existing formatting
+
+### Html building
+
+An external file can be included at build time:
+````
+<meta property="yacht-include" content="_included.html">
+````
+
 ## Development
 
 ### Dependencies
