@@ -37,6 +37,28 @@ Future checkYachtTransform(YachtTransformer transformer,
       reason: "outputs(${primaryAsset.id})");
 }
 
+//checkYachtTransform()
+Future checkElementTransform(
+    String html, StringAssets inputAssets, HtmlLines lines) async {
+  YachtTransformer transformer = new YachtTransformer();
+
+  AssetId id = assetId("index.html");
+  StringAsset asset = stringAsset(id, html);
+  var transform = new StringTransform(asset, inputAssets);
+
+  transformer.runElementTransform(transform);
+  expect(transform, isNot(new isInstanceOf<IsPrimaryTransform>()));
+
+  expect(transform.isConsumed, isNull);
+  expect(transform.outputs, {});
+  expect(transformer.htmlLines, isNull);
+
+  // await needed here
+  await transformer.runElementTransform(transform);
+
+  expect(transformer.htmlLines, lines);
+}
+
 assetId(String path) => new AssetId(null, path);
 main() {
   group('StringAssets', () {});
@@ -151,34 +173,12 @@ main() {
     });
 
     test('checkYachtTransformElement', () {
-      //checkYachtTransform()
-      Future _checkTransform(
-          String html, StringAssets inputAssets, HtmlLines lines) async {
-        YachtTransformer transformer = new YachtTransformer();
-
-        AssetId id = assetId("index.html");
-        StringAsset asset = stringAsset(id, html);
-        var transform = new StringTransform(asset, inputAssets);
-
-        transformer.runElementTransform(transform);
-        expect(transform, isNot(new isInstanceOf<IsPrimaryTransform>()));
-
-        expect(transform.isConsumed, isNull);
-        expect(transform.outputs, {});
-        expect(transformer.htmlLines, isNull);
-
-        // await needed here
-        await transformer.runElementTransform(transform);
-
-        expect(transformer.htmlLines, lines);
-      }
-
       /*
       AssetId id = assetId('index.html');
       _checkTransform(stringAsset(id, minInHtml), null, isNull,
           stringAssets([id.path, minHtml]));
           */
-      _checkTransform('<a></a>', null, htmlLines(['<a></a>']));
+      checkElementTransform('<a></a>', null, htmlLines(['<a></a>']));
       //TODO_checkTransform('<a>text</a>', null, htmlLines(['<a>text</a>']));
     });
   });

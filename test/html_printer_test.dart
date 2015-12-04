@@ -171,69 +171,7 @@ main() {
       expect(utilsInlineText('\r\na\t\r\n '), ' a ');
     });
   });
-  List<String> blocksToStrings(List<HtmlBlock> blocks) {
-    List<String> list = [];
-    for (HtmlBlock block in blocks) {
-      list.add(block.toString());
-    }
-    return list;
-  }
-  group('html_block_printer', () {
-    test('empty', () {
-      HtmlBlockElementPrinter printer = new HtmlBlockElementPrinter();
-      expect(printer.blocks, isEmpty);
-    });
 
-    test('element', () {
-      Element element = new Element.html('<a></a>');
-      HtmlBlockElementPrinter printer = new HtmlBlockElementPrinter();
-      printer.visitElement(element);
-      HtmlBlocks blocks = printer.blocks;
-      expect(blocksToStrings(blocks), ['<a>', '</a>']);
-      expect((blocks[0] as HtmlTextBlock).content, '<a>');
-      expect(blocks[0].before.hasWhiteSpace, isNot(isTrue));
-      expect(blocks[0].after.hasWhiteSpace, isNot(isTrue));
-      expect((blocks[1] as HtmlTextBlock).content, '</a>');
-      expect(blocks[1].before.hasWhiteSpace, isNot(isTrue));
-      expect(blocks[1].after.hasWhiteSpace, isNot(isTrue));
-      expect(blocks, hasLength(2));
-
-      //expect(block, htmlLines(['<a></a>']));
-    });
-
-    test('element_with_content', () {
-      Element element = new Element.html('<a>link</a>');
-      HtmlBlockElementPrinter printer = new HtmlBlockElementPrinter();
-      printer.visitElement(element);
-      HtmlBlocks blocks = printer.blocks;
-      expect(blocksToStrings(blocks), ['<a>', 'link (splitable)', '</a>']);
-      expect((blocks[0] as HtmlTextBlock).content, '<a>');
-      expect(blocks[0].before.hasWhiteSpace, isNot(isTrue));
-      expect(blocks[0].after.hasWhiteSpace, isNot(isTrue));
-      expect((blocks[2] as HtmlTextBlock).content, '</a>');
-      expect(blocks[2].before.hasWhiteSpace, isNot(isTrue));
-      expect(blocks[2].after.hasWhiteSpace, isNot(isTrue));
-      expect(blocks, hasLength(3));
-      //expect(printer.block, htmlLines(['<a></a>']));
-    });
-
-    /*
-    test('element_with_space', () async {
-      Element element = new Element.html('<a> </a>');
-      HtmlBlockElementPrinter printer = new HtmlBlockElementPrinter();
-      await printer.visitElement(element);
-      dumpBlock(block);
-      expect((blocks[0] as HtmlTextBlock).content, '<a>');
-      expect(blocks[0].before.hasWhiteSpace, isNot(isTrue));
-      expect(blocks[0].after.hasWhiteSpace, isTrue);
-      expect((blocks[1] as HtmlTextBlock).content, '</a>');
-      expect(blocks[1].before.hasWhiteSpace, isTrue);
-      expect(blocks[1].after.hasWhiteSpace, isNot(isTrue));
-      expect(blocks, hasLength(2));
-      //expect(printer.block, htmlLines(['<a></a>']));
-    });
-    */
-  });
   group('html_printer', () {
     test('empty', () {
       HtmlElementPrinter printer = new HtmlElementPrinter();
@@ -303,14 +241,19 @@ main() {
             ],
             '</style>'
           ]));
-      /*
-      //print(element.outerHtml);
-      expect(htmlTidyElement(element),
-          ['<style>', '\tbody {', '\t\tmargin: 0;', '\t}', '</style>']);
-      html.createElementHtml("<style>body {\r\tmargin: 0;\r}</style>");
-      expect(htmlTidyElement(element),
-          ['<style>', '\tbody {', '\t\tmargin: 0;', '\t}', '</style>']);
-          */
+    });
+
+    test('style_empty', () async {
+      checkHtmlElement("<style></style>", htmlLines(['<style></style>']));
+    });
+
+    test('style_spaces', () {
+      checkHtmlElement("<style> </style>", htmlLines(['<style>', '</style>']));
+    });
+
+    test('style_multi_spaces', () async {
+      checkHtmlElement(
+          "<style>\r \r</style>", htmlLines(['<style>', '</style>']));
     });
 
     test('style_element_single_line', () {
@@ -319,8 +262,10 @@ main() {
           htmlLines(['<style>body {opacity: 0}</style>']));
     });
 
-    test('style_element_one_line_feed', () {
+    test('style_element_with_line_feed', () {
       checkHtmlElement("<style>\n</style>", htmlLines(['<style>', '</style>']));
+      checkHtmlElement(
+          "<style>\n\n</style>", htmlLines(['<style>', '</style>']));
     });
 
     test('title_element', () {

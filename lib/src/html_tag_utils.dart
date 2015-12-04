@@ -1,0 +1,68 @@
+library yacht.src.html_tag_utils.dart;
+
+//
+// tags
+//
+
+List<String> voidTags = [
+  'area',
+  'base',
+  'br',
+  'col',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'keygen',
+  'link',
+  'menuitem',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr'
+];
+
+// source https://developer.mozilla.org/en/docs/Web/HTML/Inline_elemente
+List<String> inlineTags = [
+  'b',
+  'big',
+  'i',
+  'small',
+  'tt',
+  'abbr',
+  'acronym',
+  'cite',
+  'code',
+  'dfn',
+  'em',
+  'kbd',
+  'strong',
+  'samp',
+  'time',
+  'var',
+  'a',
+  'bdo',
+  'br',
+  'img',
+  'map',
+  'object',
+  'q',
+  'script',
+  'span',
+  'sub',
+  'sup',
+  'button',
+  'input',
+  'label',
+  'select',
+  'textarea'
+];
+
+List<String> innerInlineTags = [
+  'meta', 'title', 'link', // for head
+  "h1", "h2", "h3", "h4", "h5", "h6", // for title
+]..addAll(inlineTags);
+
+// private definition
+List<String> rawTags = ['script', 'style'];

@@ -34,13 +34,35 @@ main() {
 
       // expect to find the result in build
       String outPath = join(projectTop, 'build', 'example');
-      expect(
-          new File(join(outPath, 'simple.html')).readAsStringSync(),
+
+      _checkFile(String file, String content) {
+        expect(new File(join(outPath, file)).readAsStringSync(), content);
+      }
+      _checkFile(
+          'simple.html',
           '''
 <!doctype html>
 <html>
 <head></head>
 <body></body>
+</html>''');
+      _checkFile(
+          'amp_basic.html',
+          '''
+<!doctype html>
+<html ⚡ lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Basic</title>
+  <link rel="canonical" href="amp_basic.html">
+  <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+  <style amp-custom>
+  </style>
+  <style>body {opacity: 0}</style>
+  <noscript><style>body {opacity: 1}</style></noscript>
+  <script async src="https://cdn.ampproject.org/v0.js"></script>
+</head>
+<body>Hello World! </body>
 </html>''');
     });
   });
