@@ -5,6 +5,9 @@ import 'package:path/path.dart';
 import 'dart:async';
 import 'package:yacht/src/html_printer.dart';
 import 'package:html/dom.dart';
+import 'package:csslib/parser.dart';
+import 'package:csslib/visitor.dart';
+import 'common_import.dart';
 
 class _YachtIsPrimaryTransform extends AssetTransform
     implements IsPrimaryTransform {
@@ -40,6 +43,11 @@ abstract class YachtTransformerMixin {
     // trim extra spaces
     Element element = new Element.html(input.trim());
 
+    //devPrint('before: ${element.outerHtml}');
+    // element =
+    await handleElement(transform, transform.primaryId, element);
+
+    //devPrint('after: ${element.outerHtml}');
     // extract lines
     HtmlElementPrinter printer = new HtmlElementPrinter();
     await printer.visitElement(element);
@@ -111,6 +119,10 @@ abstract class YachtTransformerMixin {
         HtmlPrinterOptions options =
             new HtmlPrinterOptions.fromBarbackSettings(settings);
 
+        // Convert content
+        // - include
+        await handleElement(transform, primaryId, document.documentElement);
+
         // extract lines
         HtmlDocumentPrinter printer = new HtmlDocumentPrinter();
         await printer.visitDocument(document);
@@ -165,27 +177,117 @@ abstract class YachtTransformerMixin {
   isPrimary(AssetId id) {
     IsPrimaryTransform transform = new _YachtIsPrimaryTransform(id);
     return run(transform);
+  }
 
-    /*
-    // Allow all files if [primaryExtensions] is not overridden.
-    bool isPrimary = false;
-    for (var extension in allowedExtensions.split(" ")) {
-      if (id.path.endsWith(extension)) {
-        isPrimary = true;
-        break;
+  handleElement(Transform transform, AssetId assetId, Element element) async {
+    // handle styles
+    // Resolve css
+    _handleStyle(Element element) async {
+      //print(element.text);
+      String existingCss = element.text;
+      StyleSheet styleSheet = compile(existingCss, polyfill: true);
+      CssPrinter printer = new CssPrinter();
+      bool hasImport = false;
+      _resolveImport(AssetId assetId, StyleSheet styleSheet) async {
+        List<TreeNode> childNodes = new List.from(styleSheet.topLevels);
+        for (TreeNode node in childNodes) {
+          if (node is ImportDirective) {
+            hasImport = true;
+            String path =
+                posix.normalize(join(posix.dirname(assetId.path), node.import));
+            AssetId importedAssetId = new AssetId(assetId.package, path);
+            if (await transform.hasInput(importedAssetId)) {
+              StyleSheet importedStyleSheet = compile(
+                  await transform.readInputAsString(importedAssetId),
+                  polyfill: true);
+
+              await _resolveImport(importedAssetId, importedStyleSheet);
+
+              int index = styleSheet.topLevels.indexOf(node);
+              styleSheet.topLevels
+                ..removeAt(index)
+                ..insertAll(index, importedStyleSheet.topLevels);
+            }
+          }
+        }
+      }
+      await _resolveImport(assetId, styleSheet);
+      printer.visitTree(styleSheet, pretty: false);
+      String newCss = printer.toString();
+      if (hasImport || newCss.length < existingCss.length) {
+        element.text = newCss;
       }
     }
-
-    if (isPrimary) {
-      if (posix.basename(id.path).startsWith('no_')) {
-        return false;
-      }
-
-      // ok
-      return true;
+    if (element.localName == 'style') {
+      await _handleStyle(element);
+    }
+    List<Element> styleElements = element.querySelectorAll('style');
+    for (Element element in styleElements) {
+      await _handleStyle(element);
     }
 
-    return false;
-    */
+    _handleYachtInclude(Element element) async {
+      if (element.attributes['property'] == 'yacht-include') {
+        String included = element.attributes['content'];
+        //print(included);
+        // go relative
+        // TODO handle other package
+        AssetId includedAssetId = new AssetId(assetId.package,
+            posix.normalize(join(posix.dirname(assetId.path), included)));
+        String includedContent =
+            await transform.readInputAsString(includedAssetId);
+
+        //devPrint(includedContent);
+        if (includedContent == null) {
+          throw new ArgumentError('asset $includedAssetId not found');
+        }
+
+        bool multiElement = false;
+        Element includedElement;
+
+        // where to include
+        int index = element.parent.children.indexOf(element);
+
+        // try to parse if it fails, wrap it
+        try {
+          includedElement = new Element.html(includedContent);
+        } catch (e) {
+          multiElement = true;
+          includedElement = new Element.html(
+              '<tekartik-yacht-merge>${includedContent}</tekartik-yacht-merge>');
+        }
+
+        // Save parent (as element will be removed
+        Element parent = element.parent;
+
+        // Insert first so that it has a parent
+        parent.children
+          ..removeAt(index)
+          ..insert(index, includedElement);
+
+        // handle recursively first
+        await handleElement(transform, includedAssetId, includedElement);
+
+        // multi element 'un-merge'
+        if (multiElement) {
+          // save a copy
+          List<Element> children = new List.from(includedElement.children);
+
+          parent.children..removeAt(index);
+          for (Element child in children) {
+            parent.children..insert(index++, child);
+          }
+        }
+      }
+    }
+    if (element.localName == 'meta') {
+      await _handleYachtInclude(element);
+      //throw 'meta not supported as main element';
+    } else {
+      List<Element> list = element.querySelectorAll('meta');
+      for (Element element in list) {
+        await _handleYachtInclude(element);
+      }
+    }
   }
 }

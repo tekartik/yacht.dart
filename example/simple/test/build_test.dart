@@ -56,8 +56,7 @@ main() {
   <title>Basic</title>
   <link rel="canonical" href="amp_basic.html">
   <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
-  <style amp-custom>
-  </style>
+  <style amp-custom></style>
   <style>body {opacity: 0}</style>
   <noscript><style>body {opacity: 1}</style></noscript>
   <script async src="https://cdn.ampproject.org/v0.js"></script>

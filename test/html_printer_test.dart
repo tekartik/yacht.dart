@@ -251,6 +251,10 @@ main() {
       checkHtmlElement("<style> </style>", htmlLines(['<style>', '</style>']));
     });
 
+    test('style_linefeed', () {
+      checkHtmlElement("<style>\n</style>", htmlLines(['<style>', '</style>']));
+    });
+
     test('style_multi_spaces', () async {
       checkHtmlElement(
           "<style>\r \r</style>", htmlLines(['<style>', '</style>']));

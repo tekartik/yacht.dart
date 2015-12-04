@@ -46,7 +46,7 @@ Future checkElementTransform(
   StringAsset asset = stringAsset(id, html);
   var transform = new StringTransform(asset, inputAssets);
 
-  transformer.runElementTransform(transform);
+  //await transformer.runElementTransform(transform);
   expect(transform, isNot(new isInstanceOf<IsPrimaryTransform>()));
 
   expect(transform.isConsumed, isNull);
@@ -61,7 +61,6 @@ Future checkElementTransform(
 
 assetId(String path) => new AssetId(null, path);
 main() {
-  group('StringAssets', () {});
   group('yacht_impl', () {
     test('isPrimary', () {
       void _checkPrimary(AssetId id, Matcher expected) {

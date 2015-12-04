@@ -2,12 +2,11 @@ library yacht.src.html_printer;
 
 import 'html_visitor.dart';
 import 'package:html/dom.dart';
-import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:barback/src/transformer/barback_settings.dart';
-import 'dart:convert';
 import 'text_utils.dart';
 import 'html_tag_utils.dart';
+import 'common_import.dart';
 
 const String htmlDoctype = '<!doctype html>';
 
@@ -186,24 +185,22 @@ class NodeLines extends DelegatingList<NodeLine> {
 // helpers
 //
 
-/*
 bool _elementBeginWithWhiteSpace(Element element) {
   Node firstChild = element.firstChild;
   if (firstChild != null && firstChild.nodeType == Node.TEXT_NODE) {
-    return _beginWithWhiteSpace(firstChild.text);
+    // handle empty (for style)
+    if (!firstChild.text.isEmpty) {
+      return beginWithWhiteSpace(firstChild.text);
+    }
   }
   return false;
 }
-*/
 
 bool _elementBeginEndsWithWhiteSpace(Element element) {
-  Node child = element.firstChild;
-  if (child != null && child.nodeType == Node.TEXT_NODE) {
-    if (beginWithWhiteSpace(child.text)) {
-      child = element.nodes.last;
-      if (child.nodeType == Node.TEXT_NODE) {
-        return endWithWhiteSpace(child.text);
-      }
+  if (_elementBeginWithWhiteSpace(element)) {
+    Node child = element.nodes.last;
+    if (child.nodeType == Node.TEXT_NODE) {
+      return endWithWhiteSpace(child.text);
     }
   }
   return false;

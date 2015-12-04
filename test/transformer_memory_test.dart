@@ -1,4 +1,4 @@
-library yacht.test.yacht_impl_test;
+library yacht.test.transformer_memory_test;
 
 import 'package:dev_test/test.dart';
 import 'package:yacht/src/transformer_memory.dart';
