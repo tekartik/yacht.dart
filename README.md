@@ -34,3 +34,7 @@ transformers:
 * [html](https://pub.dartlang.org/packages/html)
 * [csslib](https://pub.dartlang.org/packages/csslib)
 * [barback](https://pub.dartlang.org/packages/barback)
+
+### HTML formatting rules
+
+* An element is not inlined if it begins with a text node with a whitespace at the beginning

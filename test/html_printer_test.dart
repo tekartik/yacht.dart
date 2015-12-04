@@ -3,7 +3,6 @@ library yacht.test.html_visitor_test;
 import 'package:dev_test/test.dart';
 import 'package:yacht/src/html_printer.dart';
 import 'package:html/dom.dart';
-import 'dart:async';
 
 const String minHtml = '''
 <!doctype html>
@@ -17,13 +16,21 @@ const String minInHtml =
 // Allow for [0,'<a>'] or ['</a>'] or '<a>'
 _addItem(HtmlLines lines, dynamic item) {
   int depth = 0;
-  String content;
+  dynamic content;
   if (item is List) {
     int index = 0;
     if (item.length > 1) {
       depth = item[index++];
     }
     content = item[index++];
+
+    // the content can be a list as well..
+    if (content is List) {
+      for (String _content in content) {
+        lines.add(htmlLine(depth, _content));
+      }
+      return;
+    }
   } else {
     content = item;
   }
@@ -39,11 +46,15 @@ HtmlLines htmlMultiHtmlLines(List data) {
   return lines;
 }
 
-Future<HtmlLines> htmlLinesFromElementHtml(String html) async {
+HtmlLines htmlLinesFromElementHtml(String html, {HtmlPrinterOptions options}) {
   Element element = new Element.html(html);
   //print(element.outerHtml');
   HtmlElementPrinter printer = new HtmlElementPrinter();
-  await printer.visitElement(element);
+  if (options != null) {
+    printer.options = options;
+  }
+
+  printer.visitElement(element);
   return printer.lines;
 }
 // Allow for [[0,'<a>'],[0,'</a']]
@@ -72,12 +83,17 @@ HtmlLines htmlLines(dynamic data) {
   return lines;
 }
 
-Future checkHtmlElement(String html, HtmlLines lines) async {
-  expect(await htmlLinesFromElementHtml(html), lines,
+void checkHtmlElement(String html, HtmlLines lines, [int contentLength]) {
+  HtmlPrinterOptions options = new HtmlPrinterOptions();
+  if (contentLength != null) {
+    options.contentLength = contentLength;
+  }
+  expect(htmlLinesFromElementHtml(html, options: options), lines,
       reason: "html: '${html}'");
   // reconvert result to be sure
-  expect(await htmlLinesFromElementHtml(htmlPrintLines(lines)), lines,
-      reason: html);
+  String outHtml = htmlPrintLines(lines, options: options);
+  expect(htmlLinesFromElementHtml(outHtml, options: options), lines,
+      reason: 'outhtml: ${outHtml}\n/\n ${html}');
 }
 
 main() {
@@ -133,6 +149,14 @@ main() {
           htmlLines([
             [0, 'test']
           ]));
+      expect(lines1, htmlLines([0, 'test']));
+
+      expect(
+          lines1,
+          htmlLines([
+            0,
+            ['test']
+          ]));
     });
   });
 
@@ -160,10 +184,10 @@ main() {
       expect(printer.blocks, isEmpty);
     });
 
-    test('element', () async {
+    test('element', () {
       Element element = new Element.html('<a></a>');
       HtmlBlockElementPrinter printer = new HtmlBlockElementPrinter();
-      await printer.visitElement(element);
+      printer.visitElement(element);
       HtmlBlocks blocks = printer.blocks;
       expect(blocksToStrings(blocks), ['<a>', '</a>']);
       expect((blocks[0] as HtmlTextBlock).content, '<a>');
@@ -177,10 +201,10 @@ main() {
       //expect(block, htmlLines(['<a></a>']));
     });
 
-    test('element_with_content', () async {
+    test('element_with_content', () {
       Element element = new Element.html('<a>link</a>');
       HtmlBlockElementPrinter printer = new HtmlBlockElementPrinter();
-      await printer.visitElement(element);
+      printer.visitElement(element);
       HtmlBlocks blocks = printer.blocks;
       expect(blocksToStrings(blocks), ['<a>', 'link (splitable)', '</a>']);
       expect((blocks[0] as HtmlTextBlock).content, '<a>');
@@ -216,39 +240,43 @@ main() {
       expect(printer.lines, isEmpty);
     });
 
-    test('element', () async {
+    test('element', () {
       Element element = new Element.html('<a></a>');
       expect(element.outerHtml, '<a></a>');
       HtmlElementPrinter printer = new HtmlElementPrinter();
-      await printer.visitElement(element);
+      printer.visitElement(element);
       expect(printer.lines, htmlLines(['<a></a>']));
     });
 
-    test('element_base', () async {
+    test('span', () async {
       await checkHtmlElement('<a></a>', htmlLines('<a></a>'));
       await checkHtmlElement('<a>link</a>', htmlLines('<a>link</a>'));
       await checkHtmlElement('<a> link</a>', htmlLines('<a> link</a>'));
       await checkHtmlElement('<a>  link</a>', htmlLines('<a> link</a>'));
       await checkHtmlElement('<a>link </a>', htmlLines('<a>link </a>'));
-      await checkHtmlElement('<a>\rlink\n</a>', htmlLines('<a> link </a>'));
-      await checkHtmlElement('<a>\n</a>', htmlLines('<a> </a>'));
+      await checkHtmlElement(
+          '<a> link </a>',
+          htmlLines([
+            '<a>',
+            [1, 'link'],
+            '</a>'
+          ]));
+      await checkHtmlElement(
+          '<a>\rlink\n</a>',
+          htmlLines([
+            '<a>',
+            [1, 'link'],
+            '</a>'
+          ]));
+      await checkHtmlElement('<a>\n</a>', htmlLines(['<a>', '</a>']));
+    });
+
+    test('element_base', () async {
       //await checkHtmlElement('<a>\r0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 012345789 link\n</a>', htmlLines('<a> link </a>'));
       await checkHtmlElement('<div></div>', htmlLines('<div></div>'));
       await checkHtmlElement('<div>\n</div>', htmlLines(['<div>', '</div>']));
-      await checkHtmlElement(
-          '<div>\na</div>',
-          htmlLines([
-            '<div>',
-            [1, 'a'],
-            '</div>'
-          ]));
-      await checkHtmlElement(
-          '<div>a\n</div>',
-          htmlLines([
-            '<div>',
-            [1, 'a'],
-            '</div>'
-          ]));
+      await checkHtmlElement('<div>\na</div>', htmlLines('<div> a</div>'));
+      await checkHtmlElement('<div>a\n</div>', htmlLines('<div>a </div>'));
       await checkHtmlElement('<div> a</div>', htmlLines(['<div> a</div>']));
       await checkHtmlElement('<div>a </div>', htmlLines(['<div>a </div>']));
     });
@@ -257,34 +285,143 @@ main() {
       await checkHtmlElement(
           '<a><span></span></a>', htmlLines('<a><span></span></a>'));
       await checkHtmlElement(
-          '<div><span></span></div>',
-          htmlLines([
-            '<div>',
-            [1, '<span></span>'],
-            '</div>'
-          ]));
+          '<div><span></span></div>', htmlLines('<div><span></span></div>'));
       await checkHtmlElement(
-          '<div><div></div></div>',
+          '<div><div></div></div>', htmlLines('<div><div></div></div>'));
+      await checkHtmlElement('<div><div>text</div></div>',
+          htmlLines('<div><div>text</div></div>'));
+    });
+
+    test('style_element_with_empty_lines', () async {
+      checkHtmlElement(
+          "<style>body {\n\r\tmargin: 0;\n}</style>",
           htmlLines([
-            '<div>',
-            [1, '<div></div>'],
-            '</div>'
+            '<style>',
+            [
+              1,
+              ['body {', '\tmargin: 0;', '}']
+            ],
+            '</style>'
           ]));
-      await checkHtmlElement(
-          '<div><div>text</div></div>',
+      /*
+      //print(element.outerHtml);
+      expect(htmlTidyElement(element),
+          ['<style>', '\tbody {', '\t\tmargin: 0;', '\t}', '</style>']);
+      html.createElementHtml("<style>body {\r\tmargin: 0;\r}</style>");
+      expect(htmlTidyElement(element),
+          ['<style>', '\tbody {', '\t\tmargin: 0;', '\t}', '</style>']);
+          */
+    });
+
+    test('style_element_single_line', () {
+      // from amp
+      checkHtmlElement("<style>body {opacity: 0}</style>",
+          htmlLines(['<style>body {opacity: 0}</style>']));
+    });
+
+    test('style_element_one_line_feed', () {
+      checkHtmlElement("<style>\n</style>", htmlLines(['<style>', '</style>']));
+    });
+
+    test('title_element', () {
+      checkHtmlElement(
+          "<title>some  text</title>", htmlLines(['<title>some text</title>']));
+    });
+
+    test('input_element', () {
+      checkHtmlElement("<input />", htmlLines(['<input>']));
+    });
+
+    test('paragraph_long', () {
+      checkHtmlElement(
+          "<p>0123456789 012345678 012345678910 0123456 789 12345\n</p>",
           htmlLines([
-            '<div>',
-            [1, '<div>text</div>'],
-            '</div>'
+            '<p>0123456789',
+            [
+              1,
+              ['012345678', '012345678910', '0123456', '789 12345 </p>']
+            ]
+          ]),
+          10);
+    });
+
+    test('paragraph_long_2', () {
+      checkHtmlElement("<p>0123456789</p>", htmlLines('<p>0123456789</p>'), 10);
+      checkHtmlElement(
+          "<p>\n0123456789</p>",
+          htmlLines([
+            '<p>',
+            [1, '0123456789</p>']
+          ]),
+          10);
+      checkHtmlElement(
+          "<p>0123456789\n</p>", htmlLines(['<p>0123456789 </p>']), 10);
+      checkHtmlElement(
+          "<p> 0123456789\n</p>",
+          htmlLines([
+            '<p>',
+            [1, '0123456789'],
+            '</p>'
+          ]),
+          10);
+      checkHtmlElement(
+          "<p>0123456 789</p>",
+          htmlLines([
+            '<p>0123456',
+            [1, '789</p>']
+          ]),
+          10);
+      checkHtmlElement(
+          "<p>012 345 678</p>",
+          htmlLines([
+            '<p>012 345',
+            [1, '678</p>']
+          ]),
+          10);
+      checkHtmlElement(
+          "<p>012 3456 78</p>",
+          htmlLines([
+            '<p>012',
+            [1, '3456 78</p>']
+          ]),
+          10);
+    });
+
+    test('paragraph', () {
+      checkHtmlElement("<p></p>", htmlLines(['<p></p>']));
+    });
+
+    test('paragraph_with_span', () {
+      checkHtmlElement("<p>some <span>text</span></p>",
+          htmlLines(['<p>some <span>text</span></p>']));
+      checkHtmlElement("<p>some <span>text\n</span></p>",
+          htmlLines(['<p>some <span>text </span></p>']));
+      checkHtmlElement("<p>some <span>text</span>\n</p>",
+          htmlLines(['<p>some <span>text</span> </p>']));
+      checkHtmlElement(
+          "<p>\nsome <span>text</span>\n</p>",
+          htmlLines([
+            '<p>',
+            [1, 'some <span>text</span>'],
+            '</p>'
           ]));
     });
+
+    test('div', () {
+      checkHtmlElement(
+          "<div>some  text\r</div>", htmlLines(['<div>some text </div>']));
+    });
+
     test('element_base_debug', () async {
       // copy the test here and make it solo
-      //await checkHtmlElement('<div><div><div></div></div></div>', htmlLines(['<div>', [1, '<div>'], [2, '<div></div>'],[1, '</div>'], '</div>']));
-      await checkHtmlElement('<div> a</div>', htmlLines(['<div> a</div>']));
-
-      //await checkHtmlElement('<a>link</a>', htmlLines('<a>link</a>'));
+      checkHtmlElement("<p>some <span>text</span>\n</p>",
+          htmlLines('<p>some <span>text</span> </p>'));
     });
+
+    test('anchor_with_inner_element', () {
+      checkHtmlElement('<a><img/></a>', htmlLines(['<a><img></a>']));
+    });
+
     test('element_with_text', () async {
       Element element = new Element.html('<a>link</a>');
       expect(element.outerHtml, '<a>link</a>');

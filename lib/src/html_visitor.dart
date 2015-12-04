@@ -5,12 +5,12 @@ import 'visitor.dart' show Visitor, VisitorAsync;
 import 'package:html/dom.dart';
 import 'dart:async';
 
-abstract class HtmlVisitorBase implements VisitorAsync<Node> {
-  Future<Node> visitChildren(Node node) async {
+abstract class HtmlVisitorBase implements Visitor<Node> {
+  Node visitChildren(Node node) {
     if (node.hasChildNodes()) {
       NodeList nodeList = node.nodes;
       for (Node node in nodeList) {
-        await visit(node);
+        visit(node);
       }
     }
     return node;

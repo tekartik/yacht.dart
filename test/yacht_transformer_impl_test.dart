@@ -9,8 +9,6 @@ import 'dart:async';
 import 'transformer_memory_test.dart';
 import 'html_printer_test.dart';
 
-
-
 class YachtTransformer extends Object with YachtTransformerMixin {
   @override
   BarbackSettings settings;
@@ -116,10 +114,7 @@ main() {
               id, '<!doctype html><html><head></head><body></body></html>'),
           null,
           isNull,
-          stringAssets([
-            id.path,
-            minHtml
-          ]));
+          stringAssets([id.path, minHtml]));
 
       // important check for new line before and after
       _checkTransform(
@@ -127,10 +122,7 @@ main() {
               id, '\n<!doctype html><html><head></head><body></body></html>\n'),
           null,
           isNull,
-          stringAssets([
-            id.path,
-            minHtml
-          ]));
+          stringAssets([id.path, minHtml]));
     });
     test('checkYachtTransform', () {
       //checkYachtTransform()
