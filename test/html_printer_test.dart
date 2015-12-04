@@ -3,6 +3,16 @@ library yacht.test.html_visitor_test;
 import 'package:dev_test/test.dart';
 import 'package:yacht/src/html_printer.dart';
 import 'package:html/dom.dart';
+import 'dart:async';
+
+const String minHtml = '''
+<!doctype html>
+<html>
+<head></head>
+<body></body>
+</html>''';
+const String minInHtml =
+    '<!doctype html><html><head></head><body></body></html>';
 
 // Allow for [0,'<a>'] or ['</a>'] or '<a>'
 _addItem(HtmlLines lines, dynamic item) {
@@ -29,6 +39,13 @@ HtmlLines htmlMultiHtmlLines(List data) {
   return lines;
 }
 
+Future<HtmlLines> htmlLinesFromElementHtml(String html) async {
+  Element element = new Element.html(html);
+  //print(element.outerHtml');
+  HtmlElementPrinter printer = new HtmlElementPrinter();
+  await printer.visitElement(element);
+  return printer.lines;
+}
 // Allow for [[0,'<a>'],[0,'</a']]
 // ['<a>', '</a>']
 
@@ -53,6 +70,14 @@ HtmlLines htmlLines(dynamic data) {
   }
 
   return lines;
+}
+
+Future checkHtmlElement(String html, HtmlLines lines) async {
+  expect(await htmlLinesFromElementHtml(html), lines,
+      reason: "html: '${html}'");
+  // reconvert result to be sure
+  expect(await htmlLinesFromElementHtml(htmlPrintLines(lines)), lines,
+      reason: html);
 }
 
 main() {
@@ -110,6 +135,81 @@ main() {
           ]));
     });
   });
+
+  group('utils', () {
+    test('inlineText', () {
+      expect(utilsInlineText('a'), 'a');
+      expect(utilsInlineText(' '), ' ');
+      expect(utilsInlineText(' a'), ' a');
+      expect(utilsInlineText('a '), 'a ');
+      expect(utilsInlineText(' a '), ' a ');
+      expect(utilsInlineText('  a  '), ' a ');
+      expect(utilsInlineText('\r\na\t\r\n '), ' a ');
+    });
+  });
+  List<String> blocksToStrings(List<HtmlBlock> blocks) {
+    List<String> list = [];
+    for (HtmlBlock block in blocks) {
+      list.add(block.toString());
+    }
+    return list;
+  }
+  group('html_block_printer', () {
+    test('empty', () {
+      HtmlBlockElementPrinter printer = new HtmlBlockElementPrinter();
+      expect(printer.blocks, isEmpty);
+    });
+
+    test('element', () async {
+      Element element = new Element.html('<a></a>');
+      HtmlBlockElementPrinter printer = new HtmlBlockElementPrinter();
+      await printer.visitElement(element);
+      HtmlBlocks blocks = printer.blocks;
+      expect(blocksToStrings(blocks), ['<a>', '</a>']);
+      expect((blocks[0] as HtmlTextBlock).content, '<a>');
+      expect(blocks[0].before.hasWhiteSpace, isNot(isTrue));
+      expect(blocks[0].after.hasWhiteSpace, isNot(isTrue));
+      expect((blocks[1] as HtmlTextBlock).content, '</a>');
+      expect(blocks[1].before.hasWhiteSpace, isNot(isTrue));
+      expect(blocks[1].after.hasWhiteSpace, isNot(isTrue));
+      expect(blocks, hasLength(2));
+
+      //expect(block, htmlLines(['<a></a>']));
+    });
+
+    test('element_with_content', () async {
+      Element element = new Element.html('<a>link</a>');
+      HtmlBlockElementPrinter printer = new HtmlBlockElementPrinter();
+      await printer.visitElement(element);
+      HtmlBlocks blocks = printer.blocks;
+      expect(blocksToStrings(blocks), ['<a>', 'link (splitable)', '</a>']);
+      expect((blocks[0] as HtmlTextBlock).content, '<a>');
+      expect(blocks[0].before.hasWhiteSpace, isNot(isTrue));
+      expect(blocks[0].after.hasWhiteSpace, isNot(isTrue));
+      expect((blocks[2] as HtmlTextBlock).content, '</a>');
+      expect(blocks[2].before.hasWhiteSpace, isNot(isTrue));
+      expect(blocks[2].after.hasWhiteSpace, isNot(isTrue));
+      expect(blocks, hasLength(3));
+      //expect(printer.block, htmlLines(['<a></a>']));
+    });
+
+    /*
+    test('element_with_space', () async {
+      Element element = new Element.html('<a> </a>');
+      HtmlBlockElementPrinter printer = new HtmlBlockElementPrinter();
+      await printer.visitElement(element);
+      dumpBlock(block);
+      expect((blocks[0] as HtmlTextBlock).content, '<a>');
+      expect(blocks[0].before.hasWhiteSpace, isNot(isTrue));
+      expect(blocks[0].after.hasWhiteSpace, isTrue);
+      expect((blocks[1] as HtmlTextBlock).content, '</a>');
+      expect(blocks[1].before.hasWhiteSpace, isTrue);
+      expect(blocks[1].after.hasWhiteSpace, isNot(isTrue));
+      expect(blocks, hasLength(2));
+      //expect(printer.block, htmlLines(['<a></a>']));
+    });
+    */
+  });
   group('html_printer', () {
     test('empty', () {
       HtmlElementPrinter printer = new HtmlElementPrinter();
@@ -121,21 +221,76 @@ main() {
       expect(element.outerHtml, '<a></a>');
       HtmlElementPrinter printer = new HtmlElementPrinter();
       await printer.visitElement(element);
-      expect(printer.lines, htmlLines(['<a>', '</a>']));
+      expect(printer.lines, htmlLines(['<a></a>']));
     });
 
+    test('element_base', () async {
+      await checkHtmlElement('<a></a>', htmlLines('<a></a>'));
+      await checkHtmlElement('<a>link</a>', htmlLines('<a>link</a>'));
+      await checkHtmlElement('<a> link</a>', htmlLines('<a> link</a>'));
+      await checkHtmlElement('<a>  link</a>', htmlLines('<a> link</a>'));
+      await checkHtmlElement('<a>link </a>', htmlLines('<a>link </a>'));
+      await checkHtmlElement('<a>\rlink\n</a>', htmlLines('<a> link </a>'));
+      await checkHtmlElement('<a>\n</a>', htmlLines('<a> </a>'));
+      //await checkHtmlElement('<a>\r0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 012345789 link\n</a>', htmlLines('<a> link </a>'));
+      await checkHtmlElement('<div></div>', htmlLines('<div></div>'));
+      await checkHtmlElement('<div>\n</div>', htmlLines(['<div>', '</div>']));
+      await checkHtmlElement(
+          '<div>\na</div>',
+          htmlLines([
+            '<div>',
+            [1, 'a'],
+            '</div>'
+          ]));
+      await checkHtmlElement(
+          '<div>a\n</div>',
+          htmlLines([
+            '<div>',
+            [1, 'a'],
+            '</div>'
+          ]));
+      await checkHtmlElement('<div> a</div>', htmlLines(['<div> a</div>']));
+      await checkHtmlElement('<div>a </div>', htmlLines(['<div>a </div>']));
+    });
+
+    test('element_sub', () async {
+      await checkHtmlElement(
+          '<a><span></span></a>', htmlLines('<a><span></span></a>'));
+      await checkHtmlElement(
+          '<div><span></span></div>',
+          htmlLines([
+            '<div>',
+            [1, '<span></span>'],
+            '</div>'
+          ]));
+      await checkHtmlElement(
+          '<div><div></div></div>',
+          htmlLines([
+            '<div>',
+            [1, '<div></div>'],
+            '</div>'
+          ]));
+      await checkHtmlElement(
+          '<div><div>text</div></div>',
+          htmlLines([
+            '<div>',
+            [1, '<div>text</div>'],
+            '</div>'
+          ]));
+    });
+    test('element_base_debug', () async {
+      // copy the test here and make it solo
+      //await checkHtmlElement('<div><div><div></div></div></div>', htmlLines(['<div>', [1, '<div>'], [2, '<div></div>'],[1, '</div>'], '</div>']));
+      await checkHtmlElement('<div> a</div>', htmlLines(['<div> a</div>']));
+
+      //await checkHtmlElement('<a>link</a>', htmlLines('<a>link</a>'));
+    });
     test('element_with_text', () async {
       Element element = new Element.html('<a>link</a>');
       expect(element.outerHtml, '<a>link</a>');
       HtmlElementPrinter printer = new HtmlElementPrinter();
       await printer.visitElement(element);
-      expect(
-          printer.lines,
-          htmlLines([
-            [0, '<a>'],
-            [1, 'link'],
-            [0, '</a>']
-          ]));
+      expect(printer.lines, htmlLines([0, '<a>link</a>']));
     });
 
     test('document', () async {
@@ -158,10 +313,8 @@ main() {
           builder.lines,
           htmlLines([
             [0, '<html>'],
-            [1, '<head>'],
-            [1, '</head>'],
-            [1, '<body>'],
-            [1, '</body>'],
+            [1, '<head></head>'],
+            [1, '<body></body>'],
             [0, '</html>']
           ]));
       //print(builder.nodes);
@@ -178,10 +331,8 @@ main() {
           builder.lines,
           htmlLines([
             [0, '<html>'],
-            [1, '<head>'],
-            [1, '</head>'],
-            [1, '<body>'],
-            [1, '</body>'],
+            [1, '<head></head>'],
+            [1, '<body></body>'],
             [0, '</html>']
           ]));
       //print(builder.nodes);
@@ -204,11 +355,12 @@ main() {
       expect(await htmlPrintDocument(document), '${htmlDoctype}\n');
       document = new Document.html('');
       expect(await htmlPrintDocument(document),
-          '${htmlDoctype}\n<html>\n<head>\n</head>\n<body>\n</body>\n</html>');
+          '${htmlDoctype}\n<html>\n<head></head>\n<body></body>\n</html>');
       document = new Document.html(
           '<!DOCTYPE html><html><head></head><body></body></html>');
-      expect(await htmlPrintDocument(document),
-          '${htmlDoctype}\n<html>\n<head>\n</head>\n<body>\n</body>\n</html>');
+      //minHtml
+      expect(await htmlPrintDocument(document), minHtml);
+      //'${htmlDoctype}\n<html>\n<head></head>\n<body></body>\n</html>');
       //document = new Document.html('<!DOCTYPE html><html><head></head><body></body></html>\n');
       //expect(await htmlPrintDocument(document), '${htmlDoctype}\n<html>\n<head>\n</head>\n<body>\n</body>\n</html>\n');
       /*

@@ -9,16 +9,7 @@ import 'dart:async';
 import 'transformer_memory_test.dart';
 import 'html_printer_test.dart';
 
-const String minHtml = '''
-<!doctype html>
-<html>
-<head>
-</head>
-<body>
-</body>
-</html>''';
-const String minInHtml =
-    '<!doctype html><html><head></head><body></body></html>';
+
 
 class YachtTransformer extends Object with YachtTransformerMixin {
   @override
@@ -127,14 +118,7 @@ main() {
           isNull,
           stringAssets([
             id.path,
-            '''
-<!doctype html>
-<html>
-<head>
-</head>
-<body>
-</body>
-</html>'''
+            minHtml
           ]));
 
       // important check for new line before and after
@@ -145,14 +129,7 @@ main() {
           isNull,
           stringAssets([
             id.path,
-            '''
-<!doctype html>
-<html>
-<head>
-</head>
-<body>
-</body>
-</html>'''
+            minHtml
           ]));
     });
     test('checkYachtTransform', () {
@@ -209,7 +186,7 @@ main() {
       _checkTransform(stringAsset(id, minInHtml), null, isNull,
           stringAssets([id.path, minHtml]));
           */
-      _checkTransform('<a></a>', null, htmlLines(['<a>', '</a>']));
+      _checkTransform('<a></a>', null, htmlLines(['<a></a>']));
       //TODO_checkTransform('<a>text</a>', null, htmlLines(['<a>text</a>']));
     });
   });
