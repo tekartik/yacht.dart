@@ -106,51 +106,11 @@ abstract class YachtTransformerMixin {
     // Need to read content now...
     return new Future.sync(() async {
       if (transform is Transform) {
-        String input = await transform.readPrimaryAsString();
-
-        // only for testing
-        if (input == null) {
-          return null;
+        if (extension == '.html') {
+          return transformHtml(transform);
+        } else if (extension == '.css') {
+          return transformCss(transform);
         }
-
-        // trim extra spaces as data after </html> might include TEXT_NODE in the body
-        Document document = new Document.html(input.trim());
-
-        HtmlPrinterOptions options =
-            new HtmlPrinterOptions.fromBarbackSettings(settings);
-
-        // Convert content
-        // - include
-        await handleElement(transform, primaryId, document.documentElement);
-
-        // extract lines
-        HtmlDocumentPrinter printer = new HtmlDocumentPrinter();
-        await printer.visitDocument(document);
-        HtmlLines outHtmlLines = printer.lines;
-        // test subclass my override this to get the lines emitted
-        htmlLines = outHtmlLines;
-
-        // print
-        String output = await htmlPrintLines(outHtmlLines, options: options);
-
-        /*
-        if (false) {
-          // quick debug
-          HtmlDocumentNodeLinesPrinter builder =
-              new HtmlDocumentNodeLinesPrinter();
-          await builder.visitDocument(document);
-          print('nodes: ${builder.lines}');
-
-          HtmlDocumentPrinter printer = new HtmlDocumentPrinter();
-          await printer.visitDocument(document);
-          print('lines: ${printer.lines}');
-
-          print('input: ${input}');
-          print('output: ${output}');
-        }
-        */
-
-        transform.addOutputFromString(primaryId, output);
       } else {
         throw 'should not get there';
       }
@@ -171,12 +131,114 @@ abstract class YachtTransformerMixin {
   }
 
   // @override
-  String get allowedExtensions => '.html .css .js';
+  String get allowedExtensions => '.html .css';
 
   // @override
   isPrimary(AssetId id) {
     IsPrimaryTransform transform = new _YachtIsPrimaryTransform(id);
     return run(transform);
+  }
+
+  Future transformCss(Transform transform) async {
+    String input = await transform.readPrimaryAsString();
+
+    AssetId assetId = transform.primaryId;
+    // only for testing
+    if (input == null) {
+      return null;
+    }
+
+    StyleSheet styleSheet = compile(input, polyfill: true);
+
+    _CssTransform cssTransform = new _CssTransform(transform)
+      ..assetId = assetId
+      ..styleSheet = styleSheet;
+    await _handleCss(cssTransform);
+    CssPrinter printer = new CssPrinter();
+
+    printer.visitTree(styleSheet, pretty: false);
+    String newCss = printer.toString();
+    if (cssTransform.hasImport == true || newCss.length < input.length) {
+      transform.addOutputFromString(assetId, newCss);
+    }
+  }
+
+  Future transformHtml(Transform transform) async {
+    AssetId primaryId = transform.primaryId;
+    String input = await transform.readPrimaryAsString();
+
+    // only for testing
+    if (input == null) {
+      return null;
+    }
+
+    // trim extra spaces as data after </html> might include TEXT_NODE in the body
+    Document document = new Document.html(input.trim());
+
+    HtmlPrinterOptions options =
+        new HtmlPrinterOptions.fromBarbackSettings(settings);
+
+    // Convert content
+    // - include
+    await handleElement(transform, primaryId, document.documentElement);
+
+    // extract lines
+    HtmlDocumentPrinter printer = new HtmlDocumentPrinter();
+    await printer.visitDocument(document);
+    HtmlLines outHtmlLines = printer.lines;
+    // test subclass my override this to get the lines emitted
+    htmlLines = outHtmlLines;
+
+    // print
+    String output = await htmlPrintLines(outHtmlLines, options: options);
+
+    /*
+        if (false) {
+          // quick debug
+          HtmlDocumentNodeLinesPrinter builder =
+              new HtmlDocumentNodeLinesPrinter();
+          await builder.visitDocument(document);
+          print('nodes: ${builder.lines}');
+
+          HtmlDocumentPrinter printer = new HtmlDocumentPrinter();
+          await printer.visitDocument(document);
+          print('lines: ${printer.lines}');
+
+          print('input: ${input}');
+          print('output: ${output}');
+        }
+        */
+
+    transform.addOutputFromString(primaryId, output);
+  }
+
+  _handleCss(_CssTransform cssTransform) async {
+    AssetId assetId = cssTransform.assetId;
+    StyleSheet styleSheet = cssTransform.styleSheet;
+    Transform transform = cssTransform.transform;
+    List<TreeNode> childNodes = new List.from(styleSheet.topLevels);
+    for (TreeNode node in childNodes) {
+      if (node is ImportDirective) {
+        cssTransform.hasImport = true;
+        String path =
+            posix.normalize(join(posix.dirname(assetId.path), node.import));
+        AssetId importedAssetId = new AssetId(assetId.package, path);
+        if (await transform.hasInput(importedAssetId)) {
+          StyleSheet importedStyleSheet = compile(
+              await transform.readInputAsString(importedAssetId),
+              polyfill: true);
+
+          await _handleCss(new _CssTransform(transform)
+            ..assetId = importedAssetId
+            ..styleSheet = importedStyleSheet);
+
+          int index = styleSheet.topLevels.indexOf(node);
+          styleSheet.topLevels
+            ..removeAt(index)
+            ..insertAll(index, importedStyleSheet.topLevels);
+        }
+      }
+    }
   }
 
   handleElement(Transform transform, AssetId assetId, Element element) async {
@@ -290,4 +352,12 @@ abstract class YachtTransformerMixin {
       }
     }
   }
+}
+
+class _CssTransform {
+  Transform transform;
+  bool hasImport;
+  AssetId assetId;
+  StyleSheet styleSheet;
+  _CssTransform(this.transform);
 }

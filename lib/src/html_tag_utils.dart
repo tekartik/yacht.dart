@@ -67,7 +67,6 @@ List<String> innerInlineTags = [
 // private definition
 List<String> rawTags = ['script', 'style'];
 
-
 bool isHeadTag(String tag) {
   switch (tag) {
     case 'meta':
@@ -78,7 +77,6 @@ bool isHeadTag(String tag) {
     case 'noscript':
     case 'base':
       return true;
-
   }
   return false;
 }

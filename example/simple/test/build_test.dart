@@ -64,7 +64,9 @@ main() {
 <body>Hello World! </body>
 </html>''');
 
-      _checkFile('include.html', '''
+      _checkFile(
+          'include.html',
+          '''
 <!doctype html>
 <html>
 <head>
@@ -74,8 +76,9 @@ main() {
 <body></body>
 </html>''');
 
-
-      _checkFile('import.html', '''
+      _checkFile(
+          'import.html',
+          '''
 <!doctype html>
 <html>
 <head>
@@ -84,6 +87,10 @@ main() {
 <body>
 </body>
 </html>''');
+
+      // css
+      _checkFile('simple.css', 'body { color: red; }');
+      _checkFile('short.css', 'body{color:red}');
     });
   });
 }

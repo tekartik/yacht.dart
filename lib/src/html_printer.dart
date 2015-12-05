@@ -448,9 +448,9 @@ abstract class HtmlLinesBuilderMixin {
 
       // end line for head tags
       bool _isHeadTag = isHeadTag(tag);
-if (_isHeadTag) {
-  _addLine();
-}
+      if (_isHeadTag) {
+        _addLine();
+      }
       // Don't inline for html
       if (tag == 'html') {
         inlineContent = false;
@@ -482,7 +482,6 @@ if (_isHeadTag) {
       if (_isHeadTag) {
         _addLine();
       }
-
     } else {
       // make sure new line starts deeper
       //beginLineDepth = depth;

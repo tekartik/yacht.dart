@@ -18,7 +18,7 @@ class YachtTransformer extends Object with YachtTransformerMixin {
 }
 
 // check for index.html
-Future checkYachtTransform(YachtTransformer transformer,
+Future checkYachtTransformHtml(
     StringAssets inputAssets, StringAssets outputsExpected) async {
   YachtTransformer transformer = new YachtTransformer();
 
@@ -35,6 +35,52 @@ Future checkYachtTransform(YachtTransformer transformer,
 
   expect(transform.outputs, outputsExpected,
       reason: "outputs(${primaryAsset.id})");
+}
+
+Future checkTransform(StringAsset primaryAsset, StringAssets inputAssets,
+    Matcher isConsumed, StringAssets outputsExpected) async {
+  YachtTransformer transformer = new YachtTransformer();
+
+  var transform = new StringTransform(primaryAsset, inputAssets);
+  expect(transform, isNot(new isInstanceOf<IsPrimaryTransform>()));
+
+  expect(transform.isConsumed, isNull);
+  expect(transform.outputs, {});
+
+  // await needed here
+  await transformer.run(transform);
+
+  expect(transform.isConsumed, isConsumed,
+      reason: "isConsumed(${primaryAsset.id})");
+  expect(transform.outputs, outputsExpected,
+      reason: "outputs(${primaryAsset.id})");
+}
+
+// main input is style.css
+// null means no transform result
+Future checkYachtTransformCss(
+    String css, StringAssets inputAssets, String expectedCss) async {
+  YachtTransformer transformer = new YachtTransformer();
+
+  AssetId primaryId = assetId("style.css");
+  StringAsset primaryAsset = stringAsset(primaryId, css);
+  var transform = new StringTransform(primaryAsset, inputAssets);
+  expect(transform, isNot(new isInstanceOf<IsPrimaryTransform>()));
+  expect(transform, isNot(new isInstanceOf<DeclaringTransform>()));
+
+  expect(transform.isConsumed, isNull);
+  expect(transform.outputs, {});
+
+  // await needed here
+  await transformer.run(transform);
+
+  // expect empty
+  if (expectedCss == null) {
+    expect(transform.outputs, isEmpty);
+  } else {
+    expect(transform.outputs[primaryId].content, expectedCss,
+        reason: "outputs(${primaryAsset.id})");
+  }
 }
 
 //checkYachtTransform()
@@ -84,53 +130,42 @@ main() {
       _checkPrimary(assetId('test.part.css'), isTrue);
     });
 
-    test('DeclaringTransform', () {
-      Future _checkDeclaring(
-          AssetId id, Matcher isConsumed, List<AssetId> outputsExpected) async {
-        YachtTransformer transformer = new YachtTransformer();
+    Future _checkDeclaring(
+        AssetId id, Matcher isConsumed, List<AssetId> outputsExpected) async {
+      YachtTransformer transformer = new YachtTransformer();
 
-        var transform = new StringDeclaringTransform(id);
-        expect(transform, isNot(new isInstanceOf<IsPrimaryTransform>()));
+      var transform = new StringDeclaringTransform(id);
+      expect(transform, isNot(new isInstanceOf<IsPrimaryTransform>()));
 
-        expect(transform.isConsumed, isNull);
-        expect(transform.outputs, []);
+      expect(transform.isConsumed, isNull);
+      expect(transform.outputs, []);
 
-        // no await here in our implementation
-        transformer.run(transform);
+      // no await here in our implementation
+      transformer.run(transform);
 
-        expect(transform.isConsumed, isConsumed, reason: "isConsumed($id)");
-        expect(transform.outputs, outputsExpected, reason: "outputs($id)");
-      }
+      expect(transform.isConsumed, isConsumed, reason: "isConsumed($id)");
+      expect(transform.outputs, outputsExpected, reason: "outputs($id)");
+    }
+
+    test('DeclaringTransformHtml', () {
       _checkDeclaring(assetId('in'), isNull, []);
       AssetId id = assetId('test.html');
       _checkDeclaring(id, isNull, [id]);
       _checkDeclaring(assetId('test.part.html'), isTrue, []);
     });
 
-    test('Transform', () {
-      Future _checkTransform(StringAsset primaryAsset, StringAssets inputAssets,
-          Matcher isConsumed, StringAssets outputsExpected) async {
-        YachtTransformer transformer = new YachtTransformer();
+    test('DeclaringTransformCss', () {
+      AssetId id = assetId('test.css');
+      _checkDeclaring(id, isNull, [id]);
+      _checkDeclaring(assetId('test.part.css'), isTrue, []);
+    });
 
-        var transform = new StringTransform(primaryAsset, inputAssets);
-        expect(transform, isNot(new isInstanceOf<IsPrimaryTransform>()));
-
-        expect(transform.isConsumed, isNull);
-        expect(transform.outputs, {});
-
-        // await needed here
-        await transformer.run(transform);
-
-        expect(transform.isConsumed, isConsumed,
-            reason: "isConsumed(${primaryAsset.id})");
-        expect(transform.outputs, outputsExpected,
-            reason: "outputs(${primaryAsset.id})");
-      }
+    test('TransformHtml', () {
       AssetId id = assetId('test.html');
-      _checkTransform(
+      checkTransform(
           stringAsset(id, ''), null, isNull, stringAssets([id.path, minHtml]));
 
-      _checkTransform(
+      checkTransform(
           stringAsset(
               id, '<!doctype html><html><head></head><body></body></html>'),
           null,
@@ -138,46 +173,48 @@ main() {
           stringAssets([id.path, minHtml]));
 
       // important check for new line before and after
-      _checkTransform(
+      checkTransform(
           stringAsset(
               id, '\n<!doctype html><html><head></head><body></body></html>\n'),
           null,
           isNull,
           stringAssets([id.path, minHtml]));
     });
-    test('checkYachtTransform', () {
+    test('checkYachtTransformCss', () async {
+      // css
+      AssetId id = assetId('test.css');
+      /*
+      _checkTransform(
+          stringAsset(id, 'body{color:red}'),
+          null,
+          isNull,
+          stringAssets([id.path, 'body{color:red}'])); // short kept as is
+          */
+
+      await checkTransform(
+          stringAsset(id, 'body { color : red; }'),
+          null,
+          isNull,
+          stringAssets([id.path, 'body { color: red; }'])); // short kept as is
+
+      await checkYachtTransformCss(
+          'body { color : red; }', null, 'body { color: red; }');
+    });
+    test('checkYachtTransformHtml', () async {
       //checkYachtTransform()
-      Future _checkTransform(StringAsset primaryAsset, StringAssets inputAssets,
-          Matcher isConsumed, StringAssets outputsExpected) async {
-        YachtTransformer transformer = new YachtTransformer();
-
-        var transform = new StringTransform(primaryAsset, inputAssets);
-        expect(transform, isNot(new isInstanceOf<IsPrimaryTransform>()));
-
-        expect(transform.isConsumed, isNull);
-        expect(transform.outputs, {});
-
-        // await needed here
-        await transformer.run(transform);
-
-        expect(transform.isConsumed, isConsumed,
-            reason: "isConsumed(${primaryAsset.id})");
-        expect(transform.outputs, outputsExpected,
-            reason: "outputs(${primaryAsset.id})");
-      }
 
       AssetId id = assetId('index.html');
-      _checkTransform(stringAsset(id, minInHtml), null, isNull,
+      await checkTransform(stringAsset(id, minInHtml), null, isNull,
           stringAssets([id.path, minHtml]));
     });
 
-    test('checkYachtTransformElement', () {
+    test('checkYachtTransformElement', () async {
       /*
       AssetId id = assetId('index.html');
       _checkTransform(stringAsset(id, minInHtml), null, isNull,
           stringAssets([id.path, minHtml]));
           */
-      checkElementTransform('<a></a>', null, htmlLines(['<a></a>']));
+      await checkElementTransform('<a></a>', null, htmlLines(['<a></a>']));
       //TODO_checkTransform('<a>text</a>', null, htmlLines(['<a>text</a>']));
     });
   });
