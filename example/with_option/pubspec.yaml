@@ -1,0 +1,13 @@
+name: yacht_example_with_option
+version: 0.1.0
+description: Example or yacht usage, with options
+dependencies:
+  yacht:
+    path: ../..
+dev_dependencies:
+  test: any
+  dev_test: any
+  process_run: any
+transformers:
+  - yacht:
+      import: true # @import will be done in debug mode too

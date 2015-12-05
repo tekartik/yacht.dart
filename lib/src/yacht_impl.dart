@@ -22,6 +22,14 @@ abstract class YachtTransformerMixin {
   // Override to set a flag
   bool setIsPrimary(bool isPrimary) => isPrimary;
 
+  YachtTransformOption _option;
+  YachtTransformOption get option {
+    if (_option == null) {
+      _option = new YachtTransformOption.fromBarbackSettings(settings);
+    }
+    return _option;
+  }
+
   set htmlLines(HtmlLines lines) {}
 
   HtmlPrinterOptions _options;
@@ -148,19 +156,31 @@ abstract class YachtTransformerMixin {
       return null;
     }
 
-    StyleSheet styleSheet = compile(input, polyfill: true);
-
-    _CssTransform cssTransform = new _CssTransform(transform)
-      ..assetId = assetId
-      ..styleSheet = styleSheet;
-    await _handleCss(cssTransform);
-    CssPrinter printer = new CssPrinter();
-
-    printer.visitTree(styleSheet, pretty: false);
-    String newCss = printer.toString();
-    if (cssTransform.hasImport == true || newCss.length < input.length) {
+    String newCss = await _transformCss(transform, assetId, input);
+    if (newCss != null) {
       transform.addOutputFromString(assetId, newCss);
     }
+  }
+
+  // copied from dart_2_js_script_rewriter
+  void removeDartDotJsTags(Document document) {
+    document.querySelectorAll('script').where((tag) {
+      return tag.attributes['src'] != null &&
+          tag.attributes['src'].endsWith('browser/dart.js');
+    }).forEach((tag) => tag.remove());
+  }
+
+  // copied from dart_2_js_script_rewriter
+  void rewriteDartTags(Document document) {
+    document.querySelectorAll('script').where((tag) {
+      return tag.attributes['type'] == 'application/dart' &&
+          tag.attributes['src'] != null;
+    }).forEach((tag) {
+      var src = tag.attributes['src'];
+      tag.attributes['src'] = src.replaceFirstMapped(
+          new RegExp(r'\.dart($|[\?#])'), (match) => '.dart.js${match[1]}');
+      tag.attributes.remove('type');
+    });
   }
 
   Future transformHtml(Transform transform) async {
@@ -182,6 +202,11 @@ abstract class YachtTransformerMixin {
     // - include
     await handleElement(transform, primaryId, document.documentElement);
 
+    // Rewrite script
+    if (!option.isDebug) {
+      removeDartDotJsTags(document);
+      rewriteDartTags(document);
+    }
     // extract lines
     HtmlDocumentPrinter printer = new HtmlDocumentPrinter();
     await printer.visitDocument(document);
@@ -219,26 +244,48 @@ abstract class YachtTransformerMixin {
     List<TreeNode> childNodes = new List.from(styleSheet.topLevels);
     for (TreeNode node in childNodes) {
       if (node is ImportDirective) {
-        cssTransform.hasImport = true;
-        String path =
-            posix.normalize(join(posix.dirname(assetId.path), node.import));
-        AssetId importedAssetId = new AssetId(assetId.package, path);
-        if (await transform.hasInput(importedAssetId)) {
-          StyleSheet importedStyleSheet = compile(
-              await transform.readInputAsString(importedAssetId),
-              polyfill: true);
+        // Don't do it for debug or import option
+        if (option.isImport) {
+          cssTransform.hasImport = true;
+          String path =
+              posix.normalize(join(posix.dirname(assetId.path), node.import));
+          AssetId importedAssetId = new AssetId(assetId.package, path);
+          if (await transform.hasInput(importedAssetId)) {
+            StyleSheet importedStyleSheet = compile(
+                await transform.readInputAsString(importedAssetId),
+                polyfill: true);
 
-          await _handleCss(new _CssTransform(transform)
-            ..assetId = importedAssetId
-            ..styleSheet = importedStyleSheet);
+            await _handleCss(new _CssTransform(transform)
+              ..assetId = importedAssetId
+              ..styleSheet = importedStyleSheet);
 
-          int index = styleSheet.topLevels.indexOf(node);
-          styleSheet.topLevels
-            ..removeAt(index)
-            ..insertAll(index, importedStyleSheet.topLevels);
+            int index = styleSheet.topLevels.indexOf(node);
+            styleSheet.topLevels
+              ..removeAt(index)
+              ..insertAll(index, importedStyleSheet.topLevels);
+          }
         }
       }
     }
+  }
+
+  // return the converted string
+  Future<String> _transformCss(
+      Transform transform, AssetId assetId, String css) async {
+    StyleSheet styleSheet = compile(css, polyfill: true);
+
+    _CssTransform cssTransform = new _CssTransform(transform)
+      ..assetId = assetId
+      ..styleSheet = styleSheet;
+    await _handleCss(cssTransform);
+    CssPrinter printer = new CssPrinter();
+
+    printer.visitTree(styleSheet, pretty: option.isDebug);
+    String newCss = printer.toString();
+    if (cssTransform.hasImport == true || newCss.length < css.length) {
+      return newCss;
+    }
+    return null;
   }
 
   handleElement(Transform transform, AssetId assetId, Element element) async {
@@ -247,6 +294,12 @@ abstract class YachtTransformerMixin {
     _handleStyle(Element element) async {
       //print(element.text);
       String existingCss = element.text;
+
+      String newCss = await _transformCss(transform, assetId, existingCss);
+      if (newCss != null) {
+        element.text = newCss;
+      }
+      /*
       StyleSheet styleSheet = compile(existingCss, polyfill: true);
       CssPrinter printer = new CssPrinter();
       bool hasImport = false;
@@ -279,6 +332,7 @@ abstract class YachtTransformerMixin {
       if (hasImport || newCss.length < existingCss.length) {
         element.text = newCss;
       }
+      */
     }
     if (element.localName == 'style') {
       await _handleStyle(element);
@@ -360,4 +414,51 @@ class _CssTransform {
   AssetId assetId;
   StyleSheet styleSheet;
   _CssTransform(this.transform);
+}
+
+class YachtTransformOption {
+  bool get isDebug => _debug == true;
+  bool get isRelease => !isDebug;
+
+  bool get isImport {
+    if (isSettingTrue(_import)) {
+      return true;
+    } else if (isSettingFalse(_import)) {
+      return false;
+    } else if (isSettingDebug(_import)) {
+      return isDebug;
+    }
+    return isRelease;
+  }
+
+  bool _debug;
+
+  // for test
+  bool set debug(bool debug) => _debug = debug;
+
+  // can be true/false/debug/release
+  set import(var import) => _import = import;
+  var _import;
+  YachtTransformOption.fromBarbackSettings(BarbackSettings settings) {
+    if (settings != null) {
+      _debug = settings.mode != BarbackMode.RELEASE;
+      _import = settings.configuration['import'];
+    }
+  }
+
+  static bool isSettingTrue(var value) {
+    return value == true;
+  }
+
+  static bool isSettingFalse(var value) {
+    return value == false;
+  }
+
+  static bool isSettingDebug(var value) {
+    return value == 'debug';
+  }
+
+  static bool isSettingRelease(var value) {
+    return value == 'release';
+  }
 }

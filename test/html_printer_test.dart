@@ -13,6 +13,12 @@ const String minHtml = '''
 const String minInHtml =
     '<!doctype html><html><head></head><body></body></html>';
 
+HtmlLines minHtmlLines = htmlLines([
+  [0, '<html>'],
+  [1, '<head></head>'],
+  [1, '<body></body>'],
+  [0, '</html>']
+]);
 // Allow for [0,'<a>'] or ['</a>'] or '<a>'
 _addItem(HtmlLines lines, dynamic item) {
   int depth = 0;
@@ -403,14 +409,7 @@ main() {
       //print(document.outerHtml);
       HtmlDocumentPrinter builder = new HtmlDocumentPrinter();
       await builder.visitDocument(document);
-      expect(
-          builder.lines,
-          htmlLines([
-            [0, '<html>'],
-            [1, '<head></head>'],
-            [1, '<body></body>'],
-            [0, '</html>']
-          ]));
+      expect(builder.lines, minHtmlLines);
       //print(builder.nodes);
     });
 
@@ -421,14 +420,7 @@ main() {
       //print(document.outerHtml);
       HtmlDocumentPrinter builder = new HtmlDocumentPrinter();
       await builder.visitDocument(document);
-      expect(
-          builder.lines,
-          htmlLines([
-            [0, '<html>'],
-            [1, '<head></head>'],
-            [1, '<body></body>'],
-            [0, '</html>']
-          ]));
+      expect(builder.lines, minHtmlLines);
       //print(builder.nodes);
     });
   });

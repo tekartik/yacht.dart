@@ -17,26 +17,6 @@ class YachtTransformer extends Object with YachtTransformerMixin {
   YachtTransformer([this.settings]);
 }
 
-// check for index.html
-Future checkYachtTransformHtml(
-    StringAssets inputAssets, StringAssets outputsExpected) async {
-  YachtTransformer transformer = new YachtTransformer();
-
-  AssetId primaryId = assetId("index.html");
-  StringAsset primaryAsset = inputAssets[primaryId];
-  var transform = new StringTransform(primaryAsset, inputAssets);
-  expect(transform, isNot(new isInstanceOf<IsPrimaryTransform>()));
-  expect(transform, isNot(new isInstanceOf<DeclaringTransform>()));
-  expect(transform.isConsumed, isNull);
-  expect(transform.outputs, {});
-
-  // await needed here
-  await transformer.run(transform);
-
-  expect(transform.outputs, outputsExpected,
-      reason: "outputs(${primaryAsset.id})");
-}
-
 Future checkTransform(StringAsset primaryAsset, StringAssets inputAssets,
     Matcher isConsumed, StringAssets outputsExpected) async {
   YachtTransformer transformer = new YachtTransformer();
@@ -84,7 +64,7 @@ Future checkYachtTransformCss(
 }
 
 //checkYachtTransform()
-Future checkElementTransform(
+Future checkYachtTransformElement(
     String html, StringAssets inputAssets, HtmlLines lines) async {
   YachtTransformer transformer = new YachtTransformer();
 
@@ -101,6 +81,27 @@ Future checkElementTransform(
 
   // await needed here
   await transformer.runElementTransform(transform);
+
+  expect(transformer.htmlLines, lines);
+}
+
+Future checkYachtTransformDocument(
+    String html, StringAssets inputAssets, HtmlLines lines) async {
+  YachtTransformer transformer = new YachtTransformer();
+
+  AssetId id = assetId("index.html");
+  StringAsset asset = stringAsset(id, html);
+  var transform = new StringTransform(asset, inputAssets);
+
+  //await transformer.runElementTransform(transform);
+  expect(transform, isNot(new isInstanceOf<IsPrimaryTransform>()));
+
+  expect(transform.isConsumed, isNull);
+  expect(transform.outputs, {});
+  expect(transformer.htmlLines, isNull);
+
+  // await needed here
+  await transformer.run(transform);
 
   expect(transformer.htmlLines, lines);
 }
@@ -180,6 +181,7 @@ main() {
           isNull,
           stringAssets([id.path, minHtml]));
     });
+
     test('checkYachtTransformCss', () async {
       // css
       AssetId id = assetId('test.css');
@@ -200,12 +202,15 @@ main() {
       await checkYachtTransformCss(
           'body { color : red; }', null, 'body { color: red; }');
     });
+
     test('checkYachtTransformHtml', () async {
       //checkYachtTransform()
 
       AssetId id = assetId('index.html');
+
       await checkTransform(stringAsset(id, minInHtml), null, isNull,
           stringAssets([id.path, minHtml]));
+      await checkYachtTransformDocument(minInHtml, null, minHtmlLines);
     });
 
     test('checkYachtTransformElement', () async {
@@ -214,7 +219,7 @@ main() {
       _checkTransform(stringAsset(id, minInHtml), null, isNull,
           stringAssets([id.path, minHtml]));
           */
-      await checkElementTransform('<a></a>', null, htmlLines(['<a></a>']));
+      await checkYachtTransformElement('<a></a>', null, htmlLines(['<a></a>']));
       //TODO_checkTransform('<a>text</a>', null, htmlLines(['<a>text</a>']));
     });
   });

@@ -34,7 +34,7 @@ main() {
             'body { color: red; }');
       });
 
-      test('missing_import', () async {
+      test('import_missing', () async {
         await checkYachtTransformCss(
             '@import url(_included.css)', null, '@import url(_included.css);');
       });

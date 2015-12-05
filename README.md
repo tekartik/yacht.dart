@@ -24,7 +24,15 @@ transformers:
   ...
 ````
 
+options
+* import: can be `true`, `false` or `release` (default), it controls whether
+  css @import are embedded in the source document. By default @import are not
+  embedded in debug mode
+
+
 ````
+  - yacht:
+      import: true # @import will be included in debug mode too
 ````
 
 ### Tidy html
