@@ -8,6 +8,7 @@ import 'package:html/dom.dart';
 import 'package:csslib/parser.dart';
 import 'package:csslib/visitor.dart';
 import 'common_import.dart';
+import 'csslib_utils.dart';
 
 class _YachtIsPrimaryTransform extends AssetTransform
     implements IsPrimaryTransform {
@@ -66,6 +67,7 @@ abstract class YachtTransformerMixin {
 
   run(AssetTransform transform) {
     AssetId primaryId = transform.primaryId;
+    String path = primaryId.path;
     String basename = posix.basename(primaryId.path);
     String extension = posix.extension(basename);
 
@@ -98,10 +100,19 @@ abstract class YachtTransformerMixin {
       }
     }
 
+    // To be ignored?
+    path = posix.normalize(path);
+    if (option.ignored.contains(path)) {
+      return null;
+    }
+
     // if not master, consume it
     if (!isMaster) {
       if (transform is ConsumableTransform) {
-        transform.consumePrimary();
+        // only consume in release
+        if (option.isRelease) {
+          transform.consumePrimary();
+        }
       }
       return null;
     }
@@ -251,18 +262,20 @@ abstract class YachtTransformerMixin {
               posix.normalize(join(posix.dirname(assetId.path), node.import));
           AssetId importedAssetId = new AssetId(assetId.package, path);
           if (await transform.hasInput(importedAssetId)) {
-            StyleSheet importedStyleSheet = compile(
-                await transform.readInputAsString(importedAssetId),
-                polyfill: true);
+            String text = await transform.readInputAsString(importedAssetId);
+            StyleSheet importedStyleSheet = parse(text);
 
-            await _handleCss(new _CssTransform(transform)
+            _CssTransform innerCssTransform = new _CssTransform(transform)
               ..assetId = importedAssetId
-              ..styleSheet = importedStyleSheet);
+              ..styleSheet = importedStyleSheet;
+            await _handleCss(innerCssTransform);
 
-            int index = styleSheet.topLevels.indexOf(node);
-            styleSheet.topLevels
-              ..removeAt(index)
-              ..insertAll(index, importedStyleSheet.topLevels);
+            // Add the imported stuff from inner transform
+            cssTransform.css.addAll(innerCssTransform.css);
+            cssTransform.imported.addAll(innerCssTransform.imported);
+
+            cssTransform.css.add(text);
+            cssTransform.imported.add(node.import);
           }
         }
       }
@@ -272,26 +285,52 @@ abstract class YachtTransformerMixin {
   // return the converted string
   Future<String> _transformCss(
       Transform transform, AssetId assetId, String css) async {
-    StyleSheet styleSheet = compile(css, polyfill: true);
-
+    StyleSheet styleSheet = parse(css);
     _CssTransform cssTransform = new _CssTransform(transform)
       ..assetId = assetId
       ..styleSheet = styleSheet;
     await _handleCss(cssTransform);
-    CssPrinter printer = new CssPrinter();
 
-    printer.visitTree(styleSheet, pretty: option.isDebug);
-    String newCss = printer.toString();
-    if (cssTransform.hasImport == true || newCss.length < css.length) {
-      return newCss;
+    // add last
+    cssTransform.css.add(css);
+
+    // build master
+    String tempCss = cssTransform.css.join('\n');
+    //devPrint('#${tempCss}');
+    styleSheet = compile(tempCss, polyfill: true);
+
+    // remove imported @import
+    List<TreeNode> childNodes = new List.from(styleSheet.topLevels);
+    for (TreeNode node in childNodes) {
+      if (node is ImportDirective) {
+        // Don't do it for debug or import option
+        if (option.isImport) {
+          String imported = node.import;
+          if (cssTransform.imported.contains(imported)) {
+            int index = styleSheet.topLevels.indexOf(node);
+            styleSheet.topLevels..removeAt(index);
+          }
+        }
+      }
     }
-    return null;
+
+    // write
+
+    String newCss = printStyleSheet(styleSheet, pretty: option.isDebug);
+
+    return newCss;
   }
 
   handleElement(Transform transform, AssetId assetId, Element element) async {
     // handle styles
     // Resolve css
     _handleStyle(Element element) async {
+      // ignored?
+      if (element.attributes.containsKey('data-yacht-ignore')) {
+        element.attributes.remove('data-yacht-ignore');
+        return;
+      }
+
       //print(element.text);
       String existingCss = element.text;
 
@@ -414,6 +453,11 @@ class _CssTransform {
   AssetId assetId;
   StyleSheet styleSheet;
   _CssTransform(this.transform);
+
+  // list of imported css to remove
+  List<String> imported = [];
+  // resulting css inputs
+  List<String> css = [];
 }
 
 class YachtTransformOption {
@@ -421,15 +465,19 @@ class YachtTransformOption {
   bool get isRelease => !isDebug;
 
   bool get isImport {
-    if (isSettingTrue(_import)) {
-      return true;
+    if (isSettingRelease(_import)) {
+      return isRelease;
     } else if (isSettingFalse(_import)) {
       return false;
     } else if (isSettingDebug(_import)) {
       return isDebug;
     }
-    return isRelease;
+    // default is to import
+    return true;
   }
+
+  /// List of ignored files
+  final List<String> ignored = [];
 
   bool _debug;
 
@@ -443,6 +491,13 @@ class YachtTransformOption {
     if (settings != null) {
       _debug = settings.mode != BarbackMode.RELEASE;
       _import = settings.configuration['import'];
+      List<String> _ignored = settings.configuration['ignore'];
+      if (_ignored != null) {
+        for (String path in _ignored) {
+          path = normalize(path);
+          ignored.add(path);
+        }
+      }
     }
   }
 

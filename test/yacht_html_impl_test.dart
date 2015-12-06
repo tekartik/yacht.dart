@@ -3,7 +3,6 @@ library yacht.test.yacht_impl_test;
 import 'package:dev_test/test.dart';
 import 'package:yacht/src/yacht_impl.dart';
 import 'package:yacht/src/transformer.dart';
-import 'package:yacht/src/transformer_memory.dart';
 import 'yacht_transformer_impl_test.dart';
 import 'html_printer_test.dart';
 import 'transformer_memory_test.dart';
@@ -62,6 +61,20 @@ main() {
             htmlLines(['<style amp-custom></style>']));
         await checkYachtTransformElement('<style amp-custom>\n\n</style>', null,
             htmlLines(['<style amp-custom></style>']));
+        await checkYachtTransformElement(
+            '<style>@color1: red; body { color: @color1; }</style>',
+            null,
+            htmlLines(['<style>body { color: red; }</style>']));
+      });
+
+      test('style_ignore', () async {
+        await checkYachtTransformElement(
+            '<style data-yacht-ignore>@color1: red; body { color: @color1; }</style>',
+            null,
+            htmlLines(
+                ['<style>@color1: red; body { color: @color1; }</style>']));
+        await checkYachtTransformElement('<style data-yacht-ignore>\n</style>',
+            null, htmlLines(['<style>', '</style>']));
       });
 
       test('style_import', () async {

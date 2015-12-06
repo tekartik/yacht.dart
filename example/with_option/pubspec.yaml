@@ -10,4 +10,9 @@ dev_dependencies:
   process_run: any
 transformers:
   - yacht:
-      import: true # @import will be done in debug mode too
+      option: 'release'
+      ignore:
+        - example/ignored.css
+# @import will be done in debug mode too
+#      import: true
+

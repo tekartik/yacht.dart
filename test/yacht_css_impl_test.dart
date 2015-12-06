@@ -24,7 +24,8 @@ main() {
       });
 
       test('short', () async {
-        await checkYachtTransformCss('body{color:red}', null, null);
+        await checkYachtTransformCss(
+            'body{color:red}', null, 'body { color: red; }');
       });
 
       test('import', () async {
@@ -34,9 +35,40 @@ main() {
             'body { color: red; }');
       });
 
+      test('import_sub', () async {
+        await checkYachtTransformCss(
+            '@import url(_included.css)',
+            stringAssets([
+              ['_included.css', '@import url(_subincluded.css)'],
+              ['_subincluded.css', 'body{color:red}']
+            ]),
+            'body { color: red; }');
+      });
+
       test('import_missing', () async {
         await checkYachtTransformCss(
             '@import url(_included.css)', null, '@import url(_included.css);');
+      });
+
+      test('var', () async {
+        await checkYachtTransformCss('@color1: red; body { color : @color1; }',
+            null, 'body { color: red; }');
+      });
+      test('import_var', () async {
+        await checkYachtTransformCss(
+            '@import url(_included.css); body { color : @color1; }',
+            stringAssets(['_included.css', '@color1: red']),
+            'body { color: red; }');
+      });
+
+      test('import_with_var', () async {
+        await checkYachtTransformCss(
+            '@import url(_defs.css); @import url(_included.css);',
+            stringAssets([
+              ['_defs.css', '@color1: red;'],
+              ['_included.css', 'body { color : @color1; }']
+            ]),
+            'body { color: red; }');
       });
     });
   });

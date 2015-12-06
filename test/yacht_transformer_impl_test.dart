@@ -10,6 +10,8 @@ import 'transformer_memory_test.dart';
 import 'html_printer_test.dart';
 
 class YachtTransformer extends Object with YachtTransformerMixin {
+  YachtTransformOption option =
+      new YachtTransformOption.fromBarbackSettings(null);
   @override
   BarbackSettings settings;
   @override
@@ -131,12 +133,11 @@ main() {
       _checkPrimary(assetId('test.part.css'), isTrue);
     });
 
-    Future _checkDeclaring(
-        AssetId id, Matcher isConsumed, List<AssetId> outputsExpected) async {
-      YachtTransformer transformer = new YachtTransformer();
-
+    Future __checkDeclaring(YachtTransformer transformer, AssetId id,
+        Matcher isConsumed, List<AssetId> outputsExpected) async {
       var transform = new StringDeclaringTransform(id);
       expect(transform, isNot(new isInstanceOf<IsPrimaryTransform>()));
+      expect(transform, isNot(new isInstanceOf<Transform>()));
 
       expect(transform.isConsumed, isNull);
       expect(transform.outputs, []);
@@ -148,17 +149,32 @@ main() {
       expect(transform.outputs, outputsExpected, reason: "outputs($id)");
     }
 
+    Future _checkDeclaring(
+        AssetId id, Matcher isConsumed, List<AssetId> outputsExpected) async {
+      YachtTransformer transformer = new YachtTransformer();
+      return __checkDeclaring(transformer, id, isConsumed, outputsExpected);
+    }
+
+    Future _checkDebugDeclaring(
+        AssetId id, Matcher isConsumed, List<AssetId> outputsExpected) async {
+      YachtTransformer transformer = new YachtTransformer()
+        ..option.debug = true;
+      return __checkDeclaring(transformer, id, isConsumed, outputsExpected);
+    }
+
     test('DeclaringTransformHtml', () {
       _checkDeclaring(assetId('in'), isNull, []);
       AssetId id = assetId('test.html');
       _checkDeclaring(id, isNull, [id]);
       _checkDeclaring(assetId('test.part.html'), isTrue, []);
+      _checkDebugDeclaring(assetId('test.part.html'), isNull, []);
     });
 
     test('DeclaringTransformCss', () {
       AssetId id = assetId('test.css');
       _checkDeclaring(id, isNull, [id]);
       _checkDeclaring(assetId('test.part.css'), isTrue, []);
+      _checkDebugDeclaring(assetId('test.part.css'), isNull, []);
     });
 
     test('TransformHtml', () {

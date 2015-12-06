@@ -25,14 +25,15 @@ transformers:
 ````
 
 options
-* import: can be `true`, `false` or `release` (default), it controls whether
-  css @import are embedded in the source document. By default @import are not
-  embedded in debug mode
-
+* import: can be `true` (default), `false`, `debug` or `release`; it controls whether
+  css @import are embedded in the source document. By default @import are awlays embedded
+* ignore: list of file ignored by the transformer
 
 ````
   - yacht:
       import: true # @import will be included in debug mode too
+      ignore:
+        - example/style.css
 ````
 
 ### Tidy html
@@ -46,6 +47,11 @@ An external file can be included at build time:
 <meta property="yacht-include" content="_included.html">
 ````
 
+### Ignore
+
+Transformation is ignored for
+* style with `data-yatch-ignore` attribute
+* css file in ignore list of Barback
 ## Development
 
 ### Dependencies

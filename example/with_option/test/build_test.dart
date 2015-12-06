@@ -17,6 +17,13 @@ String get testScriptPath => _TestUtils.scriptPath;
 String get projectTop => dirname(dirname(testScriptPath));
 
 main() {
+  // expect to find the result in build
+  String outPath = join(projectTop, 'build', 'example');
+
+  _checkFile(String file, String content) {
+    expect(new File(join(outPath, file)).readAsStringSync(), content);
+  }
+
   group('build', () {
     // release build
     test('release', () async {
@@ -32,12 +39,26 @@ main() {
         expect(result.exitCode, 0);
       }
 
-      // expect to find the result in build
-      String outPath = join(projectTop, 'build', 'example');
+      _checkFile(
+          'import.html',
+          '''
+<!doctype html>
+<html>
+<head>
+  <style>body { color: red; } html { color: black; }</style>
+</head>
+<body>
+</body>
+</html>''');
+      _checkFile('include.css', 'body { color: red; }');
 
-      _checkFile(String file, String content) {
-        expect(new File(join(outPath, file)).readAsStringSync(), content);
-      }
+      // ignored (i.e. no formatting
+      _checkFile(
+          'ignored.css',
+          '''
+body {
+    color: red;
+}''');
     });
 
     // debug build
@@ -55,14 +76,15 @@ main() {
       }
 
       // expect to find the result in build
+      //TODO
+      /*
+
       String outPath = join(projectTop, 'build', 'example');
 
       _checkFile(String file, String content) {
         expect(new File(join(outPath, file)).readAsStringSync(), content);
       }
 
-      //TODO
-      /*
       _checkFile(
           'import.html',
           '''
