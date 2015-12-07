@@ -28,8 +28,11 @@ main() {
       // expect to find the result in build
       String outPath = join(projectTop, 'build', 'example');
 
+      _getFileContent(String file) {
+        return new File(join(outPath, file)).readAsStringSync();
+      }
       _checkFile(String file, String content) {
-        expect(new File(join(outPath, file)).readAsStringSync(), content);
+        expect(_getFileContent(file), content);
       }
       _checkFileExists(String file, Matcher exists) {
         expect(new File(join(outPath, file)).existsSync(), exists);

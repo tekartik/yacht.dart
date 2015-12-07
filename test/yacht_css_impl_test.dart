@@ -46,8 +46,11 @@ main() {
       });
 
       test('import_missing', () async {
-        await checkYachtTransformCss(
-            '@import url(_included.css)', null, '@import url(_included.css);');
+        try {
+          await checkYachtTransformCss('@import url(_included.css)', null,
+              '@import url(_included.css);');
+          fail('shoud fail');
+        } on ArgumentError catch (_) {}
       });
 
       test('var', () async {

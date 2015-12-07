@@ -297,11 +297,35 @@ main() {
             htmlLines(['<style>body { color: red; }</style>']));
       });
 
-      test('style_import_missing', () async {
+      test('style_import_sub', () async {
         await checkYachtTransformElement(
-            '<style>@import url(included.css)</style>',
-            null,
-            htmlLines(['<style>@import url(included.css);</style>']));
+            '<style>@import url(sub/_included.css)</style>',
+            stringAssets(['sub/_included.css', 'body{color:red}']),
+            htmlLines(['<style>body { color: red; }</style>']));
+      });
+
+      test('style_import_package', () async {
+        await checkYachtTransformElement(
+            '<style>@import url(packages/pkg/_included.css)</style>',
+            stringAssets(['pkg', 'lib/_included.css', 'body{color:red}']),
+            htmlLines(['<style>body { color: red; }</style>']));
+      });
+
+      test('style_import_package', () async {
+        await checkYachtTransformElement(
+            '<style>@import url(packages/pkg/sub/_included.css)</style>',
+            stringAssets(['pkg', 'lib/sub/_included.css', 'body{color:red}']),
+            htmlLines(['<style>body { color: red; }</style>']));
+      });
+
+      test('style_import_missing', () async {
+        try {
+          await checkYachtTransformElement(
+              '<style>@import url(included.css)</style>',
+              null,
+              htmlLines(['<style>@import url(included.css);</style>']));
+          fail("should fail");
+        } on ArgumentError catch (_) {}
       });
 
       test('debug', () async {
@@ -312,6 +336,14 @@ main() {
         await checkYachtTransformElement(
             '<div><yacht-include src="_included.html"></yacht-include></div>',
             stringAssets(['_included.html', '<p>Simple content</p>']),
+            htmlLines(['<div><p>Simple content</p></div>']));
+      });
+
+      test('include_from_package', () async {
+        await checkYachtTransformElement(
+            '<div><yacht-include src="packages/pkg/_included.html"></yacht-include></div>',
+            stringAssets(
+                ['pkg', 'lib/_included.html', '<p>Simple content</p>']),
             htmlLines(['<div><p>Simple content</p></div>']));
       });
 

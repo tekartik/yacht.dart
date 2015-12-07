@@ -4,6 +4,7 @@ import 'transformer.dart';
 import 'package:path/path.dart';
 import 'dart:async';
 import 'package:yacht/src/html_printer.dart';
+import 'package:yacht/src/assetid_utils.dart';
 import 'package:html/dom.dart';
 import 'package:csslib/parser.dart';
 import 'package:csslib/visitor.dart';
@@ -267,9 +268,14 @@ abstract class YachtTransformerMixin {
         // Don't do it for debug or import option
         if (option.isImport) {
           cssTransform.hasImport = true;
-          String path =
-              posix.normalize(join(posix.dirname(assetId.path), node.import));
-          AssetId importedAssetId = new AssetId(assetId.package, path);
+
+          //String path =posix.normalize(join(posix.dirname(assetId.path), node.import));
+          //AssetId importedAssetId = assetIdWithPath(assetId, path);
+          // String path = assetIdWithPath(assetId, node.import);
+
+          //    posix.normalize(join(posix.dirname(assetId.path), node.import));
+          String path = node.import;
+          AssetId importedAssetId = assetIdWithPath(assetId, path);
           if (await transform.hasInput(importedAssetId)) {
             String text = await transform.readInputAsString(importedAssetId);
             StyleSheet importedStyleSheet = parse(text);
@@ -285,6 +291,9 @@ abstract class YachtTransformerMixin {
 
             cssTransform.css.add(text);
             cssTransform.imported.add(node.import);
+          } else {
+            throw new ArgumentError(
+                'asset $importedAssetId not found from ($assetId:$path)');
           }
         }
       }
@@ -498,14 +507,14 @@ abstract class YachtTransformerMixin {
       //print(included);
       // go relative
       // TODO handle other package
-      AssetId includedAssetId = new AssetId(assetId.package,
-          posix.normalize(join(posix.dirname(assetId.path), src)));
+      AssetId includedAssetId = assetIdWithPath(assetId, src);
       String includedContent =
           await transform.readInputAsString(includedAssetId);
 
       //devPrint(includedContent);
       if (includedContent == null) {
-        throw new ArgumentError('asset $includedAssetId not found');
+        throw new ArgumentError(
+            'asset $includedAssetId not found from ($assetId:$src');
       }
 
       bool multiElement = false;

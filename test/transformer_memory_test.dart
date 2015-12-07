@@ -3,10 +3,12 @@ library yacht.test.transformer_memory_test;
 import 'package:dev_test/test.dart';
 import 'package:yacht/src/transformer_memory.dart';
 import 'package:yacht/src/transformer.dart';
+import 'package:yacht/src/assetid_utils.dart';
 
 stringAssets(List data) {
   StringAssets assets = new StringAssets();
 
+  // parse ['pkg'], 'path,' 'content'
   _add(List item) {
     try {
       int index = 0;
@@ -45,9 +47,16 @@ main() {
       asset2 = stringAsset(new AssetId(null, ''), 'content');
       expect(asset1, isNot(asset2));
     });
+
     test('stringAssets', () {
       StringAssets assets = stringAssets(['', null]);
       AssetId id = new AssetId(null, '');
+      expect(assets.length, 1);
+      expect(assets[id], stringAsset(id, null));
+
+      // package
+      assets = stringAssets(['pkg', 'asset', null]);
+      id = new AssetId("pkg", 'asset');
       expect(assets.length, 1);
       expect(assets[id], stringAsset(id, null));
 
