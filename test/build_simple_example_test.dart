@@ -26,7 +26,9 @@ main() {
 
       expect(result.exitCode, 0);
 
-      result = await run(dartExecutable, pubArguments(['run', 'test']),
+      // run test one at a time as debug/release write on the same folder
+      result = await run(
+          dartExecutable, pubArguments(['run', 'test', '-j', '1']),
           connectStdout: true,
           connectStderr: true,
           workingDirectory: simpleProjectTop);

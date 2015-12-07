@@ -1,20 +1,12 @@
 @TestOn("vm")
-library yacht_example_simple.test.build_test;
+library yacht_example_simple.test.build_release_test;
 
+import 'test_common.dart';
 import 'package:dev_test/test.dart';
 import 'dart:io';
 import 'package:path/path.dart';
-import 'dart:mirrors';
 import 'package:process_run/process_run.dart';
 import 'package:process_run/dartbin.dart';
-
-class _TestUtils {
-  static final String scriptPath =
-      (reflectClass(_TestUtils).owner as LibraryMirror).uri.toFilePath();
-}
-
-String get testScriptPath => _TestUtils.scriptPath;
-String get projectTop => dirname(dirname(testScriptPath));
 
 main() {
   group('build_release', () {
@@ -49,6 +41,8 @@ main() {
 <head></head>
 <body></body>
 </html>''');
+
+      _checkFile('simple.html', html());
       _checkFile(
           'amp_basic.html',
           '''
@@ -113,6 +107,8 @@ main() {
 </head>
 <body></body>
 </html>''');
+
+      _checkFile('release_debug.html', html(head: '<title>release</title>'));
 
       // Removed (different in debug)
       _checkFileExists('part/included.part.css', isFalse);

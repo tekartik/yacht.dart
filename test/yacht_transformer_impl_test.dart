@@ -67,9 +67,12 @@ Future checkYachtTransformCss(
 
 //checkYachtTransform()
 Future checkYachtTransformElement(
-    String html, StringAssets inputAssets, HtmlLines lines) async {
+    String html, StringAssets inputAssets, HtmlLines lines,
+    {YachtTransformOption option}) async {
   YachtTransformer transformer = new YachtTransformer();
-
+  if (option != null) {
+    transformer.option = option;
+  }
   AssetId id = assetId("index.html");
   StringAsset asset = stringAsset(id, html);
   var transform = new StringTransform(asset, inputAssets);
@@ -230,13 +233,7 @@ main() {
     });
 
     test('checkYachtTransformElement', () async {
-      /*
-      AssetId id = assetId('index.html');
-      _checkTransform(stringAsset(id, minInHtml), null, isNull,
-          stringAssets([id.path, minHtml]));
-          */
       await checkYachtTransformElement('<a></a>', null, htmlLines(['<a></a>']));
-      //TODO_checkTransform('<a>text</a>', null, htmlLines(['<a>text</a>']));
     });
   });
 }

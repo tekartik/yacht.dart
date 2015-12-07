@@ -55,13 +55,15 @@ abstract class YachtTransformerMixin {
 
     //devPrint('before: ${element.outerHtml}');
     // element =
-    await handleElement(new _HtmlTransform()..transform = transform,
+    element = await handleElement(new _HtmlTransform()..transform = transform,
         transform.primaryId, element);
 
     //devPrint('after: ${element.outerHtml}');
     // extract lines
     HtmlElementPrinter printer = new HtmlElementPrinter();
-    await printer.visitElement(element);
+    if (element != null) {
+      await printer.visitElement(element);
+    }
     HtmlLines outHtmlLines = printer.lines;
     // test subclass may override this to get the lines emitted
     htmlLines = outHtmlLines;
@@ -325,7 +327,20 @@ abstract class YachtTransformerMixin {
     return newCss;
   }
 
-  handleElement(
+  _checkInMode(Element element) {
+    Map attributes = element.attributes;
+    if (checkAndRemoveAttribute(attributes, 'data-yacht-debug') ||
+        checkAndRemoveAttribute(attributes, 'yacht-debug')) {
+      return option.isDebug;
+    }
+    if (checkAndRemoveAttribute(attributes, 'data-yacht-release') ||
+        checkAndRemoveAttribute(attributes, 'yacht-release')) {
+      return option.isRelease;
+    }
+    return true;
+  }
+
+  Future<Element> handleElement(
       _HtmlTransform htmlTransform, AssetId assetId, Element element_) async {
     Element element = element_;
 
@@ -352,13 +367,55 @@ abstract class YachtTransformerMixin {
       }
       return document;
     }
+
+    // In debug/release
+    if (!_checkInMode(element)) {
+      element.remove();
+      return null;
+    } else {
+      _handleParent(Element element) {
+        List<Element> list = new List.from(element.children);
+        for (Element element in list) {
+          if (!_checkInMode(element)) {
+            element.remove();
+          }
+          _handleParent(element);
+        }
+      }
+      _handleParent(element);
+    }
+
+    Element _getOrCreateHeadElement(Document document) {
+      Element headElement = document.head;
+      if (headElement == null) {
+        headElement = new Element.tag('head');
+        document.documentElement.nodes.insert(0, headElement);
+      }
+      return headElement;
+    }
+
+    Element _getOrCreateBodyElement(Document document) {
+      Element bodyElement = document.body;
+      if (bodyElement == null) {
+        bodyElement = new Element.tag('body');
+        document.documentElement.nodes.add(bodyElement);
+      }
+      return bodyElement;
+    }
+
     // first extract yacht-html if any
     // only works when  within a document
+    bool hasYachtHtmlElement = false;
     Future<Element> _handleYachtHtml(Element element) async {
       Document document = _getDocument();
       Element htmlElement = document.documentElement;
       copyElementAttributes(element, htmlElement);
       replaceElementNodes(element, htmlElement);
+
+      // create a head/body
+      _getOrCreateHeadElement(document);
+      _getOrCreateBodyElement(document);
+
       return htmlElement;
     }
 
@@ -367,11 +424,7 @@ abstract class YachtTransformerMixin {
     // then handle head/body
     Future<Element> _handleYachtHead(Element element) async {
       Document document = _getDocument();
-      Element headElement = document.head;
-      if (headElement == null) {
-        headElement = new Element.tag('head');
-        document.documentElement.nodes.insert(0, headElement);
-      }
+      Element headElement = _getOrCreateHeadElement(document);
       copyElementAttributes(element, headElement);
       replaceElementNodes(element, headElement);
 
@@ -384,11 +437,8 @@ abstract class YachtTransformerMixin {
     // then handle head/body
     Future<Element> _handleYachtBody(Element element) async {
       Document document = _getDocument();
-      Element bodyElement = document.body;
-      if (bodyElement == null) {
-        bodyElement = new Element.tag('body');
-        document.documentElement.nodes.add(bodyElement);
-      }
+      Element bodyElement = _getOrCreateBodyElement(document);
+
       copyElementAttributes(element, bodyElement);
       replaceElementNodes(element, bodyElement);
 
@@ -489,6 +539,8 @@ abstract class YachtTransformerMixin {
 
     await _handleTag('meta', _handleMetaYachtInclude);
     await _handleTag('yacht-include', _handleElementYachtInclude);
+
+    return element;
   }
 }
 
@@ -537,6 +589,7 @@ class YachtTransformOption {
   // can be true/false/debug/release
   set import(var import) => _import = import;
   var _import;
+  YachtTransformOption();
   YachtTransformOption.fromBarbackSettings(BarbackSettings settings) {
     if (settings != null) {
       _debug = settings.mode != BarbackMode.RELEASE;

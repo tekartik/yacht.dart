@@ -46,25 +46,19 @@ main() {
 
     group('yacht-html', () {
       test('basic', () async {
-        await checkYachtTransformDocument('<yacht-html></yacht-html>', null,
-            htmlLines(['<html>', '</html>']));
+        await checkYachtTransformDocument(
+            '<yacht-html></yacht-html>', null, minHtmlLines);
       });
       test('invalid_head', () async {
         await checkYachtTransformDocument(
-            '<yacht-html><head></head></yacht-html>',
-            null,
-            htmlLines(['<html>', '</html>']));
+            '<yacht-html><head></head></yacht-html>', null, minHtmlLines);
       });
 
       test('head', () async {
         await checkYachtTransformDocument(
             '<yacht-html><yacht-head></yacht-head></yacht-html>',
             null,
-            htmlLines([
-              '<html>',
-              [1, '<head></head>'],
-              '</html>'
-            ]));
+            minHtmlLines);
       });
       test('head_content', () async {
         await checkYachtTransformDocument(
@@ -75,6 +69,7 @@ main() {
               [1, '<head>'],
               [2, '<meta>'],
               [1, '</head>'],
+              [1, '<body></body>'],
               '</html>'
             ]));
       });
@@ -83,20 +78,16 @@ main() {
         await checkYachtTransformDocument(
             '<yacht-html><yacht-body></yacht-body><yacht-head></yacht-head></yacht-html>',
             null,
-            htmlLines([
-              '<html>',
-              [1, '<head></head>'],
-              [1, '<body></body>'],
-              '</html>'
-            ]));
+            minHtmlLines);
       });
 
-      test('body_contet', () async {
+      test('body_content', () async {
         await checkYachtTransformDocument(
             '<yacht-html><yacht-body><h1>title</h1></yacht-body></yacht-html>',
             null,
             htmlLines([
               '<html>',
+              [1, '<head></head>'],
               [1, '<body><h1>title</h1></body>'],
               '</html>'
             ]));
@@ -186,6 +177,27 @@ main() {
           fail('should fail');
         } on ArgumentError catch (_) {}
         ;
+      });
+
+      test('mode_debug', () async {
+        await checkYachtTransformElement(
+            '<a yacht-debug></a>', null, htmlLines([]));
+        await checkYachtTransformElement(
+            '<a yacht-debug></a>', null, htmlLines(['<a></a>']),
+            option: new YachtTransformOption()..debug = true);
+        await checkYachtTransformElement(
+            '<a data-yacht-debug></a>', null, htmlLines([]));
+        await checkYachtTransformElement(
+            '<a data-yacht-debug></a>', null, htmlLines(['<a></a>']),
+            option: new YachtTransformOption()..debug = true);
+      });
+
+      test('mode_release', () async {
+        await checkYachtTransformElement(
+            '<a data-yacht-release></a>', null, htmlLines(['<a></a>']));
+        await checkYachtTransformElement(
+            '<a data-yacht-release></a>', null, htmlLines([]),
+            option: new YachtTransformOption()..debug = true);
       });
     });
   });

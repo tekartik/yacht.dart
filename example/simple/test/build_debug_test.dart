@@ -7,14 +7,7 @@ import 'package:path/path.dart';
 import 'dart:mirrors';
 import 'package:process_run/process_run.dart';
 import 'package:process_run/dartbin.dart';
-
-class _TestUtils {
-  static final String scriptPath =
-      (reflectClass(_TestUtils).owner as LibraryMirror).uri.toFilePath();
-}
-
-String get testScriptPath => _TestUtils.scriptPath;
-String get projectTop => dirname(dirname(testScriptPath));
+import 'test_common.dart';
 
 main() {
   // debug build
@@ -125,6 +118,7 @@ main() {
 <body></body>
 </html>''');
 
+      _checkFile('release_debug.html', html(head: '<title>debug</title>'));
       // not Removed (different in debug)
       _checkFileExists('part/included.part.css', isTrue);
 

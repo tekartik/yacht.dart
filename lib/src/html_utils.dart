@@ -12,3 +12,18 @@ void replaceElementNodes(Element srcElement, Element trgElement) {
   trgElement.nodes.clear();
   trgElement.nodes.addAll(srcElement.nodes);
 }
+
+/*
+String getAndRemoveElementAttribute(Element element, String attribute) {
+  return element.attributes.remove(attribute);
+}
+*/
+
+bool checkAndRemoveElementAttribute(Element element, String attribute) =>
+    checkAndRemoveElementAttribute(element.attributes);
+
+bool checkAndRemoveAttribute(Map attributes, String attribute) {
+  bool has = attributes.containsKey(attribute);
+  attributes.remove(attribute);
+  return has;
+}

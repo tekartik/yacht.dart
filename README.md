@@ -53,6 +53,26 @@ or
 <yatch-include src="_included.html"></yacht-include>
 ````
 
+#### yacht-html, yacht-head, yacht-body
+
+Builtin replacement:
+
+````
+<yacht-html>
+    <yacht-head>
+        <title>my title</title>
+    </yacht-head>
+    <yacht-body>
+        My body
+    </yacht-body>
+</yacht-html>
+````
+
+#### Debug vs Release
+
+`yacht-debug` and `yacht-release` attributes (as well as the one with `data-` prefix)
+allow to have an element only in one build mode
+
 ### Ignore
 
 Transformation is ignored for
