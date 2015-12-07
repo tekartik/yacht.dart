@@ -95,3 +95,7 @@ Transformation is ignored for
 ### HTML formatting rules
 
 * An element is not inlined if it begins with a text node with a whitespace at the beginning
+
+### Limitations
+
+* `<noscript>` content is not parsed using the html package. Its content is displayed as is (no style computing)

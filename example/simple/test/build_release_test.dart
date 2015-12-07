@@ -58,7 +58,7 @@ main() {
   <noscript><style>body {opacity: 1}</style></noscript>
   <script async src="https://cdn.ampproject.org/v0.js"></script>
 </head>
-<body>Hello World! </body>
+<body>Hello World!</body>
 </html>''');
 
       _checkFile(

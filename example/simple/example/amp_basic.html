@@ -1,16 +1,13 @@
-<!doctype html>
-<html ⚡ lang="en">
-<head>
+<yacht-html ⚡ lang="en">
+<yacht-head>
     <meta charset="utf-8">
     <title>Basic</title>
     <link rel="canonical" href="amp_basic.html" >
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
     <!-- only one style tag is allowed, and it must have an "amp-custom" attribute -->
-    <style amp-custom>
-    </style>
-    <!-- this style tag is required -->
-    <style yacht-ignore>body {opacity: 0}</style><noscript><style>body {opacity: 1}</style></noscript>
-    <script async src="https://cdn.ampproject.org/v0.js"></script>
-</head>
-<body>Hello World!</body>
-</html>
+    <style amp-custom></style>
+    <!-- required amp info -->
+    <yacht-include src="part/app_css_js_base.part.html"></yacht-include>
+</yacht-head>
+<yacht-body>Hello World!</yacht-body>
+</yacht-html>

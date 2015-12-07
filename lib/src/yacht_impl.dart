@@ -8,6 +8,7 @@ import 'package:html/dom.dart';
 import 'package:csslib/parser.dart';
 import 'package:csslib/visitor.dart';
 import 'html_utils.dart';
+import 'text_utils.dart';
 import 'common_import.dart';
 import 'csslib_utils.dart';
 
@@ -42,7 +43,7 @@ abstract class YachtTransformerMixin {
     return _options;
   }
 
-  runElementTransform(Transform transform) async {
+  Future<Element> runElementTransform(Transform transform) async {
     String input = await transform.readPrimaryAsString();
 
     // only for testing
@@ -67,6 +68,8 @@ abstract class YachtTransformerMixin {
     HtmlLines outHtmlLines = printer.lines;
     // test subclass may override this to get the lines emitted
     htmlLines = outHtmlLines;
+
+    return element;
   }
 
   run(AssetTransform transform) {
@@ -352,6 +355,7 @@ abstract class YachtTransformerMixin {
       if (element.localName == tag) {
         element = await action(element);
       } else {
+        //devPrint('tag: $tag $element ${element.children} ${element.nodes}');
         List<Element> list = element.querySelectorAll(tag);
         for (Element element in list) {
           await action(element);
@@ -405,7 +409,7 @@ abstract class YachtTransformerMixin {
 
     // first extract yacht-html if any
     // only works when  within a document
-    bool hasYachtHtmlElement = false;
+    // bool hasYachtHtmlElement = false;
     Future<Element> _handleYachtHtml(Element element) async {
       Document document = _getDocument();
       Element htmlElement = document.documentElement;
@@ -449,6 +453,26 @@ abstract class YachtTransformerMixin {
     }
     await _handleTag('yacht-body', _handleYachtBody);
 
+    /*
+    // convert single text line node to html if possible
+    Future<Element> _handleNoScript(Element element) async {
+      devPrint('noscript: $element');
+      devPrint(element.attributes);
+      if (element.hasChildNodes()) {
+        if ((element.nodes.length == 1) && (element.nodes.first.nodeType == Node.TEXT_NODE)) {
+          element.innerHtml = element.text;
+        }
+      }
+
+      return element;
+    }
+
+    // don't use noscript
+
+    // Fix noscript bug
+    // content is not converted as elements somehow
+    await _handleTag('noscript', _handleNoScript);
+    */
     // handle styles
     // Resolve css
     Future<Element> _handleStyle(Element element) async {
@@ -487,23 +511,36 @@ abstract class YachtTransformerMixin {
       bool multiElement = false;
       Element includedElement;
 
+      // Save parent (as element will be removed
+      Element parent = element.parent;
+
+      if (parent == null) {
+        throw new ArgumentError(
+            'Cannot include $src to replace $element if no parent specified');
+      }
       // where to include
-      int index = element.parent.children.indexOf(element);
+      int index = parent.nodes.indexOf(element);
 
       // try to parse if it fails, wrap it
-      try {
-        includedElement = new Element.html(includedContent);
-      } catch (e) {
+      _mergeInclude() {
         multiElement = true;
         includedElement = new Element.html(
             '<tekartik-yacht-merge>${includedContent}</tekartik-yacht-merge>');
       }
 
-      // Save parent (as element will be removed
-      Element parent = element.parent;
+      // If it starts or ends with space, perform multiInclude to preserve spacing
+      if (beginOrEndWithWhiteSpace(includedContent)) {
+        _mergeInclude();
+      } else {
+        try {
+          includedElement = new Element.html(includedContent);
+        } catch (e) {
+          _mergeInclude();
+        }
+      }
 
       // Insert first so that it has a parent
-      parent.children
+      parent.nodes
         ..removeAt(index)
         ..insert(index, includedElement);
 
@@ -514,11 +551,11 @@ abstract class YachtTransformerMixin {
       // multi element 'un-merge'
       if (multiElement) {
         // save a copy
-        List<Element> children = new List.from(includedElement.children);
+        List<Node> children = new List.from(includedElement.nodes);
 
-        parent.children..removeAt(index);
-        for (Element child in children) {
-          parent.children..insert(index++, child);
+        parent.nodes..removeAt(index);
+        for (Node child in children) {
+          parent.nodes..insert(index++, child);
         }
       }
       return element;

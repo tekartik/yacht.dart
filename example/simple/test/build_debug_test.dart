@@ -4,7 +4,6 @@ library yacht_example_simple.test.build_test;
 import 'package:dev_test/test.dart';
 import 'dart:io';
 import 'package:path/path.dart';
-import 'dart:mirrors';
 import 'package:process_run/process_run.dart';
 import 'package:process_run/dartbin.dart';
 import 'test_common.dart';
@@ -59,7 +58,7 @@ main() {
   <noscript><style>body {opacity: 1}</style></noscript>
   <script async src="https://cdn.ampproject.org/v0.js"></script>
 </head>
-<body>Hello World! </body>
+<body>Hello World!</body>
 </html>''');
 
       _checkFile(

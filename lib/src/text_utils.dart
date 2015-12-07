@@ -36,6 +36,11 @@ bool endWithWhiteSpace(String text) {
   return isWhitespace(text.runes.last);
 }
 
+bool beginOrEndWithWhiteSpace(String text) {
+  var runes = text.runes;
+  return isWhitespace(runes.first) || isWhitespace(runes.last);
+}
+
 // Character constants.
 const int _LF = 10;
 const int _CR = 13;

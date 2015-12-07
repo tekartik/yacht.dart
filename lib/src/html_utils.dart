@@ -20,7 +20,7 @@ String getAndRemoveElementAttribute(Element element, String attribute) {
 */
 
 bool checkAndRemoveElementAttribute(Element element, String attribute) =>
-    checkAndRemoveElementAttribute(element.attributes);
+    checkAndRemoveAttribute(element.attributes, attribute);
 
 bool checkAndRemoveAttribute(Map attributes, String attribute) {
   bool has = attributes.containsKey(attribute);

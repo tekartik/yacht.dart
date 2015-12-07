@@ -8,6 +8,7 @@ import 'package:yacht/src/transformer.dart';
 import 'dart:async';
 import 'transformer_memory_test.dart';
 import 'html_printer_test.dart';
+import 'package:html/dom.dart';
 
 class YachtTransformer extends Object with YachtTransformerMixin {
   YachtTransformOption option =
@@ -66,7 +67,7 @@ Future checkYachtTransformCss(
 }
 
 //checkYachtTransform()
-Future checkYachtTransformElement(
+Future<Element> checkYachtTransformElement(
     String html, StringAssets inputAssets, HtmlLines lines,
     {YachtTransformOption option}) async {
   YachtTransformer transformer = new YachtTransformer();
@@ -85,9 +86,11 @@ Future checkYachtTransformElement(
   expect(transformer.htmlLines, isNull);
 
   // await needed here
-  await transformer.runElementTransform(transform);
+  Element element = await transformer.runElementTransform(transform);
 
   expect(transformer.htmlLines, lines);
+
+  return element;
 }
 
 Future checkYachtTransformDocument(

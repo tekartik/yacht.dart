@@ -92,6 +92,118 @@ main() {
               '</html>'
             ]));
       });
+
+      test('head_include', () async {
+        await checkYachtTransformDocument(
+            '<yacht-html><yacht-head><meta one><yacht-include src="_included.html"></yacht-include><meta four></yacht-head></yacht-html>',
+            stringAssets(['_included.html', '<meta two><meta three>']),
+            htmlLines([
+              '<html>',
+              [1, '<head>'],
+              [2, '<meta one>'],
+              [2, '<meta two>'],
+              [2, '<meta three>'],
+              [2, '<meta four>'],
+              [1, '</head>'],
+              [1, '<body></body>'],
+              '</html>'
+            ]));
+      });
+      test('head_charset_include', () async {
+        await checkYachtTransformDocument(
+            '<yacht-html><yacht-head><meta charset="utf-8"><yacht-include src="_included.html"></yacht-include></yacht-head></yacht-html>',
+            stringAssets(['_included.html', '<meta>']),
+            htmlLines([
+              '<html>',
+              [1, '<head>'],
+              [2, '<meta charset="utf-8">'],
+              [2, '<meta>'],
+              [1, '</head>'],
+              [1, '<body></body>'],
+              '</html>'
+            ]));
+      });
+      test('head_charset', () async {
+        await checkYachtTransformDocument(
+            '<yacht-html><yacht-head><meta charset="utf-8"><meta one><yacht-include src="_included.html"></yacht-include><meta four></yacht-head></yacht-html>',
+            stringAssets(['_included.html', '<meta two><meta three>']),
+            htmlLines([
+              '<html>',
+              [1, '<head>'],
+              [2, '<meta charset="utf-8">'],
+              [2, '<meta one>'],
+              [2, '<meta two>'],
+              [2, '<meta three>'],
+              [2, '<meta four>'],
+              [1, '</head>'],
+              [1, '<body></body>'],
+              '</html>'
+            ]));
+      });
+      test('head_include_charset', () async {
+        await checkYachtTransformDocument(
+            '<yacht-html><yacht-head><meta one><yacht-include src="_included.html"></yacht-include><meta four></yacht-head></yacht-html>',
+            stringAssets([
+              '_included.html',
+              '<meta charset="utf-8"><meta two><meta three>'
+            ]),
+            htmlLines([
+              '<html>',
+              [1, '<head>'],
+              [2, '<meta one>'],
+              [2, '<meta charset="utf-8">'],
+              [2, '<meta two>'],
+              [2, '<meta three>'],
+              [2, '<meta four>'],
+              [1, '</head>'],
+              [1, '<body></body>'],
+              '</html>'
+            ]));
+      });
+      /*
+      solo_test('head_include_amp', () async {
+        await checkYachtTransformDocument('''
+        <yacht-html ⚡ lang="en">
+<yacht-head>
+    <meta charset="utf-8">
+    <yacht-include src="part/app_css_js_base.part.html"></yacht-include>
+</yacht-head>
+<yacht-body>Hello World!</yacht-body>
+</yacht-html>'''
+            ,stringAssets(['part/app_css_js_base.part.html', '''
+<meta>
+''']),
+            htmlLines([
+              '<html>',
+              [1, '<head>'],
+              [2, '<meta one>'],
+              [2, '<meta charset="utf-8">'],
+              [2, '<meta two>'],
+              [2, '<meta three>'],
+              [2, '<meta four>'],
+              [1, '</head>'],
+              [1, '<body></body>'],
+              '</html>'
+            ]));
+      });
+      */
+
+      test('body_include', () async {
+        await checkYachtTransformDocument(
+            '<yacht-html><yacht-body><meta one><yacht-include src="_included.html"></yacht-include><meta four></yacht-body></yacht-html>',
+            stringAssets(['_included.html', '<meta two><meta three>']),
+            htmlLines([
+              '<html>',
+              [1, '<head></head>'],
+              [1, '<body>'],
+              [2, '<meta one>'],
+              [2, '<meta two>'],
+              [2, '<meta three>'],
+              [2, '<meta four>'],
+              [1, '</body>'],
+              '</html>'
+            ]));
+      });
     });
     group('element', () {
       setUp(() {});
@@ -117,6 +229,33 @@ main() {
             htmlLines(['<style>body { color: red; }</style>']));
       });
 
+      test('sub_style', () async {
+        await checkYachtTransformElement(
+            '<div><style></style></div>',
+            null,
+            htmlLines([
+              '<div>',
+              [1, '<style></style>'],
+              '</div>'
+            ]));
+        await checkYachtTransformElement(
+            '<div><style>@color1: red; body { color: @color1; }</style></div>',
+            null,
+            htmlLines([
+              '<div>',
+              [1, '<style>body { color: red; }</style>'],
+              '</div>'
+            ]));
+
+        // noscript not converted
+        await checkYachtTransformElement(
+            '<noscript><style>@color1: red; body { color: @color1; }</style></noscript>',
+            null,
+            htmlLines([
+              '<noscript><style>@color1: red; body { color: @color1; }</style></noscript>'
+            ]));
+      });
+
       test('style_ignore', () async {
         await checkYachtTransformElement(
             '<style yacht-ignore>@color1: red; body { color: @color1; }</style>',
@@ -125,6 +264,20 @@ main() {
                 ['<style>@color1: red; body { color: @color1; }</style>']));
         await checkYachtTransformElement('<style yacht-ignore>\n</style>', null,
             htmlLines(['<style>', '</style>']));
+      });
+
+      test('sub_style_ignore', () async {
+        await checkYachtTransformElement(
+            '<noscript><style yacht-ignore>@color1: red; body { color: @color1; }</style></noscript>',
+            null,
+            htmlLines([
+              '<noscript><style yacht-ignore>@color1: red; body { color: @color1; }</style></noscript>'
+            ]));
+        // !yacht ignore not removed
+        await checkYachtTransformElement(
+            '<noscript><style yacht-ignore>\n</style></noscript>',
+            null,
+            htmlLines(['<noscript><style yacht-ignore> </style></noscript>']));
       });
 
       test('style_data_ignore', () async {
@@ -160,6 +313,60 @@ main() {
             '<div><yacht-include src="_included.html"></yacht-include></div>',
             stringAssets(['_included.html', '<p>Simple content</p>']),
             htmlLines(['<div><p>Simple content</p></div>']));
+      });
+
+      test('include_linefeed_before', () async {
+        // outer
+        await checkYachtTransformElement(
+            '<div>\n<yacht-include src="_included.html"></yacht-include></div>',
+            stringAssets(['_included.html', '<p>Simple content</p>']),
+            htmlLines(['<div> <p>Simple content</p></div>']));
+        // inner
+        await checkYachtTransformElement(
+            '<div><yacht-include src="_included.html"></yacht-include></div>',
+            stringAssets(['_included.html', '\n<a></a>']),
+            htmlLines(['<div> <a></a></div>']));
+      });
+
+      test('include_linefeed_after', () async {
+        // outer
+        await checkYachtTransformElement(
+            '<div><yacht-include src="_included.html"></yacht-include>\n</div>',
+            stringAssets(['_included.html', '<p>Simple content</p>']),
+            htmlLines(['<div><p>Simple content</p> </div>']));
+        // inner
+        await checkYachtTransformElement(
+            '<div><yacht-include src="_included.html"></yacht-include></div>',
+            stringAssets(['_included.html', '<a></a>\n']),
+            htmlLines(['<div><a></a> </div>']));
+      });
+
+      test('include_linefeed', () async {
+        // outer
+        await checkYachtTransformElement(
+            '<div>\n<yacht-include src="_included.html"></yacht-include>\n</div>',
+            stringAssets(['_included.html', '<p>Simple content</p>']),
+            htmlLines([
+              '<div>',
+              [1, '<p>Simple content</p>'],
+              '</div>'
+            ]));
+        // inner
+        await checkYachtTransformElement(
+            '<div><yacht-include src="_included.html"></yacht-include></div>',
+            stringAssets(['_included.html', '\n<a></a>\n']),
+            htmlLines([
+              '<div>',
+              [1, '<a></a>'],
+              '</div>'
+            ]));
+      });
+
+      test('include_position', () async {
+        await checkYachtTransformElement(
+            '<div><a></a><yacht-include src="_included.html"></yacht-include><b></b></div>',
+            stringAssets(['_included.html', '<p>Simple content</p>']),
+            htmlLines(['<div><a></a><p>Simple content</p><b></b></div>']));
       });
 
       test('include_meta', () async {

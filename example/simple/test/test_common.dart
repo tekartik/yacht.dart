@@ -1,12 +1,8 @@
 library yacht_example_simple.test.test_common;
 
 import 'dart:convert';
-import 'package:dev_test/test.dart';
-import 'dart:io';
 import 'package:path/path.dart';
 import 'dart:mirrors';
-import 'package:process_run/process_run.dart';
-import 'package:process_run/dartbin.dart';
 
 class _TestUtils {
   static final String scriptPath =
