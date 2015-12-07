@@ -47,11 +47,23 @@ An external file can be included at build time:
 <meta property="yacht-include" content="_included.html">
 ````
 
+or
+
+````
+<yatch-include src="_included.html"></yacht-include>
+````
+
 ### Ignore
 
 Transformation is ignored for
-* style with `data-yatch-ignore` attribute
+* style with `data-yatch-ignore` or `yacht-ignore` attribute
+  Example needed for AMP pages
+````
+<style yacht-ignore>body {opacity: 0}</style>
+````
+
 * css file in ignore list of Barback
+
 ## Development
 
 ### Dependencies

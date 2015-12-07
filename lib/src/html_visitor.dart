@@ -3,7 +3,6 @@ library yacht.src.html_visitor;
 //import 'visitor.dart' as visitor;
 import 'visitor.dart' show Visitor, VisitorAsync;
 import 'package:html/dom.dart';
-import 'dart:async';
 
 abstract class HtmlVisitorBase implements Visitor<Node> {
   Node visitChildren(Node node) {
@@ -22,35 +21,20 @@ abstract class HtmlElementVisitor extends HtmlVisitorBase {
 
   // public API to call
   visitElement(Element element) => visit(element);
-
-  /*
-  /// must call base to go deeper
-  @override
-  Future<Node> visit(Node node) async {
-    if (node.hasChildNodes()) {
-      NodeList nodeList = node.nodes;
-      for (Node node in nodeList) {
-        await visit(node);
-      }
-    }
-    return node;
-  }
-  */
-
 }
 
 class HtmlDocumentVisitor extends HtmlElementVisitor {
   HtmlDocumentVisitor();
 
   // public API to call
-  Future<Document> visitDocument(Document document) async {
-    _visitElement(Element element) async {
+  Document visitDocument(Document document) {
+    _visitElement(Element element) {
       if (element != null) {
-        await visitElement(element);
+        visitElement(element);
       }
     }
 
-    await _visitElement(document.documentElement);
+    _visitElement(document.documentElement);
     return document;
   }
 

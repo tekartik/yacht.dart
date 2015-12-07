@@ -18,49 +18,15 @@ String get projectTop => dirname(dirname(testScriptPath));
 
 main() {
   // expect to find the result in build
-  String outPath = join(projectTop, 'build', 'example');
+  //String outPath = join(projectTop, 'build', 'example');
 
+  /*
   _checkFile(String file, String content) {
     expect(new File(join(outPath, file)).readAsStringSync(), content);
   }
+  */
 
-  group('build', () {
-    // release build
-    test('release', () async {
-      //print(pkg);
-      ProcessResult result = await run(
-          dartExecutable, pubArguments(['build', 'example']),
-          connectStderr: true,
-          workingDirectory: projectTop,
-          connectStdout: false);
-
-      // on 1.13, current windows is failing
-      if (!Platform.isWindows) {
-        expect(result.exitCode, 0);
-      }
-
-      _checkFile(
-          'import.html',
-          '''
-<!doctype html>
-<html>
-<head>
-  <style>body { color: red; } html { color: black; }</style>
-</head>
-<body>
-</body>
-</html>''');
-      _checkFile('include.css', 'body { color: red; }');
-
-      // ignored (i.e. no formatting
-      _checkFile(
-          'ignored.css',
-          '''
-body {
-    color: red;
-}''');
-    });
-
+  group('build_debug', () {
     // debug build
     test('debug', () async {
       //print(pkg);

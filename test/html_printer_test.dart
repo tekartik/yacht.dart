@@ -392,7 +392,9 @@ main() {
       await printer.visitElement(element);
       expect(printer.lines, htmlLines([0, '<a>link</a>']));
     });
+  });
 
+  group('print_document', () {
     test('document', () async {
       Document document = new Document();
       expect(document.outerHtml, '');
@@ -421,6 +423,20 @@ main() {
       HtmlDocumentPrinter builder = new HtmlDocumentPrinter();
       await builder.visitDocument(document);
       expect(builder.lines, minHtmlLines);
+      //print(builder.nodes);
+    });
+
+    test('document_html_tag_in_head', () async {
+      Document document = new Document.html(
+          '<!DOCTYPE html><html><head><my-tag></my-tag></head><body></body></html>');
+
+      // my-tag move to body!
+      expect(document.head.querySelector('my-tag'), isNull);
+      expect(document.body.querySelector('my-tag'), isNotNull);
+      //print(document.outerHtml);
+      HtmlDocumentPrinter builder = new HtmlDocumentPrinter();
+      await builder.visitDocument(document);
+      //expect(builder.lines, minHtmlLines);
       //print(builder.nodes);
     });
   });

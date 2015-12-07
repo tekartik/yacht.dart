@@ -43,6 +43,65 @@ main() {
             ]));
       });
     });
+
+    group('yacht-html', () {
+      test('basic', () async {
+        await checkYachtTransformDocument('<yacht-html></yacht-html>', null,
+            htmlLines(['<html>', '</html>']));
+      });
+      test('invalid_head', () async {
+        await checkYachtTransformDocument(
+            '<yacht-html><head></head></yacht-html>',
+            null,
+            htmlLines(['<html>', '</html>']));
+      });
+
+      test('head', () async {
+        await checkYachtTransformDocument(
+            '<yacht-html><yacht-head></yacht-head></yacht-html>',
+            null,
+            htmlLines([
+              '<html>',
+              [1, '<head></head>'],
+              '</html>'
+            ]));
+      });
+      test('head_content', () async {
+        await checkYachtTransformDocument(
+            '<yacht-html><yacht-head><meta></yacht-head></yacht-html>',
+            null,
+            htmlLines([
+              '<html>',
+              [1, '<head>'],
+              [2, '<meta>'],
+              [1, '</head>'],
+              '</html>'
+            ]));
+      });
+
+      test('body', () async {
+        await checkYachtTransformDocument(
+            '<yacht-html><yacht-body></yacht-body><yacht-head></yacht-head></yacht-html>',
+            null,
+            htmlLines([
+              '<html>',
+              [1, '<head></head>'],
+              [1, '<body></body>'],
+              '</html>'
+            ]));
+      });
+
+      test('body_contet', () async {
+        await checkYachtTransformDocument(
+            '<yacht-html><yacht-body><h1>title</h1></yacht-body></yacht-html>',
+            null,
+            htmlLines([
+              '<html>',
+              [1, '<body><h1>title</h1></body>'],
+              '</html>'
+            ]));
+      });
+    });
     group('element', () {
       setUp(() {});
 
@@ -68,6 +127,16 @@ main() {
       });
 
       test('style_ignore', () async {
+        await checkYachtTransformElement(
+            '<style yacht-ignore>@color1: red; body { color: @color1; }</style>',
+            null,
+            htmlLines(
+                ['<style>@color1: red; body { color: @color1; }</style>']));
+        await checkYachtTransformElement('<style yacht-ignore>\n</style>', null,
+            htmlLines(['<style>', '</style>']));
+      });
+
+      test('style_data_ignore', () async {
         await checkYachtTransformElement(
             '<style data-yacht-ignore>@color1: red; body { color: @color1; }</style>',
             null,
@@ -97,6 +166,13 @@ main() {
 
       test('include', () async {
         await checkYachtTransformElement(
+            '<div><yacht-include src="_included.html"></yacht-include></div>',
+            stringAssets(['_included.html', '<p>Simple content</p>']),
+            htmlLines(['<div><p>Simple content</p></div>']));
+      });
+
+      test('include_meta', () async {
+        await checkYachtTransformElement(
             '<div><meta property="yacht-include" content="_included.html"></div>',
             stringAssets(['_included.html', '<p>Simple content</p>']),
             htmlLines(['<div><p>Simple content</p></div>']));
@@ -110,43 +186,6 @@ main() {
           fail('should fail');
         } on ArgumentError catch (_) {}
         ;
-      });
-    });
-    group('options', () {
-      test('default', () {
-        YachtTransformOption option =
-            new YachtTransformOption.fromBarbackSettings(null);
-        expect(option.isDebug, isFalse);
-        expect(option.isRelease, isTrue);
-        expect(option.isImport, isTrue);
-        option.import = false;
-        expect(option.isImport, isFalse);
-        option.import = 'debug';
-        expect(option.isImport, isFalse);
-        option.import = true;
-        expect(option.isImport, isTrue);
-        option.import = 'release';
-        expect(option.isImport, isTrue);
-
-        // import
-        option.debug = true;
-        expect(option.isImport, isFalse);
-        option.import = true;
-        expect(option.isImport, isTrue);
-        option.import = 'debug';
-        expect(option.isImport, isTrue);
-        option.import = 'release';
-        expect(option.isImport, isFalse);
-        option.import = false;
-        expect(option.isImport, isFalse);
-      });
-      test('barback', () {
-        YachtTransformOption option =
-            new YachtTransformOption.fromBarbackSettings(
-                new BarbackSettings({'import': 'debug'}, BarbackMode.DEBUG));
-        expect(option.isDebug, isTrue);
-        expect(option.isRelease, isFalse);
-        expect(option.isImport, isTrue);
       });
     });
   });
