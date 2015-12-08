@@ -33,12 +33,42 @@ options
   - yacht:
       import: true # @import will be included in debug mode too
       ignore:
-        - example/style.css
+      - example/style.css
 ````
 
 ### Tidy html
 
-This is a purely opiniated formatting, keep some existing formatting
+This is a purely opiniated formatting, keeping some existing
+formatting especially whitespace before/after a tag
+
+### Css preprocessing
+
+Provide a leighweight css preprocessor:
+* support for `less` style variable
+````
+@test-color: red
+body {
+  color: @test-color;
+}
+````
+* support for nested rules i.e.
+````
+body {
+  h1 {
+    color: red;
+  }
+}
+````
+* support for scss like mixin
+````
+.important {
+  color: red;
+}
+.super-important {
+  @extend .important;
+  width: 100px;
+}
+````
 
 ### Html building
 

@@ -61,25 +61,68 @@ body {
           ':host { --test-color1: red; } body { color: ; }');
     });
 
-    /*
-    solo_test('simple_css3', () {
+    test('nested_rule', () {
       // css3 vars not working
-      String css = '''
-      :host {
-        --test-color1: { color: red; }
-      }
-      body { @apply(--test-color1) }''';
+      String css = 'body { h1 { color: red ] }';
       StyleSheet sheet = compile(css,
           options: new PreprocessorOptions(polyfill: true), polyfill: true);
 
       expect(printStyleSheet(sheet, pretty: false),
-          ':host { --test-color1: { color: red; } } body { @apply(--test-color1) }');
+          'body { } body h1 { color: red; }');
+    });
+
+    /*
+    test('less_mixin', () {
+      // css3 vars not working
+      String css = '.red { color: red } body { .red }';
+      StyleSheet sheet = compile(css,
+          options: new PreprocessorOptions(polyfill: true), polyfill: true);
+
+      expect(printStyleSheet(sheet, pretty: false),
+          'body { } body h1 { color: red; }');
+    });
+    */
+
+    test('scss_mixin', () {
+      // css3 vars not working
+      String css = r'''
+.red { color: red; }
+.blue { @extend .red; width: 0 }
+''';
+      StyleSheet sheet = compile(css,
+          options: new PreprocessorOptions(polyfill: true), polyfill: true);
+
+      expect(printStyleSheet(sheet, pretty: false),
+          '.red,.blue { color: red; } .blue { width: 0; }');
+    });
+
+    /*
+    skip_test('simple_apply', () {
+      // css3 vars not working
+      String css = '''
+      :host {
+        --test-color1: {
+          color: red;
+        }
+      }
+      body { @apply(--test-color1) }''';
+      StyleSheet sheet = compile(css,
+          options: new PreprocessorOptions(polyfill: false), polyfill: false);
+
+      //expect(printStyleSheet(sheet, pretty: false),
+      //    ':host { --test-color1: { color: red; } } body { @apply(--test-color1) }');
+      expect(printStyleSheet(sheet, pretty: false),
+          '''
+      :host {
+        --test-color1: {
+          color: red;
+        }
+      }
+      body { @apply(--test-color1) }''');
     });
     */
 
     test('comments', () {
-
-
       String css = '''
 /* comment */
 body {
