@@ -66,7 +66,8 @@ abstract class AssetSet implements Iterable<Asset> {
   void addAll(Iterable<Asset> assets);
 
   /// Returns `true` if the set contains [asset].
-  bool contains(Asset asset);
+  @override
+  bool contains(Object asset);
 
   /// Returns `true` if the set contains an [Asset] with [id].
   bool containsId(AssetId id);

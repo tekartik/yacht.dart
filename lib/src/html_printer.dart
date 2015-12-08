@@ -160,7 +160,7 @@ class HtmlLines extends DelegatingList<HtmlLine> {
   final List<HtmlLine> _l;
 
   HtmlLines() : this.from(<HtmlLine>[]);
-  HtmlLines.from(l)
+  HtmlLines.from(List<HtmlLine> l)
       : _l = l,
         super(l);
 }
@@ -169,7 +169,7 @@ class PrinterLines extends DelegatingList<PrinterLine> {
   final List<PrinterLine> _l;
 
   PrinterLines() : this.from(<PrinterLine>[]);
-  PrinterLines.from(l)
+  PrinterLines.from( List<PrinterLine> l)
       : _l = l,
         super(l);
 }
@@ -178,7 +178,7 @@ class NodeLines extends DelegatingList<NodeLine> {
   final List<NodeLine> _l;
 
   NodeLines() : this.from(<NodeLine>[]);
-  NodeLines.from(l)
+  NodeLines.from( List<NodeLine> l)
       : _l = l,
         super(l);
 }

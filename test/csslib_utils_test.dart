@@ -60,7 +60,26 @@ body {
       expect(printStyleSheet(sheet, pretty: false),
           ':host { --test-color1: red; } body { color: ; }');
     });
+
+    /*
+    solo_test('simple_css3', () {
+      // css3 vars not working
+      String css = '''
+      :host {
+        --test-color1: { color: red; }
+      }
+      body { @apply(--test-color1) }''';
+      StyleSheet sheet = compile(css,
+          options: new PreprocessorOptions(polyfill: true), polyfill: true);
+
+      expect(printStyleSheet(sheet, pretty: false),
+          ':host { --test-color1: { color: red; } } body { @apply(--test-color1) }');
+    });
+    */
+
     test('comments', () {
+
+
       String css = '''
 /* comment */
 body {

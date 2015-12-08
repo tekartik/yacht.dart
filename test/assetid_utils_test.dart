@@ -46,6 +46,7 @@ main() {
 
     test('normalizePath', () {
       expect(normalizePath("a/b"), "a/b");
+      expect(normalizePath("a/../b"), "b");
       expect(normalizePath("a\\b"), "a/b");
     });
   });

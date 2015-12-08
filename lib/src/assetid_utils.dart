@@ -6,7 +6,8 @@ import 'package:path/path.dart';
 
 // convert to posix
 String normalizePath(String path) {
-  return posix.normalize(posix.joinAll(split(path)));
+  // Ugly...
+  return posix.normalize(posix.joinAll(posix.split(posix.joinAll(windows.split(path)))));
 }
 
 /// generate the target assetId for a given path

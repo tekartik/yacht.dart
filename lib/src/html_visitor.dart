@@ -39,5 +39,5 @@ class HtmlDocumentVisitor extends HtmlElementVisitor {
   }
 
   @override
-  visit(node) async => node;
+  visit(node) => node;
 }
