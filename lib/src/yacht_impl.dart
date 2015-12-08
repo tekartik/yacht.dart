@@ -75,6 +75,7 @@ abstract class YachtTransformerMixin {
 
   run(AssetTransform transform) {
     AssetId primaryId = transform.primaryId;
+
     String path = primaryId.path;
     String basename = posix.basename(primaryId.path);
     String extension = posix.extension(basename);
@@ -643,7 +644,7 @@ class YachtTransformOption {
       List<String> _ignored = settings.configuration['ignore'];
       if (_ignored != null) {
         for (String path in _ignored) {
-          path = normalize(path);
+          path = normalizePath(path);
           ignored.add(path);
         }
       }

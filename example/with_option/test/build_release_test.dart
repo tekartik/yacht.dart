@@ -53,12 +53,16 @@ main() {
       _checkFile('include.css', 'body { color: red; }');
 
       // ignored (i.e. no formatting
-      _checkFile(
-          'ignored.css',
-          '''
+      if (Platform.isWindows) {
+        _checkFile('ignored.css', 'body {\r\n\    color: red;\r\n}');
+      } else {
+        _checkFile(
+            'ignored.css',
+            '''
 body {
     color: red;
 }''');
+      }
     });
   });
 }

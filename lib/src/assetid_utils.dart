@@ -4,11 +4,17 @@ import 'package:barback/src/asset/asset_id.dart';
 export 'package:barback/src/asset/asset_id.dart';
 import 'package:path/path.dart';
 
+// convert to posix
+String normalizePath(String path) {
+  return posix.normalize(posix.joinAll(split(path)));
+}
+
 /// generate the target assetId for a given path
 AssetId assetIdWithPath(AssetId id, String path) {
   if (path == null) {
     return null;
   }
+  path = normalizePath(path);
   String package;
 
   // resolve other package?
@@ -28,7 +34,7 @@ AssetId assetIdWithPath(AssetId id, String path) {
 
       // try relative
       if (!posix.isAbsolute(path)) {
-        path = posix.normalize(posix.join(posix.dirname(id.path), path));
+        path = posix.join(posix.dirname(id.path), path);
       }
     }
   }

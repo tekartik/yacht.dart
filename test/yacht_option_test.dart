@@ -47,7 +47,7 @@ main() {
           'ignore': [
             'ignored.css',
             'example/ignored1.css',
-            'example/ignored2.css'
+            'example\\ignored2.css'
           ]
         }, BarbackMode.DEBUG));
         expect(option.isDebug, isTrue);

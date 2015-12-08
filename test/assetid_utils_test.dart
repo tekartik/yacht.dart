@@ -16,10 +16,24 @@ main() {
       expect(id.package, isNull);
       expect(id.path, dir);
 
+      // relative
+      id = assetIdWithPath(id, 'dir/sub');
+      expect(id.path, posix.join("dir/sub"));
+
+      id = assetIdWithPath(id, 'other/file');
+      expect(id.path, posix.join("dir/other/file"));
+
+      id = assetIdWithPath(id, '..\\sub');
+      expect(id.path, posix.join("dir/sub"));
+
       // package
       id = assetIdWithPath(id, 'packages/pkg/dir');
       expect(id.package, 'pkg');
       expect(id.path, posix.join("lib", dir));
+
+      // relative
+      id = assetIdWithPath(id, 'sub');
+      expect(id.path, posix.join("lib", "sub"));
 
       // null id
       id = assetIdWithPath(null, 'dir');
@@ -28,6 +42,11 @@ main() {
       id = assetIdWithPath(null, 'packages/pkg/dir');
       expect(id.package, 'pkg');
       expect(id.path, posix.join("lib", dir));
+    });
+
+    test('normalizePath', () {
+      expect(normalizePath("a/b"), "a/b");
+      expect(normalizePath("a\\b"), "a/b");
     });
   });
 }
