@@ -1,8 +1,8 @@
 library yacht.test.html_visitor_test;
 
-import 'package:dev_test/test.dart';
 import 'package:yacht/src/html_printer.dart';
 import 'package:html/dom.dart';
+import 'test_common.dart';
 
 main() {
   group('html_visitor', () {
@@ -16,12 +16,69 @@ main() {
         Element element = new Element.html('<a>link</a>');
         HtmlElementNodeLinesBuilder builder = new HtmlElementNodeLinesBuilder();
         await builder.visitElement(element);
+        expect(element.text, 'link');
+        expect(element.innerHtml, 'link');
         expect(builder.lines, hasLength(2));
         expect(builder.lines[0].node, new isInstanceOf<Element>());
         expect(builder.lines[0].depth, 0);
         expect(builder.lines[1].node, isNot(new isInstanceOf<Element>()));
         expect(builder.lines[1].node.nodeType, Node.TEXT_NODE);
         expect(builder.lines[1].depth, 1);
+      });
+
+      test('element_with_innner', () {
+        Element element = new Element.html('<div><a></a></div>');
+        expect(element.text, '');
+        expect(element.nodes.first.text, '');
+        expect(element.innerHtml, '<a></a>');
+        HtmlElementNodeLinesBuilder builder = new HtmlElementNodeLinesBuilder();
+        builder.visitElement(element);
+        //devPrint(builder.lines);
+      });
+
+      test('element_with_innner_2', () {
+        Element element = new Element.html('<div>1<a>2</a>3</div>');
+        expect(element.text, '123');
+        expect(element.nodes.first.text, '1');
+        expect(element.innerHtml, '1<a>2</a>3');
+        HtmlElementNodeLinesBuilder builder = new HtmlElementNodeLinesBuilder();
+        builder.visitElement(element);
+        //devPrint(builder.lines);
+      });
+
+      test('element_with_html_text_node', () {
+        Element element = new Element.tag('div');
+        element.text = '&lt;a&gt;&lt;/a&gt;';
+        expect(element.text, '&lt;a&gt;&lt;/a&gt;');
+        expect(element.nodes.first.text, '&lt;a&gt;&lt;/a&gt;');
+        //devPrint(element.innerHtml);
+        HtmlElementNodeLinesBuilder builder = new HtmlElementNodeLinesBuilder();
+        builder.visitElement(element);
+        //devPrint(builder.lines);
+      });
+
+      // NO
+      test('element_with_inner_html', () {
+        Element element = new Element.tag('div');
+        element.innerHtml = '&lt;a&gt;&lt;/a&gt;';
+
+        expect(element.text, '<a></a>');
+        expect(element.nodes.first.text, '<a></a>');
+        expect(element.innerHtml, '&lt;a&gt;&lt;/a&gt;');
+        HtmlElementNodeLinesBuilder builder = new HtmlElementNodeLinesBuilder();
+        builder.visitElement(element);
+        //devPrint(builder.lines);
+      });
+
+      // NO
+      test('parse_element_with_html_text_node', () {
+        Element element = new Element.html('<div>&lt;a&gt;&lt;/a&gt;</div>');
+        expect(element.text, '<a></a>');
+        expect(element.nodes.first.text, '<a></a>');
+        expect(element.innerHtml, '&lt;a&gt;&lt;/a&gt;');
+        HtmlElementNodeLinesBuilder builder = new HtmlElementNodeLinesBuilder();
+        builder.visitElement(element);
+        //expect(builder.lines, htmlLines([]));
       });
 
       test('element_with_head', () async {

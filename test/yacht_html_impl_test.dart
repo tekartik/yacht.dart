@@ -212,6 +212,14 @@ main() {
         await checkYachtTransformElement(
             '<a></a>', null, htmlLines(['<a></a>']));
       });
+
+      test('code', () async {
+        await checkYachtTransformElement(
+            '<code>&lt;link rel=prerender&gt;</code>',
+            null,
+            htmlLines(['<code>&lt;link rel=prerender&gt;</code>']));
+      });
+
       test('style', () async {
         await checkYachtTransformElement(
             '<style></style>', null, htmlLines(['<style></style>']));
@@ -252,7 +260,7 @@ main() {
             '<noscript><style>@color1: red; body { color: @color1; }</style></noscript>',
             null,
             htmlLines([
-              '<noscript><style>@color1: red; body { color: @color1; }</style></noscript>'
+              '<noscript><style>body { color: red; }</style></noscript>'
             ]));
       });
 
@@ -271,13 +279,13 @@ main() {
             '<noscript><style yacht-ignore>@color1: red; body { color: @color1; }</style></noscript>',
             null,
             htmlLines([
-              '<noscript><style yacht-ignore>@color1: red; body { color: @color1; }</style></noscript>'
+              '<noscript><style>@color1: red; body { color: @color1; }</style></noscript>'
             ]));
         // !yacht ignore not removed
         await checkYachtTransformElement(
             '<noscript><style yacht-ignore>\n</style></noscript>',
             null,
-            htmlLines(['<noscript><style yacht-ignore> </style></noscript>']));
+            htmlLines(['<noscript><style>', [1, '</style></noscript>']]));
       });
 
       test('style_data_ignore', () async {

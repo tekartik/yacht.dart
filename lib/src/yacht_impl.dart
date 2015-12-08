@@ -462,26 +462,17 @@ abstract class YachtTransformerMixin {
     }
     await _handleTag('yacht-body', _handleYachtBody);
 
-    /*
     // convert single text line node to html if possible
     Future<Element> _handleNoScript(Element element) async {
-      devPrint('noscript: $element');
-      devPrint(element.attributes);
-      if (element.hasChildNodes()) {
-        if ((element.nodes.length == 1) && (element.nodes.first.nodeType == Node.TEXT_NODE)) {
-          element.innerHtml = element.text;
-        }
-      }
-
+      noScriptFix(element);
       return element;
     }
 
     // don't use noscript
-
     // Fix noscript bug
     // content is not converted as elements somehow
     await _handleTag('noscript', _handleNoScript);
-    */
+
     // handle styles
     // Resolve css
     Future<Element> _handleStyle(Element element) async {

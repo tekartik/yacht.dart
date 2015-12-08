@@ -1,6 +1,6 @@
 library yacht.test.html_visitor_test;
 
-import 'package:dev_test/test.dart';
+import 'test_common.dart';
 import 'package:yacht/src/html_printer.dart';
 import 'package:html/dom.dart';
 
@@ -192,6 +192,43 @@ main() {
       expect(printer.lines, htmlLines(['<a></a>']));
     });
 
+    test('inner_element', () {
+      Element element = new Element.html('<div><a></a></div>');
+      expect(element.outerHtml, '<div><a></a></div>');
+      /*
+      devPrint(element.innerHtml);
+      devPrint(element.text);
+      */
+      HtmlElementPrinter printer = new HtmlElementPrinter();
+      printer.visitElement(element);
+      expect(printer.lines, htmlLines(['<div><a></a></div>']));
+    });
+
+    test('element_with_text_node', () {
+      Element element = new Element.tag('div');
+      element.text = '<a></a>';
+      HtmlElementPrinter printer = new HtmlElementPrinter();
+      printer.visitElement(element);
+      expect(printer.lines, htmlLines(['<div>&lt;a&gt;&lt;/a&gt;</div>']));
+    });
+
+    test('element_html', () {
+      try {
+        new Element.html('&lt;a&gt;&lt;/a&gt;');
+        fail("should fail");
+      } on ArgumentError catch (_) {
+        //print(_);
+        //print(_.runtimeType);
+
+      }
+      Element element = new Element.html('<div>&lt;a&gt;&lt;/a&gt;</div>');
+      expect(element.outerHtml, '<div>&lt;a&gt;&lt;/a&gt;</div>');
+      expect(element.text, '<a></a>');
+      HtmlElementPrinter printer = new HtmlElementPrinter();
+      printer.visitElement(element);
+      expect(printer.lines, htmlLines(['<div>&lt;a&gt;&lt;/a&gt;</div>']));
+    });
+
     test('span', () async {
       await checkHtmlElement('<a></a>', htmlLines('<a></a>'));
       await checkHtmlElement('<a>link</a>', htmlLines('<a>link</a>'));
@@ -365,6 +402,28 @@ main() {
     test('div', () {
       checkHtmlElement(
           "<div>some  text\r</div>", htmlLines(['<div>some text </div>']));
+    });
+
+    test('div_inner_html', () {
+      checkHtmlElement("<div>&lt;link rel=prerender&gt</div>",
+          htmlLines(['<div>&lt;link rel=prerender&gt;</div>']));
+    });
+
+    test('code', () {
+      checkHtmlElement("<code>&lt;link rel=prerender&gt</code>",
+          htmlLines(['<code>&lt;link rel=prerender&gt;</code>']));
+    });
+
+    test('pre', () {
+      checkHtmlElement("<pre>&lt;link rel=prerender&gt</pre>",
+          htmlLines(['<pre>&lt;link rel=prerender&gt;</pre>']));
+    });
+
+    test('noscript', () {
+      checkHtmlElement(
+          '<noscript><style>body { color: red; }</style></noscript>',
+          htmlLines(
+              ['<noscript><style>body { color: red; }</style></noscript>']));
     });
 
     test('element_base_debug', () async {

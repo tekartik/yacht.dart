@@ -2,9 +2,11 @@ library yacht.src.html_printer;
 
 import 'html_visitor.dart';
 import 'package:html/dom.dart';
+import 'package:html/dom_parsing.dart';
 import 'package:collection/collection.dart';
 import 'package:barback/src/transformer/barback_settings.dart';
 import 'text_utils.dart';
+import 'html_utils.dart';
 import 'html_tag_utils.dart';
 import 'common_import.dart';
 
@@ -432,8 +434,13 @@ abstract class HtmlLinesBuilderMixin {
   // @override
   Node visit(Node node) {
     if (node is Element) {
-      //print(node.outerHtml);
       String tag = node.localName;
+
+      // fix noscript issue
+      noScriptFix(node);
+
+      //print(node.outerHtml);
+
       bool parentInline = inlineContent;
       bool parentDoNotConvertContent = doNotConvertContent;
       bool parentIsRawTag = isRawTag;
@@ -447,7 +454,9 @@ abstract class HtmlLinesBuilderMixin {
       inlineContent = tryToInline;
 
       // end line for head tags
-      bool _isHeadTag = isHeadTag(tag);
+      bool _isHeadTag = isHeadTag(tag) &&
+          node.parent != null &&
+          node.parent.localName != "noscript";
       if (_isHeadTag) {
         _addLine();
       }
@@ -483,14 +492,15 @@ abstract class HtmlLinesBuilderMixin {
         _addLine();
       }
     } else {
+      // Escape text
+      // &gt; won't get converted to <
+      String text = htmlSerializeEscape(node.text);
       // make sure new line starts deeper
       //beginLineDepth = depth;
       if (doNotConvertContent) {
-        _add(node.text);
+        _add(text);
       } else if (node.nodeType == Node.TEXT_NODE) {
         // remove and/trailing space
-        String text = node.text;
-
         if (isRawTag) {
           // Keep as is if single line
           if (isSingleLineText(text)) {
@@ -524,7 +534,7 @@ abstract class HtmlLinesBuilderMixin {
         }
       } else {
         // skip other
-        print('${node.nodeType} ${node.text}');
+        print('${node.nodeType} ${text}');
       }
     }
     return node;
