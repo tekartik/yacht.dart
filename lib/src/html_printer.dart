@@ -217,6 +217,17 @@ bool _doNotConvertContentForTag(String tagName) {
   }
 }
 
+// prevent converting > to &gt;
+bool _doNotEscapeContentForTag(String tagName) {
+  switch (tagName) {
+    case 'style':
+    case 'script':
+      return true;
+    default:
+      return false;
+  }
+}
+
 String elementBeginTag(Element element) {
   StringBuffer sb = new StringBuffer();
   sb.write('<${element.localName}');
@@ -335,6 +346,7 @@ abstract class HtmlLinesBuilderMixin {
   bool parentInline;
   bool inlineContent;
   bool doNotConvertContent;
+  bool doNotEscapeContent; // for style/script
   bool isRawTag;
   int beginLineDepth;
 
@@ -445,7 +457,7 @@ abstract class HtmlLinesBuilderMixin {
       bool parentDoNotConvertContent = doNotConvertContent;
       bool parentIsRawTag = isRawTag;
       doNotConvertContent = _doNotConvertContentForTag(tag);
-
+      doNotEscapeContent = _doNotEscapeContentForTag(tag);
       // raw tags are script/style that we keep as is here
       isRawTag = rawTags.contains(tag);
       // bool tryToInline =  _hasSingleTextNodeLines(node);
@@ -494,7 +506,12 @@ abstract class HtmlLinesBuilderMixin {
     } else {
       // Escape text
       // &gt; won't get converted to <
-      String text = htmlSerializeEscape(node.text);
+      String text;
+      if (doNotEscapeContent) {
+        text = node.text;
+      } else {
+        text = htmlSerializeEscape(node.text);
+      }
       // make sure new line starts deeper
       //beginLineDepth = depth;
       if (doNotConvertContent) {

@@ -116,7 +116,7 @@ main() {
       // css
       _checkFile('simple.css', 'body { color: red; }');
       _checkFile('include.css', 'body { color: red; }');
-      _checkFile('short.css', 'body { color: red; }');
+      _checkFile('short.css', 'body{color:red}');
     });
   });
 }

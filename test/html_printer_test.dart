@@ -309,6 +309,18 @@ main() {
           htmlLines(['<style>body {opacity: 0}</style>']));
     });
 
+    test('style_no_escape', () {
+      // from amp
+      checkHtmlElement("<style>div>a{color:red}</style>",
+          htmlLines(['<style>div>a{color:red}</style>']));
+    });
+
+    test('script_no_escape', () {
+      // from amp
+      checkHtmlElement("<script>if (2 > 1) print('hi');</script>",
+          htmlLines(["<script>if (2 > 1) print('hi');</script>"]));
+    });
+
     test('style_element_with_line_feed', () {
       checkHtmlElement("<style>\n</style>", htmlLines(['<style>', '</style>']));
       checkHtmlElement(

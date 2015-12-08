@@ -333,8 +333,17 @@ abstract class YachtTransformerMixin {
     }
 
     // write
-
     String newCss = printStyleSheet(styleSheet, pretty: option.isDebug);
+
+    // compare to the existing if single line, smaller than the existing and polyfill not used
+    if (!hasLineFeed(css)) {
+      if (newCss.length > css.length) {
+        if (compileCss(css, pretty: false) ==
+            compileCss(css, polyfill: false, pretty: false)) {
+          return null;
+        }
+      }
+    }
 
     return newCss;
   }

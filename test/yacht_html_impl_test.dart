@@ -259,9 +259,8 @@ main() {
         await checkYachtTransformElement(
             '<noscript><style>@color1: red; body { color: @color1; }</style></noscript>',
             null,
-            htmlLines([
-              '<noscript><style>body { color: red; }</style></noscript>'
-            ]));
+            htmlLines(
+                ['<noscript><style>body { color: red; }</style></noscript>']));
       });
 
       test('style_ignore', () async {
@@ -285,7 +284,10 @@ main() {
         await checkYachtTransformElement(
             '<noscript><style yacht-ignore>\n</style></noscript>',
             null,
-            htmlLines(['<noscript><style>', [1, '</style></noscript>']]));
+            htmlLines([
+              '<noscript><style>',
+              [1, '</style></noscript>']
+            ]));
       });
 
       test('style_data_ignore', () async {

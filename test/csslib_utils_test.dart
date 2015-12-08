@@ -12,6 +12,12 @@ main() {
           compileCss('@color1: red; body { color: @color1; }', pretty: false),
           'body { color: red; }');
     });
+    test('result', () {
+      String css = 'body{opacity:1}';
+      expect(compileCss(css), compileCss(css, polyfill: false));
+      css = '@color1: red; body { color: @color1; }';
+      expect(compileCss(css), isNot(compileCss(css, polyfill: false)));
+    });
   });
   //YachtTransformer transformer;
   group('csslib_exp', () {

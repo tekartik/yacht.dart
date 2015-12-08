@@ -130,7 +130,7 @@ main() {
       _checkFile('simple.css', 'body {\n  color: #f00;\n}');
       // debug no import
       _checkFile('include.css', 'body {\n  color: #f00;\n}');
-      _checkFile('short.css', 'body {\n  color: #f00;\n}');
+      _checkFile('short.css', 'body{color:red}');
     });
   });
 }
