@@ -19,6 +19,8 @@ class _YachtIsPrimaryTransform extends AssetTransform
   _YachtIsPrimaryTransform(this.primaryId);
 }
 
+bool _quickDebug = false;
+
 abstract class YachtTransformerMixin {
   BarbackSettings get settings;
   // YachtTransformer.asPlugin([BarbackSettings settings]) : super.asPlugin(settings);
@@ -316,6 +318,10 @@ abstract class YachtTransformerMixin {
     // build master
     String tempCss = cssTransform.css.join('\n');
     //devPrint('#${tempCss}');
+    if (_quickDebug) {
+      print('before compile: $tempCss');
+    }
+
     styleSheet = compile(tempCss, polyfill: true);
 
     // remove imported @import
@@ -336,12 +342,19 @@ abstract class YachtTransformerMixin {
     // write
     String newCss = printStyleSheet(styleSheet, pretty: option.isDebug);
 
-    // compare to the existing if single line, smaller than the existing and polyfill not used
-    if (!hasLineFeed(css)) {
-      if (newCss.length > css.length) {
-        if (compileCss(css, pretty: false) ==
-            compileCss(css, polyfill: false, pretty: false)) {
-          return null;
+    if (_quickDebug) {
+      print('after compile: $newCss');
+    }
+
+    // if imports always take the  newCss
+    if (cssTransform.hasImport != true) {
+      // compare to the existing if single line, smaller than the existing and polyfill not used
+      if (!hasLineFeed(css)) {
+        if (newCss.length > css.length) {
+          if (compileCss(css, pretty: false) ==
+              compileCss(css, polyfill: false, pretty: false)) {
+            return null;
+          }
         }
       }
     }

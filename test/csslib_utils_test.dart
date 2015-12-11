@@ -12,7 +12,7 @@ main() {
           compileCss('@color1: red; body { color: @color1; }', pretty: false),
           'body { color: red; }');
     });
-    test('result', () {
+    test('less var', () {
       String css = 'body{opacity:1}';
       expect(compileCss(css), compileCss(css, polyfill: false));
       css = '@color1: red; body { color: @color1; }';
@@ -31,6 +31,31 @@ color: @color1;
 
       expect(printStyleSheet(sheet, pretty: false), 'body { color: red; }');
     });
+    test('simple_less_rule', () {
+      // not working
+      String css = '''
+@color1: color: red;
+body {
+  @color1
+}''';
+      StyleSheet sheet = compile(css, polyfill: true);
+
+      expect(printStyleSheet(sheet, pretty: false),
+          ':red { color1: ; }'); // should be 'body { color: red; }'
+    });
+    test('simple_scss_var', () {
+      // not working
+      String css = '''
+\$color1: red;
+body {
+color: \$color1;
+}''';
+      StyleSheet sheet = compile(css, polyfill: true);
+
+      expect(printStyleSheet(sheet, pretty: false),
+          ''); // should be'''body { color: red; }');
+    });
+
     test('simple_css3_var_no_polyfill', () {
       String css = '''
 :host {
@@ -83,7 +108,7 @@ body {
     });
     */
 
-    test('scss_mixin', () {
+    test('scss_extend', () {
       // css3 vars not working
       String css = r'''
 .red { color: red; }
@@ -95,6 +120,62 @@ body {
       expect(printStyleSheet(sheet, pretty: false),
           '.red,.blue { color: red; } .blue { width: 0; }');
     });
+
+    test('scss_media_query_var_and_extend', () {
+      // css3 vars not working inside media query
+      // global var working ok
+      String css = r'''
+@width = 100px;
+.red { color: red; }
+@media screen {
+  .blue { @extend .red; width: @width }
+}
+''';
+      StyleSheet sheet = compile(css,
+          options: new PreprocessorOptions(polyfill: true), polyfill: true);
+
+      expect(printStyleSheet(sheet, pretty: false),
+          '.red,.blue { color: red; } @media screen { .blue { width: 100px; } }'); // NO!
+    });
+
+    test('scss_media_inner_class', () {
+      // css3 vars not working inside media query
+      // global var working ok
+      String css = r'''
+@media screen {
+  .red { color: red; }
+}
+.blue { @extend .red; }
+''';
+      StyleSheet sheet = compile(css,
+          options: new PreprocessorOptions(polyfill: true), polyfill: true);
+
+      expect(printStyleSheet(sheet, pretty: false),
+          '@media screen { .red,.blue { color: red; } } .blue { }');
+    });
+
+    /*
+    hangs
+
+    test('scss_mixin', () {
+      // css3 vars not working
+      String css = r'''
+@mixin border-radius($radius) {
+  -webkit-border-radius: $radius;
+     -moz-border-radius: $radius;
+      -ms-border-radius: $radius;
+          border-radius: $radius;
+}
+
+.box { @include border-radius(10px); }
+''';
+      StyleSheet sheet = compile(css,
+          options: new PreprocessorOptions(polyfill: true), polyfill: true);
+
+      expect(printStyleSheet(sheet, pretty: false),
+          '.red,.blue { color: red; } .blue { width: 0; }');
+    });
+    */
 
     /*
     skip_test('simple_apply', () {

@@ -61,8 +61,14 @@ Future checkYachtTransformCss(
   if (expectedCss == null) {
     expect(transform.outputs, isEmpty);
   } else {
-    expect(transform.outputs[primaryId].content, expectedCss,
-        reason: "outputs(${primaryAsset.id})");
+    try {
+      expect(transform.outputs[primaryId].content, expectedCss,
+          reason: "outputs(${primaryId})");
+    } catch (e) {
+      print("output ${primaryId} not found");
+      print(transform.outputs);
+      rethrow;
+    }
   }
 }
 
