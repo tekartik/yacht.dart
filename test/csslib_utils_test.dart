@@ -185,6 +185,38 @@ body {
           '.red,.blue { color: red; } .blue { width: 0; }');
     });
 
+    test('pretty_pring_bug media_query', () {
+      var input = '''
+.good { color: red; }
+@media screen { .better { color: blue; } }
+.best { color: green }''';
+      String generated = '''
+.good {
+  color: #f00;
+} @media screen {
+.better {
+  color: #00f;
+}
+}
+.best {
+  color: #008000;
+}''';
+      String shouldBe = '''
+.good {
+  color: #f00;
+}
+@media screen {
+  .better {
+    color: #00f;
+  }
+}
+.best {
+  color: #008000;
+}''';
+      checkPrettyPolyfill(input, generated);
+      // bug: shouldBe should be the result!
+      expect(generated, isNot(shouldBe));
+    });
     test('extend_bug_media_query', () {
       String input;
       String generated;
