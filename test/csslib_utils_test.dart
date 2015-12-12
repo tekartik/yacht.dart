@@ -354,5 +354,16 @@ color: red;
       expect(
           printStyleSheet(styleSheet2, pretty: false), 'body { color: red; }');
     });
+
+    test('pretty_print_bug_color', () {
+      String input = 'body { color: red; }';
+      final generated = 'body { color: red; }';
+      final generatedPretty = '''
+body {
+  color: #f00;
+}''';
+      checkPolyfill(input, generated); // the color is 'red'
+      checkPrettyPolyfill(input, generatedPretty); // the color is '#f00';
+    });
   });
 }
