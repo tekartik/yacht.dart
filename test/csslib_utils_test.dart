@@ -5,6 +5,25 @@ import 'package:csslib/parser.dart';
 import 'package:csslib/visitor.dart';
 import 'package:yacht/src/csslib_utils.dart';
 
+const simpleOptionsWithCheckedAndWarningsAsErrors = const PreprocessorOptions(
+    useColors: false,
+    checked: true,
+    warningsAsErrors: true,
+    inputFile: 'memory');
+
+checkCompile(String input, String generated,
+    {bool pretty: false, bool polyfill: false}) {
+  expect(compileCss(input, pretty: pretty, polyfill: polyfill), generated);
+}
+
+checkNoPolyfill(String input, String generated, {bool pretty: false}) =>
+    checkCompile(input, generated, pretty: pretty, polyfill: false);
+checkPolyfill(String input, String generated, {bool pretty: false}) =>
+    checkCompile(input, generated, pretty: pretty, polyfill: true);
+
+checkPrettyPolyfill(String input, String generated) =>
+    checkPolyfill(input, generated, pretty: true);
+
 main() {
   group('csslib_utils', () {
     test('compileCss', () {
@@ -12,11 +31,31 @@ main() {
           compileCss('@color1: red; body { color: @color1; }', pretty: false),
           'body { color: red; }');
     });
-    test('less var', () {
+    test('less_@', () {
       String css = 'body{opacity:1}';
       expect(compileCss(css), compileCss(css, polyfill: false));
       css = '@color1: red; body { color: @color1; }';
       expect(compileCss(css), isNot(compileCss(css, polyfill: false)));
+    });
+
+    test('less_var', () {
+      final input = '''
+@color-background: red;
+@color-foreground: blue;
+.test {
+  background-color: var(color-background);
+  color: var(color-foreground);
+}
+''';
+      final generated = '''
+var-color-background: #f00;
+var-color-foreground: #00f;
+
+.test {
+  background-color: var(color-background);
+  color: var(color-foreground);
+}''';
+      checkCompile(input, generated, pretty: true);
     });
   });
   //YachtTransformer transformer;
@@ -27,10 +66,16 @@ main() {
 body {
 color: @color1;
 }''';
-      StyleSheet sheet = compile(css, polyfill: true);
 
-      expect(printStyleSheet(sheet, pretty: false), 'body { color: red; }');
+      final generated = 'body { color: red; }';
+      final generatedPretty = '''
+body {
+  color: #f00;
+}''';
+      checkPolyfill(css, generated); // the color is 'red'
+      checkPrettyPolyfill(css, generatedPretty); // the color is '#f00';
     });
+
     test('simple_less_rule', () {
       // not working
       String css = '''
@@ -57,33 +102,52 @@ color: \$color1;
     });
 
     test('simple_css3_var_no_polyfill', () {
-      String css = '''
+      final input = '''
 :host {
   --test-color1: red;
 }
 body {
   color: var(--test-color1);
 }''';
-      StyleSheet sheet = compile(css);
+      final generated =
+          ':host { --test-color1: red; } body { color: var(--test-color1); }';
 
-      expect(printStyleSheet(sheet, pretty: false),
-          ':host { --test-color1: red; } body { color: var(--test-color1); }');
+      checkNoPolyfill(input, generated);
     });
 
+    // css3 vars not working
     test('simple_css3', () {
-      // css3 vars not working
       String css = '''
-:host {
+:root {
   --test-color1: red;
 }
 body {
   color: var(--test-color1);
 }''';
-      StyleSheet sheet = compile(css,
-          options: new PreprocessorOptions(polyfill: true), polyfill: true);
+      // We should have: checkPolyfill(css, ':root { } body { color: red; }')
+      checkPolyfill(css, ':root { --test-color1: red; } body { color: ; }');
+    });
 
-      expect(printStyleSheet(sheet, pretty: false),
-          ':host { --test-color1: red; } body { color: ; }');
+    test('simple_var', () {
+      // simple var implementation
+      String css = '''
+:root {
+  var-test-color1: red;
+}
+body {
+  color: var(test-color1);
+}''';
+
+      final generated = ':root { } body { color: red; }';
+
+      final generatedPretty = '''
+:root {
+}
+body {
+  color: #f00;
+}''';
+      checkPolyfill(css, generated);
+      checkPrettyPolyfill(css, generatedPretty);
     });
 
     test('nested_rule', () {
@@ -119,6 +183,34 @@ body {
 
       expect(printStyleSheet(sheet, pretty: false),
           '.red,.blue { color: red; } .blue { width: 0; }');
+    });
+
+    test('extend_bug_media_query', () {
+      String input;
+      String generated;
+
+      // extend works when a a single definition is used
+      input =
+          '.good { color: red; } @media screen { .better { @extend .good; } }';
+      generated = '.good,.better { color: red; } @media screen { .better { } }';
+      // it should be: '.good { color: red; } @media screen { .better { color: red; } }
+      checkPolyfill(input, generated);
+    });
+
+    test('extend_bug_multi_selector', () {
+      String input;
+      String generated;
+
+      // extend works when a a single definition is used
+      input = '.good { color: red; } .better { @extend .good; }';
+      generated = '.good,.better { color: red; } .better { }';
+      checkPolyfill(input, generated);
+
+      // but not if use
+      input = '.good { color: red; } .better,.best { @extend .good; }';
+      generated = '.good,.better { color: red; } .better,.best { }';
+      // it should be: generated = '.good,.better,.best { color: red; } .better,.best { }';
+      checkPolyfill(input, generated);
     });
 
     test('scss_media_query_var_and_extend', () {
