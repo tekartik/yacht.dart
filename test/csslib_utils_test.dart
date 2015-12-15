@@ -365,5 +365,12 @@ body {
       checkPolyfill(input, generated); // the color is 'red'
       checkPrettyPolyfill(input, generatedPretty); // the color is '#f00';
     });
+
+    test('print_minify', () {
+      String input = 'body { color: black; } div { }';
+      final generated = 'body { color: black; } div { }';
+      // should be 'body{color:#000}';
+      checkPolyfill(input, generated); // the color is 'red'
+    });
   });
 }
