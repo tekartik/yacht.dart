@@ -17,6 +17,14 @@ AssetId assetIdWithPath(AssetId id, String path) {
     return null;
   }
   path = normalizePath(path);
+
+  bool normalized = false;
+
+  String firstPart = posix.split(path)[0];
+  if (firstPart == '.' || firstPart == '..') {
+    path = posix.normalize(join(posix.dirname(id.path), path));
+    normalized = true;
+  }
   String package;
 
   // resolve other package?
@@ -35,7 +43,7 @@ AssetId assetIdWithPath(AssetId id, String path) {
       package = id.package;
 
       // try relative
-      if (!posix.isAbsolute(path)) {
+      if ((!normalized) && (!posix.isAbsolute(path))) {
         path = posix.join(posix.dirname(id.path), path);
       }
     }

@@ -120,6 +120,27 @@ Future checkYachtTransformDocument(
   expect(transformer.htmlLines, lines);
 }
 
+Future checkYachtTransformMarkdown(
+    String markdown, StringAssets inputAssets, HtmlLines lines) async {
+  YachtTransformer transformer = new YachtTransformer();
+
+  AssetId id = assetId("index.md");
+  StringAsset asset = stringAsset(id, markdown);
+  var transform = new StringTransform(asset, inputAssets);
+
+  //await transformer.runElementTransform(transform);
+  expect(transform, isNot(new isInstanceOf<IsPrimaryTransform>()));
+
+  expect(transform.isConsumed, isNull);
+  expect(transform.outputs, {});
+  expect(transformer.htmlLines, isNull);
+
+  // await needed here
+  await transformer.run(transform);
+
+  expect(transformer.htmlLines, lines);
+}
+
 assetId(String path) => new AssetId(null, path);
 main() {
   group('yacht_impl', () {

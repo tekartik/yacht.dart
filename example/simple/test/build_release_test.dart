@@ -113,6 +113,17 @@ main() {
       // Removed (different in debug)
       _checkFileExists('part/included.part.css', isFalse);
 
+      // markdown
+      _checkFile(
+          'post/simple_post.html',
+          '''
+<!doctype html>
+<html>
+<head></head>
+<body>Simple post</body>
+</html>''');
+      _checkFileExists('post/simple_post.md', isFalse);
+
       // css
       _checkFile('simple.css', 'body { color: red; }');
       _checkFile('include.css', 'body { color: red; }');

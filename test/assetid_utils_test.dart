@@ -49,5 +49,21 @@ main() {
       expect(normalizePath("a/../b"), "b");
       expect(normalizePath("a\\b"), "a/b");
     });
+
+    test('sub_folder', () {
+      AssetId id = new AssetId('pkg', 'sub/file');
+      // package
+      id = assetIdWithPath(id, '../dir');
+      expect(id.package, 'pkg');
+      expect(id.path, "dir");
+    });
+
+    test('package sub_folder', () {
+      AssetId id = new AssetId('pkg', 'sub/file');
+      // package
+      id = assetIdWithPath(id, '../packages/pkg/dir');
+      expect(id.package, 'pkg');
+      expect(id.path, posix.join("lib", "dir"));
+    });
   });
 }

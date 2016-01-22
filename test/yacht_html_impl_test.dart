@@ -6,6 +6,8 @@ import 'package:yacht/src/transformer.dart';
 import 'yacht_transformer_impl_test.dart';
 import 'html_printer_test.dart';
 import 'transformer_memory_test.dart';
+import 'package:path/path.dart';
+import 'package:yacht/src/html_printer.dart';
 
 class YachtTransformer extends Object with YachtTransformerMixin {
   BarbackSettings settings;
@@ -447,6 +449,67 @@ main() {
         await checkYachtTransformElement(
             '<a data-yacht-release></a>', null, htmlLines([]),
             option: new YachtTransformOption()..debug = true);
+      });
+
+      test('sub_folder', () async {
+        AssetId id = assetId(posix.join('sub', 'index.html'));
+
+        /*
+          stringAssets(['_included.html', '<p>Simple content</p>']),
+          htmlLines(['<div><p>Simple content</p></div>']));
+*/
+        await checkTransform(
+            stringAsset(id,
+                '<yacht-html><yacht-head><yacht-include src="../_included.html"></yacht-include></yacht-head><body></body></yacht-html>'),
+            stringAssets(['_included.html', '<meta>']),
+            isNull,
+            stringAssets([
+              id.path,
+              htmlPrintLines(htmlLines([
+                '<html>',
+                [1, '<head>'],
+                [2, '<meta>'],
+                [1, '</head>'],
+                [1, '<body></body>'],
+                '</html>'
+              ]))
+            ]));
+/*
+<!doctype html>
+<html>
+<head></head>
+<body></body>
+</html>''']));
+          await checkYachtTransformDocument(minInHtml, null, minHtmlLines);
+          */
+      });
+
+      test('sub_folder_include_from_package', () async {
+        AssetId id = assetId(posix.join('sub', 'index.html'));
+
+        await checkTransform(
+            stringAsset(id,
+                '<yacht-html><yacht-head><yacht-include src="../packages/pkg/_included.html"></yacht-include></yacht-head><body></body></yacht-html>'),
+            stringAssets(['pkg', 'lib/_included.html', '<meta>']),
+            isNull,
+            stringAssets([
+              id.path,
+              htmlPrintLines(htmlLines([
+                '<html>',
+                [1, '<head>'],
+                [2, '<meta>'],
+                [1, '</head>'],
+                [1, '<body></body>'],
+                '</html>'
+              ]))
+            ]));
+/*
+        await checkYachtTransformElement(
+            '<div><yacht-include src="packages/pkg/_included.html"></yacht-include></div>',
+            stringAssets(
+                ['pkg', 'lib/_included.html', '<meta>']),
+            htmlLines(['<div><p>Simple content</p></div>']));
+            */
       });
     });
   });

@@ -6,6 +6,12 @@ dependencies:
   barback: any
   csslib: any
   html: any
+  fs_shim: any
+  tekartik_utils:
+    git: git://github.com/alextekartik/tekartik_utils.dart
+  mustache_no_mirror: any
+  markdown: any
+  quiver: any
 dev_dependencies:
   test: any
   dev_test: any

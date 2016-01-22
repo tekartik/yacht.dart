@@ -15,3 +15,14 @@ class YachtTransformer extends BarbackTransformer with YachtTransformerMixin {
   YachtTransformer.asPlugin([BarbackSettings settings])
       : super.asPlugin(settings);
 }
+
+/// Conditional
+/// <title yacht-release>release</title>
+/// <title yacht-debug>debug</title>
+///
+
+/// yacht.yaml
+/// template:
+///   yacht_template.html
+/// src:
+///   post/*.md

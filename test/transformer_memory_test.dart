@@ -5,6 +5,8 @@ import 'package:yacht/src/transformer_memory.dart';
 import 'package:yacht/src/transformer.dart';
 import 'package:yacht/src/assetid_utils.dart';
 
+export 'package:yacht/src/transformer_memory.dart';
+
 stringAssets(List data) {
   StringAssets assets = new StringAssets();
 

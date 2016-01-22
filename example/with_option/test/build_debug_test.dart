@@ -5,8 +5,7 @@ import 'package:dev_test/test.dart';
 import 'dart:io';
 import 'package:path/path.dart';
 import 'dart:mirrors';
-import 'package:process_run/process_run.dart';
-import 'package:process_run/dartbin.dart';
+import 'package:process_run/cmd_run.dart';
 
 class _TestUtils {
   static final String scriptPath =
@@ -30,11 +29,11 @@ main() {
     // debug build
     test('debug', () async {
       //print(pkg);
-      ProcessResult result = await run(
-          dartExecutable, pubArguments(['build', 'example', '--mode', 'debug']),
-          connectStderr: true,
-          workingDirectory: projectTop,
-          connectStdout: false);
+      ProcessResult result =
+          await runCmd(pubCmd(['build', 'example', '--mode', 'debug'])
+            ..connectStderr = true
+            ..workingDirectory = projectTop
+            ..connectStdout = false);
 
       // on 1.13, current windows is failing
       if (!Platform.isWindows) {

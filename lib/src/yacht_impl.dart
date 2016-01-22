@@ -3,6 +3,7 @@ library yacht.src.yacht_impl;
 import 'transformer.dart';
 import 'package:path/path.dart';
 import 'dart:async';
+import 'package:yaml/yaml.dart' as yaml;
 import 'package:yacht/src/html_printer.dart';
 import 'package:yacht/src/assetid_utils.dart';
 import 'package:html/dom.dart';
@@ -12,6 +13,11 @@ import 'html_utils.dart';
 import 'text_utils.dart';
 import 'common_import.dart';
 import 'csslib_utils.dart';
+import 'package:fs_shim/utils/glob.dart';
+import 'package:tekartik_utils/map_utils.dart';
+import 'package:markdown/markdown.dart' as markdown;
+import 'package:mustache_no_mirror/mustache.dart' as mustache;
+import 'package:yaml/yaml.dart';
 
 class _YachtIsPrimaryTransform extends AssetTransform
     implements IsPrimaryTransform {
@@ -22,6 +28,38 @@ class _YachtIsPrimaryTransform extends AssetTransform
 bool _quickDebug = false;
 
 abstract class YachtTransformerMixin {
+  Map _yachtYaml;
+
+  Future<Map> getYachtYaml(Transform transform) async {
+    if (_yachtYaml == null) {
+      // Find first top yacht
+      String path = transform.primaryId.path;
+      String parent = path;
+      while (true) {
+        String newParent = dirname(parent);
+        if (newParent == null || newParent == parent) {
+          break;
+        }
+        parent = newParent;
+        AssetId assetId = new AssetId(
+            transform.primaryId.package, join(parent, 'yacht.yaml'));
+        try {
+          String text = await transform.readInputAsString(assetId);
+          _yachtYaml = cloneMap(yaml.loadYaml(text));
+          _yachtYaml['_top'] = parent;
+          break;
+        } catch (_) {
+          if (_quickDebug) {
+            print('read yacht.yaml error $_');
+          }
+          _yachtYaml = {};
+        }
+      }
+      //devPrint('### $_yachtYaml');
+    }
+    return new Future.value(_yachtYaml);
+  }
+
   BarbackSettings get settings;
   // YachtTransformer.asPlugin([BarbackSettings settings]) : super.asPlugin(settings);
 
@@ -84,7 +122,7 @@ abstract class YachtTransformerMixin {
 
     bool isPrimary = true;
     // handle part
-    if (!(extension == '.html' || extension == '.css')) {
+    if (!(extension == '.html' || extension == '.css' || extension == '.md')) {
       isPrimary = false;
     }
 
@@ -126,10 +164,22 @@ abstract class YachtTransformerMixin {
         }
       }
       return null;
+    } else if (extension == '.md') {
+      if (transform is ConsumableTransform) {
+        // only consume in release
+        if (option.isRelease) {
+          transform.consumePrimary();
+        }
+      }
     }
 
     if (transform is DeclaringTransform) {
-      transform.declareOutput(primaryId);
+      if (extension == '.md') {
+        AssetId outId = primaryId.changeExtension(".html");
+        transform.declareOutput(outId);
+      } else {
+        transform.declareOutput(primaryId);
+      }
       return null;
     }
 
@@ -140,6 +190,8 @@ abstract class YachtTransformerMixin {
           return transformHtml(transform);
         } else if (extension == '.css') {
           return transformCss(transform);
+        } else if (extension == '.md') {
+          return transformMarkdown(transform);
         }
       } else {
         throw 'should not get there';
@@ -161,7 +213,7 @@ abstract class YachtTransformerMixin {
   }
 
   // @override
-  String get allowedExtensions => '.html .css';
+  String get allowedExtensions => '.html .css .md';
 
   // @override
   isPrimary(AssetId id) {
@@ -184,6 +236,85 @@ abstract class YachtTransformerMixin {
     }
   }
 
+  Future transformMarkdown(Transform transform) async {
+    // get global setting first
+    _yachtYaml = null;
+    await getYachtYaml(transform);
+
+    if (_yachtYaml.isEmpty) {
+      transform.consumePrimary();
+      return null;
+    }
+
+    bool found = false;
+    for (String src in _yachtYaml['src']) {
+      //devPrint(src);
+      Glob glob = new Glob(src);
+      if (glob.matches(transform.primaryId.path)) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      return null;
+    }
+
+    // output
+    AssetId assetId = transform.primaryId.changeExtension(".html");
+
+    Map pageSettings = {};
+    // Read source
+    String input = await transform.readPrimaryAsString();
+
+    //devPrint('#3 ${input}');
+    bool first = true;
+    bool inYaml = false;
+    List<String> yamlLines = [];
+    List<String> contentLines = [];
+    for (String line in LineSplitter.split(input)) {
+      if (first) {
+        first = false;
+        if (line.startsWith('---')) {
+          inYaml = true;
+          continue;
+        }
+      }
+
+      if (inYaml) {
+        if (line.startsWith('---')) {
+          inYaml = false;
+        } else {
+          yamlLines.add(line);
+        }
+      } else {
+        contentLines.add(line);
+      }
+    }
+
+    String content = contentLines.join('\n');
+    if (yamlLines.isNotEmpty) {
+      String yamlText = yamlLines.join('\n');
+      pageSettings = cloneMap(yaml.loadYaml(yamlText));
+      //devPrint('#3 ${pageSettings}');
+
+    }
+
+    pageSettings['content'] = markdown.markdownToHtml(content);
+
+    AssetId templateId = new AssetId(transform.primaryId.package,
+        join(_yachtYaml['_top'], _yachtYaml['template']));
+
+    Map settings = {"site": _yachtYaml, "page": pageSettings};
+    mergeMap(settings, pageSettings);
+
+    String newHtml =
+        await transformHtmlTemplate(transform, templateId, settings);
+
+    if (newHtml != null) {
+      transform.addOutputFromString(assetId, newHtml);
+    }
+  }
+
   // copied from dart_2_js_script_rewriter
   void removeDartDotJsTags(Document document) {
     document.querySelectorAll('script').where((tag) {
@@ -203,6 +334,71 @@ abstract class YachtTransformerMixin {
           new RegExp(r'\.dart($|[\?#])'), (match) => '.dart.js${match[1]}');
       tag.attributes.remove('type');
     });
+  }
+
+  // return the new html
+  Future<String> transformHtmlTemplate(
+      Transform transform, AssetId templateId, Map settings) async {
+    String input = await transform.readInputAsString(templateId);
+
+    // only for testing
+    if (input == null) {
+      return null;
+    }
+
+    //devPrint(input);
+    //devPrint(settings);
+    var t = mustache.parse(input, lenient: true);
+
+    input = t.renderString(settings, lenient: true, htmlEscapeValues: false);
+    //devPrint(input);
+    // trim extra spaces as data after </html> might include TEXT_NODE in the body
+    Document document = new Document.html(input.trim());
+
+    HtmlPrinterOptions options =
+        new HtmlPrinterOptions.fromBarbackSettings(this.settings);
+
+    // Convert content
+    // - include
+    await handleElement(new _HtmlTransform()
+      ..transform = transform
+      ..document = document
+      ..settings = settings, transform.primaryId, document.documentElement);
+
+    // Rewrite script
+    if (!option.isDebug) {
+      removeDartDotJsTags(document);
+      rewriteDartTags(document);
+    }
+    // extract lines
+    HtmlDocumentPrinter printer = new HtmlDocumentPrinter();
+    await printer.visitDocument(document);
+    HtmlLines outHtmlLines = printer.lines;
+    // test subclass my override this to get the lines emitted
+    htmlLines = outHtmlLines;
+
+    // print
+    String output = await htmlPrintLines(outHtmlLines, options: options);
+
+    /*
+        if (false) {
+          // quick debug
+          HtmlDocumentNodeLinesPrinter builder =
+              new HtmlDocumentNodeLinesPrinter();
+          await builder.visitDocument(document);
+          print('nodes: ${builder.lines}');
+
+          HtmlDocumentPrinter printer = new HtmlDocumentPrinter();
+          await printer.visitDocument(document);
+          print('lines: ${printer.lines}');
+
+          print('input: ${input}');
+          print('output: ${output}');
+        }
+        */
+
+    // transform.addOutputFromString(outId, output);
+    return output;
   }
 
   Future transformHtml(Transform transform) async {
@@ -522,9 +718,11 @@ abstract class YachtTransformerMixin {
       // go relative
       // TODO handle other package
       AssetId includedAssetId = assetIdWithPath(assetId, src);
+      //devPrint('#1 $src | $assetId | $includedAssetId');
       String includedContent =
           await transform.readInputAsString(includedAssetId);
 
+      //TODO settings mustache
       //devPrint(includedContent);
       if (includedContent == null) {
         throw new ArgumentError(
@@ -605,6 +803,7 @@ abstract class YachtTransformerMixin {
 }
 
 class _HtmlTransform {
+  Map settings;
   Transform transform;
   Document document;
 }

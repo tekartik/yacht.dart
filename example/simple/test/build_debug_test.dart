@@ -4,8 +4,7 @@ library yacht_example_simple.test.build_test;
 import 'package:dev_test/test.dart';
 import 'dart:io';
 import 'package:path/path.dart';
-import 'package:process_run/process_run.dart';
-import 'package:process_run/dartbin.dart';
+import 'package:process_run/cmd_run.dart';
 import 'test_common.dart';
 
 main() {
@@ -14,11 +13,12 @@ main() {
   group('build_debug', () {
     test('debug', () async {
       //print(pkg);
-      ProcessResult result = await run(
-          dartExecutable, pubArguments(['build', 'example', '--mode', 'debug']),
-          connectStderr: true,
-          workingDirectory: projectTop,
-          connectStdout: false);
+      ProcessResult result =
+          await runCmd(pubCmd(['build', 'example', '--mode', 'debug'])
+            ..connectStderr = true
+            ..workingDirectory = projectTop
+            ..connectStdout = false);
+      //..connectStdout = true); int w;
 
       // on 1.13, current windows is failing
       if (!Platform.isWindows) {
@@ -123,6 +123,17 @@ main() {
       _checkFile('release_debug.html', html(head: '<title>debug</title>'));
       // not Removed (different in debug)
       _checkFileExists('part/included.part.css', isTrue);
+
+      // markdown
+      _checkFile(
+          'post/simple_post.html',
+          '''
+<!doctype html>
+<html>
+<head></head>
+<body>Simple post</body>
+</html>''');
+      _checkFileExists('post/simple_post.md', isTrue);
 
       // css
 
