@@ -1,5 +1,4 @@
 @TestOn("vm")
-library yacht_example_simple.test.build_release_test;
 
 import 'test_common.dart';
 import 'package:dev_test/test.dart';

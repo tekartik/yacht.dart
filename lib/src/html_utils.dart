@@ -1,5 +1,3 @@
-library yacht.src.html_utils.dart;
-
 import 'package:html/dom.dart';
 
 /// copy element attributes

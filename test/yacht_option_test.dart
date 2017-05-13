@@ -1,5 +1,3 @@
-library yacht.test.yacht_impl_test;
-
 import 'package:dev_test/test.dart';
 import 'package:yacht/src/yacht_impl.dart';
 import 'package:yacht/src/transformer.dart';

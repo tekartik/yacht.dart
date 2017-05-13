@@ -1,5 +1,3 @@
-library yacht.src.yacht_impl;
-
 import 'transformer.dart';
 import 'package:path/path.dart';
 import 'dart:async';

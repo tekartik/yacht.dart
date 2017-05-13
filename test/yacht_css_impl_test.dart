@@ -1,5 +1,3 @@
-library yacht.test.yacht_impl_test;
-
 import 'package:dev_test/test.dart';
 import 'package:yacht/src/yacht_impl.dart';
 import 'package:yacht/src/transformer.dart';
@@ -20,7 +18,7 @@ main() {
 
       test('simple', () async {
         await checkYachtTransformCss(
-            'body { color : red; }', null, 'body { color: red; }');
+            'body { color : red; }', null, 'body { color:red; }');
       });
 
       test('short', () async {
@@ -32,14 +30,14 @@ main() {
         await checkYachtTransformCss(
             '@media screen { .red { color: red ; } }',
             null,
-            '@media screen { .red { color: red; } }'); //'body { color: red; }');
+            '@media screen{ .red { color:red; } }'); //'body { color: red; }');
       });
 
       test('import', () async {
         await checkYachtTransformCss(
             '@import url(_included.css)',
             stringAssets(['_included.css', 'body{color:red}']),
-            'body { color: red; }');
+            'body { color:red; }');
       });
 
       test('import_sub', () async {
@@ -49,7 +47,7 @@ main() {
               ['_included.css', '@import url(_subincluded.css)'],
               ['_subincluded.css', 'body{color:red}']
             ]),
-            'body { color: red; }');
+            'body { color:red; }');
       });
 
       test('import_missing', () async {
@@ -62,13 +60,13 @@ main() {
 
       test('var', () async {
         await checkYachtTransformCss('@color1: red; body { color : @color1; }',
-            null, 'body { color: red; }');
+            null, 'body { color:red; }');
       });
       test('import_var', () async {
         await checkYachtTransformCss(
             '@import url(_included.css); body { color : @color1; }',
             stringAssets(['_included.css', '@color1: red']),
-            'body { color: red; }');
+            'body { color:red; }');
       });
 
       test('import_with_var', () async {
@@ -78,7 +76,7 @@ main() {
               ['_defs.css', '@color1: red;'],
               ['_included.css', 'body { color : @color1; }']
             ]),
-            'body { color: red; }');
+            'body { color:red; }');
       });
 
       test('import_with_media_inner', () async {
@@ -87,7 +85,7 @@ main() {
             stringAssets([
               ['_defs.css', '@media screen { .red { color: red; } }']
             ]),
-            '@media screen { .red,.blue { color: red; } } .blue { }');
+            '@media screen{ .red,.blue { color:red; } } .blue { }');
       });
       test('import_import with_media_inner', () async {
         await checkYachtTransformCss(
@@ -99,7 +97,7 @@ main() {
               ],
               ['_defs.css', '@media screen { .red { color: red; } }']
             ]),
-            '@media screen { .red,.blue { color: red; } } .blue { }');
+            '@media screen{ .red,.blue { color:red; } } .blue { }');
       });
       /*
       not wokring

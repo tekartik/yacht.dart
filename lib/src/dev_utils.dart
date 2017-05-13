@@ -1,4 +1,3 @@
-library yacht.src.dev_utils;
 
 ///
 /// Development helpers to generate warning in code

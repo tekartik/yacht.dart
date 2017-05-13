@@ -29,7 +29,7 @@ main() {
     test('compileCss', () {
       expect(
           compileCss('@color1: red; body { color: @color1; }', pretty: false),
-          'body { color: red; }');
+          'body { color:red; }');
     });
     test('less_@', () {
       String css = 'body{opacity:1}';
@@ -67,7 +67,7 @@ body {
 color: @color1;
 }''';
 
-      final generated = 'body { color: red; }';
+      final generated = 'body { color:red; }';
       final generatedPretty = '''
 body {
   color: #f00;
@@ -86,7 +86,7 @@ body {
       StyleSheet sheet = compile(css, polyfill: true);
 
       expect(printStyleSheet(sheet, pretty: false),
-          ':red { color1: ; }'); // should be 'body { color: red; }'
+          ':red { color1:; }'); // should be 'body { color: red; }'
     });
     test('simple_scss_var', () {
       // not working
@@ -110,7 +110,7 @@ body {
   color: var(--test-color1);
 }''';
       final generated =
-          ':host { --test-color1: red; } body { color: var(--test-color1); }';
+          ':host { --test-color1:red; } body { color:var(--test-color1); }';
 
       checkNoPolyfill(input, generated);
     });
@@ -125,7 +125,7 @@ body {
   color: var(--test-color1);
 }''';
       // We should have: checkPolyfill(css, ':root { } body { color: red; }')
-      checkPolyfill(css, ':root { --test-color1: red; } body { color: ; }');
+      checkPolyfill(css, ':root { --test-color1:red; } body { color:; }');
     });
 
     test('simple_var', () {
@@ -138,7 +138,7 @@ body {
   color: var(test-color1);
 }''';
 
-      final generated = ':root { } body { color: red; }';
+      final generated = ':root { } body { color:red; }';
 
       final generatedPretty = '''
 :root {
@@ -157,7 +157,7 @@ body {
           options: new PreprocessorOptions(polyfill: true), polyfill: true);
 
       expect(printStyleSheet(sheet, pretty: false),
-          'body { } body h1 { color: red; }');
+          'body { } body h1 { color:red; }');
     });
 
     /*
@@ -182,7 +182,7 @@ body {
           options: new PreprocessorOptions(polyfill: true), polyfill: true);
 
       expect(printStyleSheet(sheet, pretty: false),
-          '.red,.blue { color: red; } .blue { width: 0; }');
+          '.red,.blue { color:red; } .blue { width:0; }');
     });
 
     test('pretty_pring_bug media_query', () {
@@ -193,7 +193,8 @@ body {
       String generated = '''
 .good {
   color: #f00;
-} @media screen {
+}
+@media screen {
 .better {
   color: #00f;
 }
@@ -224,7 +225,7 @@ body {
       // extend works when a a single definition is used
       input =
           '.good { color: red; } @media screen { .better { @extend .good; } }';
-      generated = '.good,.better { color: red; } @media screen { .better { } }';
+      generated = '.good,.better { color:red; } @media screen{ .better { } }';
       // it should be: '.good { color: red; } @media screen { .better { color: red; } }
       checkPolyfill(input, generated);
     });
@@ -235,12 +236,12 @@ body {
 
       // extend works when a a single definition is used
       input = '.good { color: red; } .better { @extend .good; }';
-      generated = '.good,.better { color: red; } .better { }';
+      generated = '.good,.better { color:red; } .better { }';
       checkPolyfill(input, generated);
 
       // but not if use
       input = '.good { color: red; } .better,.best { @extend .good; }';
-      generated = '.good,.better { color: red; } .better,.best { }';
+      generated = '.good,.better { color:red; } .better,.best { }';
       // it should be: generated = '.good,.better,.best { color: red; } .better,.best { }';
       checkPolyfill(input, generated);
     });
@@ -259,7 +260,7 @@ body {
           options: new PreprocessorOptions(polyfill: true), polyfill: true);
 
       expect(printStyleSheet(sheet, pretty: false),
-          '.red,.blue { color: red; } @media screen { .blue { width: 100px; } }'); // NO!
+          '.red,.blue { color:red; } @media screen{ .blue { width:100px; } }'); // NO!
     });
 
     test('scss_media_inner_class', () {
@@ -275,7 +276,7 @@ body {
           options: new PreprocessorOptions(polyfill: true), polyfill: true);
 
       expect(printStyleSheet(sheet, pretty: false),
-          '@media screen { .red,.blue { color: red; } } .blue { }');
+          '@media screen{ .red,.blue { color:red; } } .blue { }');
     });
 
     /*
@@ -335,7 +336,7 @@ color: red;
 }''';
       StyleSheet sheet = compile(css, polyfill: true);
 
-      expect(printStyleSheet(sheet, pretty: false), 'body { color: red; }');
+      expect(printStyleSheet(sheet, pretty: false), 'body { color:red; }');
     });
 
     test('var_from_import', () {
@@ -344,7 +345,7 @@ color: red;
       //styleSheet2.topLevels.insertAll(0, styleSheet1.topLevels);
 
       String css = printStyleSheet(styleSheet2, pretty: false);
-      expect(css, 'body { color: var(color1); }');
+      expect(css, 'body { color:var(color1); }');
 
 // Need to compile with polyfill with includes
       styleSheet2 = compile('body {color:@color1}',
@@ -352,12 +353,12 @@ color: red;
       //StyleSheet sheet =
       //StyleSheet sheet = compile(css, options: new PreprocessorOptions(polyfill: true));
       expect(
-          printStyleSheet(styleSheet2, pretty: false), 'body { color: red; }');
+          printStyleSheet(styleSheet2, pretty: false), 'body { color:red; }');
     });
 
     test('pretty_print_bug_color', () {
       String input = 'body { color: red; }';
-      final generated = 'body { color: red; }';
+      final generated = 'body { color:red; }';
       final generatedPretty = '''
 body {
   color: #f00;
@@ -368,7 +369,7 @@ body {
 
     test('print_minify', () {
       String input = 'body { color: black; } div { }';
-      final generated = 'body { color: black; } div { }';
+      final generated = 'body { color:black; } div { }';
       // should be 'body{color:#000}';
       checkPolyfill(input, generated); // the color is 'red'
     });

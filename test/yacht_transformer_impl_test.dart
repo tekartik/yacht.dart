@@ -1,5 +1,3 @@
-library yacht.test.yacht_impl_test;
-
 import 'package:dev_test/test.dart';
 import 'package:yacht/src/yacht_impl.dart';
 import 'package:yacht/src/transformer_memory.dart';
@@ -246,10 +244,10 @@ main() {
           stringAsset(id, 'body { color : red; }'),
           null,
           isNull,
-          stringAssets([id.path, 'body { color: red; }'])); // short kept as is
+          stringAssets([id.path, 'body { color:red; }'])); // short kept as is
 
       await checkYachtTransformCss(
-          'body { color : red; }', null, 'body { color: red; }');
+          'body { color : red; }', null, 'body { color:red; }');
     });
 
     test('checkYachtTransformHtml', () async {

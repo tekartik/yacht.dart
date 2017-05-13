@@ -1,5 +1,3 @@
-library yacht.test.yacht_impl_test;
-
 import 'package:dev_test/test.dart';
 import 'package:yacht/src/yacht_impl.dart';
 import 'package:yacht/src/transformer.dart';
@@ -236,7 +234,7 @@ main() {
         await checkYachtTransformElement(
             '<style>@color1: red; body { color: @color1; }</style>',
             null,
-            htmlLines(['<style>body { color: red; }</style>']));
+            htmlLines(['<style>body { color:red; }</style>']));
       });
 
       test('sub_style', () async {
@@ -253,7 +251,7 @@ main() {
             null,
             htmlLines([
               '<div>',
-              [1, '<style>body { color: red; }</style>'],
+              [1, '<style>body { color:red; }</style>'],
               '</div>'
             ]));
 
@@ -262,7 +260,7 @@ main() {
             '<noscript><style>@color1: red; body { color: @color1; }</style></noscript>',
             null,
             htmlLines(
-                ['<noscript><style>body { color: red; }</style></noscript>']));
+                ['<noscript><style>body { color:red; }</style></noscript>']));
       });
 
       test('style_ignore', () async {
@@ -306,28 +304,28 @@ main() {
         await checkYachtTransformElement(
             '<style>@import url(_included.css)</style>',
             stringAssets(['_included.css', 'body{color:red}']),
-            htmlLines(['<style>body { color: red; }</style>']));
+            htmlLines(['<style>body { color:red; }</style>']));
       });
 
       test('style_import_sub', () async {
         await checkYachtTransformElement(
             '<style>@import url(sub/_included.css)</style>',
             stringAssets(['sub/_included.css', 'body{color:red}']),
-            htmlLines(['<style>body { color: red; }</style>']));
+            htmlLines(['<style>body { color:red; }</style>']));
       });
 
       test('style_import_package', () async {
         await checkYachtTransformElement(
             '<style>@import url(packages/pkg/_included.css)</style>',
             stringAssets(['pkg', 'lib/_included.css', 'body{color:red}']),
-            htmlLines(['<style>body { color: red; }</style>']));
+            htmlLines(['<style>body { color:red; }</style>']));
       });
 
       test('style_import_package', () async {
         await checkYachtTransformElement(
             '<style>@import url(packages/pkg/sub/_included.css)</style>',
             stringAssets(['pkg', 'lib/sub/_included.css', 'body{color:red}']),
-            htmlLines(['<style>body { color: red; }</style>']));
+            htmlLines(['<style>body { color:red; }</style>']));
       });
 
       test('style_import_missing', () async {

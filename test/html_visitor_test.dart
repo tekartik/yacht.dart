@@ -1,4 +1,3 @@
-library yacht.test.html_visitor_test;
 
 import 'package:yacht/src/html_printer.dart';
 import 'package:html/dom.dart';

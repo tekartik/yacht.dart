@@ -1,5 +1,3 @@
-library yacht.src.html_printer;
-
 import 'html_visitor.dart';
 import 'package:html/dom.dart';
 import 'package:html/dom_parsing.dart';

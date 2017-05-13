@@ -1,4 +1,3 @@
-library yacht.test.assetid_utils_test;
 
 import 'package:dev_test/test.dart';
 import 'package:yacht/src/assetid_utils.dart';
