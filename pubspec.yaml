@@ -3,6 +3,7 @@ version: 0.0.1
 description: Yet another css/html transformer
 sdk: '^1.0.0'
 dependencies:
+  build: '>=0.9.3'
   barback: any
   csslib: any
   html: any
@@ -13,6 +14,12 @@ dependencies:
   markdown: any
   quiver: any
 dev_dependencies:
+  sass_builder: any
+  build_runner: any
+  grinder: any
   test: any
   dev_test: any
   process_run: any
+
+dependency_overrides:
+  build: '>=0.9.3'
