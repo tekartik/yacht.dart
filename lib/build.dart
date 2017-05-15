@@ -1,8 +1,11 @@
+import 'package:barback/src/transformer/barback_settings.dart';
 import 'package:build/build.dart';
 import 'package:build_runner/build_runner.dart';
 import 'package:sass_builder/phase.dart';
 import 'package:yacht/src/build/build_runner_dev.dart';
 import 'package:yacht/src/common_import.dart';
+import 'package:yacht/src/yacht_builder_impl.dart';
+import 'package:yacht/src/yacht_impl.dart';
 export 'src/build/build_runner_dev.dart';
 
 BuildRunnerPhase get buildRunnerSassPhase {
@@ -10,6 +13,29 @@ BuildRunnerPhase get buildRunnerSassPhase {
 }
 
 var _graph = new PackageGraph.forThisPackage();
+
+class YachtBuilder extends Object with YachtBuilderMixin implements Builder  {
+  /*
+  YachtTransformer.asPlugin([BarbackSettings settings])
+      : super.asPlugin(settings);
+      */
+  @override
+  Future build(BuildStep buildStep) async {
+    // TODO: implement build
+  }
+
+  // TODO: implement buildExtensions
+  //@override
+  //Map<String, List<String>> get buildExtensions => null;
+  // TODO: implement settings
+  @override
+  BarbackSettings get settings => null;
+  @override
+  List<AssetId> declareOutputs(AssetId inputId) {
+    // TODO: implement declareOutputs
+    return null;
+  }
+}
 
 /// A really simple [Builder], it just makes copies!
 class CopyBuilder implements Builder {
@@ -51,6 +77,10 @@ class CopyBuilder implements Builder {
   }
   */
 
+  @override
+  List<AssetId> declareOutputs(AssetId inputId) {
+    // TODO: implement declareOutputs
+  }
 }
 
 Phase get yachtHtmlPhase => new Phase()..addAction(
