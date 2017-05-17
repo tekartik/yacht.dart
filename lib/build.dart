@@ -2,11 +2,10 @@ import 'package:barback/src/transformer/barback_settings.dart';
 import 'package:build/build.dart';
 import 'package:build_runner/build_runner.dart';
 import 'package:sass_builder/phase.dart';
-import 'package:yacht/src/build/build_runner_dev.dart';
+import 'package:yacht/src/builder/build_runner_dev.dart';
 import 'package:yacht/src/common_import.dart';
 import 'package:yacht/src/yacht_builder_impl.dart';
-import 'package:yacht/src/yacht_impl.dart';
-export 'src/build/build_runner_dev.dart';
+export 'src/builder/build_runner_dev.dart';
 
 BuildRunnerPhase get buildRunnerSassPhase {
   return buildRunnerPhase(new PhaseGroup()..addPhase(sassPhase), deleteFilesByDefault: true);
@@ -80,6 +79,7 @@ class CopyBuilder implements Builder {
   @override
   List<AssetId> declareOutputs(AssetId inputId) {
     // TODO: implement declareOutputs
+    return null;
   }
 }
 

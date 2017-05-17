@@ -15,7 +15,6 @@ import 'package:fs_shim/utils/glob.dart';
 import 'package:tekartik_utils/map_utils.dart';
 import 'package:markdown/markdown.dart' as markdown;
 import 'package:mustache_no_mirror/mustache.dart' as mustache;
-import 'package:yaml/yaml.dart';
 
 class _YachtIsPrimaryTransform extends AssetTransform
     implements IsPrimaryTransform {
@@ -215,7 +214,7 @@ abstract class YachtBuilderMixin {
   String get allowedExtensions => '.html .css .md';
 
   // TODO: implement buildExtensions
-  @override
+  //@override
   Map<String, List<String>> get buildExtensions => {'': ['.html', '.css', '.md']};
 
   // @override

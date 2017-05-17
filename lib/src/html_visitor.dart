@@ -1,7 +1,7 @@
 library yacht.src.html_visitor;
 
 //import 'visitor.dart' as visitor;
-import 'visitor.dart' show Visitor, VisitorAsync;
+import 'visitor.dart' show Visitor;
 import 'package:html/dom.dart';
 
 abstract class HtmlVisitorBase implements Visitor<Node> {
