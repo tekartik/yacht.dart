@@ -45,16 +45,16 @@ main() {
 <!doctype html>
 <html>
 <head>
-  <style>body { color: red; } html { color: black; }</style>
+  <style>body { color:red; } html { color:black; }</style>
 </head>
 <body>
 </body>
 </html>''');
-      _checkFile('include.css', 'body { color: red; }');
+      _checkFile('include.css', 'body { color:red; }');
 
       // ignored (i.e. no formatting
       if (Platform.isWindows) {
-        _checkFile('ignored.css', 'body {\r\n\    color: red;\r\n}');
+        _checkFile('ignored.css', 'body {\r\n\    color:red;\r\n}');
       } else {
         _checkFile(
             'ignored.css',

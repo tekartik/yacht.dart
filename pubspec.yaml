@@ -6,7 +6,7 @@ dependencies:
   build: any
   # '>=0.9.3'
   barback: any
-  csslib: any
+  csslib: '>=0.13.6'
   html: any
   fs_shim: any
   tekartik_utils:

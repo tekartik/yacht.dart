@@ -90,7 +90,7 @@ main() {
 <!doctype html>
 <html>
 <head>
-  <style>body { color: red; } html { color: black; }</style>
+  <style>body { color:red; } html { color:black; }</style>
 </head>
 <body>
 </body>
@@ -124,8 +124,8 @@ main() {
       _checkFileExists('post/simple_post.md', isFalse);
 
       // css
-      _checkFile('simple.css', 'body { color: red; }');
-      _checkFile('include.css', 'body { color: red; }');
+      _checkFile('simple.css', 'body { color:red; }');
+      _checkFile('include.css', 'body { color:red; }');
       _checkFile('short.css', 'body{color:red}');
     });
   });
