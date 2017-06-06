@@ -30,6 +30,7 @@ abstract class YachtTransformerMixin {
   Future<Map> getYachtYaml(Transform transform) async {
     if (_yachtYaml == null) {
       // Find first top yacht
+      //devPrint('primaryId: ${transform.primaryId}');
       String path = transform.primaryId.path;
       String parent = path;
       while (true) {
@@ -38,8 +39,10 @@ abstract class YachtTransformerMixin {
           break;
         }
         parent = newParent;
-        AssetId assetId = new AssetId(
-            transform.primaryId.package, join(parent, 'yacht.yaml'));
+
+        AssetId assetId = transform.newAssetId(
+            transform.primaryId, join(parent, 'yacht.yaml'));
+        //devPrint('assetId: ${assetId}');
         try {
           String text = await transform.readInputAsString(assetId);
           _yachtYaml = cloneMap(yaml.loadYaml(text));
@@ -184,11 +187,11 @@ abstract class YachtTransformerMixin {
     return new Future.sync(() async {
       if (transform is Transform) {
         if (extension == '.html') {
-          return transformHtml(transform);
+          await transformHtml(transform);
         } else if (extension == '.css') {
-          return transformCss(transform);
+          await transformCss(transform);
         } else if (extension == '.md') {
-          return transformMarkdown(transform);
+          await transformMarkdown(transform);
         }
       } else {
         throw 'should not get there';
@@ -212,8 +215,20 @@ abstract class YachtTransformerMixin {
   // @override
   String get allowedExtensions => '.html .css .md';
 
+  // For build only (not barback)
+
+  /// Configure output extensions. All possible inputs match the empty input
+  /// extension. For each input 1 output is created with `extension` appended to
+  /// the path.
+  /// - If an empty key exists, all inputs are considered matching.
+  Map<String, List<String>> get buildExtensions => {
+        '.html': [".html"]
+      };
+
+  // <<end build only
+
   // @override
-  isPrimary(AssetId id) {
+  isAssetPrimary(AssetId id) {
     IsPrimaryTransform transform = new _YachtIsPrimaryTransform(id);
     return run(transform);
   }
@@ -237,6 +252,8 @@ abstract class YachtTransformerMixin {
     // get global setting first
     _yachtYaml = null;
     await getYachtYaml(transform);
+
+    //devPrint("yacht.yaml: ${_yachtYaml}");
 
     if (_yachtYaml.isEmpty) {
       transform.consumePrimary();
@@ -298,8 +315,8 @@ abstract class YachtTransformerMixin {
 
     pageSettings['content'] = markdown.markdownToHtml(content);
 
-    AssetId templateId = new AssetId(transform.primaryId.package,
-        join(_yachtYaml['_top'], _yachtYaml['template']));
+    AssetId templateId = transform.newAssetId(
+        transform.primaryId, join(_yachtYaml['_top'], _yachtYaml['template']));
 
     Map settings = {"site": _yachtYaml, "page": pageSettings};
     mergeMap(settings, pageSettings);
@@ -357,10 +374,13 @@ abstract class YachtTransformerMixin {
 
     // Convert content
     // - include
-    await handleElement(new _HtmlTransform()
-      ..transform = transform
-      ..document = document
-      ..settings = settings, transform.primaryId, document.documentElement);
+    await handleElement(
+        new _HtmlTransform()
+          ..transform = transform
+          ..document = document
+          ..settings = settings,
+        transform.primaryId,
+        document.documentElement);
 
     // Rewrite script
     if (!option.isDebug) {
@@ -415,9 +435,12 @@ abstract class YachtTransformerMixin {
 
     // Convert content
     // - include
-    await handleElement(new _HtmlTransform()
-      ..transform = transform
-      ..document = document, primaryId, document.documentElement);
+    await handleElement(
+        new _HtmlTransform()
+          ..transform = transform
+          ..document = document,
+        primaryId,
+        document.documentElement);
 
     // Rewrite script
     if (!option.isDebug) {
@@ -471,7 +494,7 @@ abstract class YachtTransformerMixin {
 
           //    posix.normalize(join(posix.dirname(assetId.path), node.import));
           String path = node.import;
-          AssetId importedAssetId = assetIdWithPath(assetId, path);
+          AssetId importedAssetId = transform.newAssetId(assetId, path);
           if (await transform.hasInput(importedAssetId)) {
             String text = await transform.readInputAsString(importedAssetId);
             StyleSheet importedStyleSheet = parse(text);
@@ -611,6 +634,7 @@ abstract class YachtTransformerMixin {
           _handleParent(element);
         }
       }
+
       _handleParent(element);
     }
 
@@ -662,6 +686,7 @@ abstract class YachtTransformerMixin {
 
       return headElement;
     }
+
     await _handleTag('yacht-head', _handleYachtHead);
     // then handle head/body
     Future<Element> _handleYachtBody(Element element) async {
@@ -676,6 +701,7 @@ abstract class YachtTransformerMixin {
 
       return bodyElement;
     }
+
     await _handleTag('yacht-body', _handleYachtBody);
 
     // convert single text line node to html if possible
@@ -708,13 +734,14 @@ abstract class YachtTransformerMixin {
       }
       return element;
     }
+
     await _handleTag('style', _handleStyle);
 
     Future<Element> _handleYachtInclude(Element element, String src) async {
       //print(included);
       // go relative
       // TODO handle other package
-      AssetId includedAssetId = assetIdWithPath(assetId, src);
+      AssetId includedAssetId = transform.newAssetId(assetId, src);
       //devPrint('#1 $src | $assetId | $includedAssetId');
       String includedContent =
           await transform.readInputAsString(includedAssetId);

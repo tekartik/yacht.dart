@@ -29,11 +29,10 @@ main() {
     // debug build
     test('debug', () async {
       //print(pkg);
-      ProcessResult result =
-          await runCmd(pubCmd(['build', 'example', '--mode', 'debug'])
-            ..connectStderr = true
-            ..workingDirectory = projectTop
-            ..connectStdout = false);
+      ProcessResult result = await runCmd(
+          pubCmd(['build', 'example', '--mode', 'debug'])
+            ..workingDirectory = projectTop,
+          stderr: stderr);
 
       // on 1.13, current windows is failing
       if (!Platform.isWindows) {

@@ -21,7 +21,7 @@ main() {
   group('example_with_option', () {
     test('runTest', () async {
       ProcessResult result = await run(
-          dartExecutable, pubArguments(['get', '--offline']),
+          dartExecutable, pubArguments(['upgrade', '--offline']),
           stderr: stderr, workingDirectory: simpleProjectTop);
 
       expect(result.exitCode, 0);
@@ -29,9 +29,7 @@ main() {
       // run test one at a time as debug/release write on the same folder
       result = await run(
           dartExecutable, pubArguments(['run', 'test', '-j', '1']),
-          stdout: stdout,
-          stderr: stderr,
-          workingDirectory: simpleProjectTop);
+          stdout: stdout, stderr: stderr, workingDirectory: simpleProjectTop);
 
       // on 1.13, current windows is failing
       if (!Platform.isWindows) {

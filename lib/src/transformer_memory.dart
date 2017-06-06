@@ -1,13 +1,94 @@
 library yacht.src.transformer_memory;
 
+import 'package:yacht/src/assetid_utils.dart';
 import 'transformer.dart';
 
 import 'dart:async';
 import 'dart:convert';
 import 'dart:collection';
+import 'package:path/path.dart' as p;
+import 'package:path/path.dart';
+
+class MemoryAssetId implements AssetId {
+  @override
+  final String package;
+
+  @override
+  final String path;
+
+  MemoryAssetId(this.package, this.path);
+  @override
+
+  /// Returns a new [AssetId] with the same [package] and [path] as this one
+  /// but with file extension [newExtension].
+  AssetId changeExtension(String newExtension) =>
+      new MemoryAssetId(package, p.withoutExtension(path) + newExtension);
+
+  @override
+  int get hashCode => path?.hashCode ?? 0;
+
+  @override
+  bool operator ==(o) {
+    return (o is MemoryAssetId) && ((o.package == package) && (o.path == path));
+  }
+
+  @override
+  String toString() {
+    if (package != null) {
+      return "package:$package/$path";
+    }
+    return path;
+  }
+}
+
+/// generate the target assetId for a given path
+AssetId assetIdWithPath(AssetId id, String path) {
+  if (path == null) {
+    return null;
+  }
+  path = normalizePath(path);
+
+  bool normalized = false;
+
+  String firstPart = posix.split(path)[0];
+  if (firstPart == '.' || firstPart == '..') {
+    if (id != null) {
+      path = posix.normalize(join(posix.dirname(id.path), path));
+    }
+    normalized = true;
+  }
+  String package;
+
+  // resolve other package?
+  if (path.startsWith(posix.join("packages", ""))) {
+    List<String> parts = posix.split(path);
+    // 0 is packages
+    if (parts.length > 2) {
+      package = parts[1];
+    }
+    // Beware append "lib" here to only get what is exported
+    path = posix.joinAll(parts.sublist(2));
+    path = posix.join("lib", path);
+  } else {
+    // default id
+    if (id != null) {
+      package = id.package;
+
+      // try relative
+      if ((!normalized) && (!posix.isAbsolute(path))) {
+        String dirname = posix.dirname(id.path);
+        // Don't join .
+        if (dirname != ".") {
+          path = posix.join(dirname, path);
+        }
+      }
+    }
+  }
+  return new MemoryAssetId(package, path);
+}
 
 class StringAsset {
-  AssetId id;
+  MemoryAssetId id;
   String content;
   StringAsset(this.id, this.content);
 
@@ -52,6 +133,11 @@ class StringAssetTransform implements AssetTransform {
   final AssetId primaryId;
 
   StringAssetTransform(this.primaryId);
+
+  // implements
+  AssetId newAssetId(AssetId assetId, String path) {
+    return assetIdWithPath(assetId, path);
+  }
 }
 
 class StringConsumableTransform extends StringAssetTransform

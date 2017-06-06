@@ -1,13 +1,14 @@
-
+import 'package:barback/barback.dart';
 import 'package:dev_test/test.dart';
 import 'package:yacht/src/assetid_utils.dart';
+import 'package:yacht/src/transformer_barback.dart' hide AssetId;
 import 'package:path/path.dart';
 
 main() {
   group('assetid_utils', () {
     test('withPath', () {
       String dir = posix.join('dir');
-      AssetId id = new AssetId(null, dir);
+      AssetId id = assetIdWithPath(null, dir);
       expect(id.package, isNull);
       expect(id.path, dir);
 
@@ -19,10 +20,10 @@ main() {
       id = assetIdWithPath(id, 'dir/sub');
       expect(id.path, posix.join("dir/sub"));
 
-      id = assetIdWithPath(id, 'other/file');
+      id = assetIdWithPath(id, './other/file');
       expect(id.path, posix.join("dir/other/file"));
 
-      id = assetIdWithPath(id, '..\\sub');
+      id = assetIdWithPath(id, '../sub');
       expect(id.path, posix.join("dir/sub"));
 
       // package
@@ -30,9 +31,9 @@ main() {
       expect(id.package, 'pkg');
       expect(id.path, posix.join("lib", dir));
 
-      // relative
+      // not relative
       id = assetIdWithPath(id, 'sub');
-      expect(id.path, posix.join("lib", "sub"));
+      expect(id.path, posix.join("sub"));
 
       // null id
       id = assetIdWithPath(null, 'dir');
@@ -63,6 +64,14 @@ main() {
       id = assetIdWithPath(id, '../packages/pkg/dir');
       expect(id.package, 'pkg');
       expect(id.path, posix.join("lib", "dir"));
+    });
+
+    test('sub new', () {
+      AssetId id = new AssetId('pkg', 'sub/file');
+      // package
+      id = assetIdWithPath(id, 'sub/file2');
+      expect(id.package, 'pkg');
+      expect(id.path, posix.join("sub", "file2"));
     });
   });
 }

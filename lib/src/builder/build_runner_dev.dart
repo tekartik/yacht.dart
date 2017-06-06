@@ -30,7 +30,8 @@ class BuildRunnerPhase {
       this.address,
       this.port,
       this.requestHandler})
-      : _phaseGroup = phaseGroup ?? new PhaseGroup(), _directoryWatcherFactory = directoryWatcherFactory;
+      : _phaseGroup = phaseGroup ?? new PhaseGroup(),
+        _directoryWatcherFactory = directoryWatcherFactory;
   bool deleteFilesByDefault;
   PackageGraph packageGraph;
   AssetReader reader;
@@ -73,13 +74,11 @@ buildRunnerPhase(PhaseGroup phaseGroup,
     Resolvers resolvers,
     Duration debounceDelay,
     Stream terminateEventStream,
-
-      BuildRunnerDirectoryWatcherFactory directoryWatcherFactory,
-
-      String directory,
-      String address,
-      int port,
-      Handler requestHandler}) {
+    BuildRunnerDirectoryWatcherFactory directoryWatcherFactory,
+    String directory,
+    String address,
+    int port,
+    Handler requestHandler}) {
   var phase = new BuildRunnerPhase(phaseGroup,
       deleteFilesByDefault: deleteFilesByDefault,
       packageGraph: packageGraph,
@@ -94,8 +93,7 @@ buildRunnerPhase(PhaseGroup phaseGroup,
       directory: directory,
       address: address,
       port: port,
-    requestHandler: requestHandler
-  );
+      requestHandler: requestHandler);
   return phase;
 }
 
@@ -138,7 +136,7 @@ class BuildRunner {
         directory: buildRunnerPhase.directory,
         address: buildRunnerPhase.address,
         port: buildRunnerPhase.port,
-    requestHandler: buildRunnerPhase.requestHandler);
+        requestHandler: buildRunnerPhase.requestHandler);
   }
 }
 /*

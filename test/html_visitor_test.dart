@@ -1,4 +1,3 @@
-
 import 'package:yacht/src/html_printer.dart';
 import 'package:html/dom.dart';
 import 'test_common.dart';

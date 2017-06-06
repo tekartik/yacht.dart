@@ -13,11 +13,10 @@ main() {
   group('build_debug', () {
     test('debug', () async {
       //print(pkg);
-      ProcessResult result =
-          await runCmd(pubCmd(['build', 'example', '--mode', 'debug'])
-            ..connectStderr = true
-            ..workingDirectory = projectTop
-            ..connectStdout = false);
+      ProcessResult result = await runCmd(
+          pubCmd(['build', 'example', '--mode', 'debug'])
+            ..workingDirectory = projectTop,
+          stderr: stderr);
       //..connectStdout = true); int w;
 
       // on 1.13, current windows is failing
@@ -31,12 +30,15 @@ main() {
       _getFileContent(String file) {
         return new File(join(outPath, file)).readAsStringSync();
       }
+
       _checkFile(String file, String content) {
         expect(_getFileContent(file), content);
       }
+
       _checkFileExists(String file, Matcher exists) {
         expect(new File(join(outPath, file)).existsSync(), exists);
       }
+
       _checkFile(
           'simple.html',
           '''

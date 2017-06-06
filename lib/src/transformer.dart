@@ -3,10 +3,18 @@ library tekartik_barback.transformer;
 import 'dart:async';
 
 import 'dart:convert';
-import 'package:barback/src/asset/asset_id.dart';
-export 'package:barback/src/asset/asset_id.dart';
+//import 'package:barback/src/asset/asset_id.dart';
+//export 'package:barback/src/asset/asset_id.dart';
 export 'package:barback/src/transformer/barback_settings.dart';
 import 'package:source_span/source_span.dart' as source_span;
+
+abstract class AssetId {
+  String get path;
+
+  String get package;
+
+  AssetId changeExtension(String newExtension);
+}
 
 /// A blob of content.
 ///
@@ -212,7 +220,7 @@ abstract class Transformer {
   ///
   /// This may return a `Future<bool>` or, if it's entirely synchronous, a
   /// `bool`.
-  isPrimary(AssetId id);
+  isAssetPrimary(AssetId id);
 
   /// Run this transformer on the primary input specified by [transform].
   ///
@@ -281,6 +289,9 @@ abstract class Transform extends ConsumableTransform {
   /// This is equivalent to calling [getInput] and catching an
   /// [AssetNotFoundException].
   Future<bool> hasInput(AssetId id);
+
+  // Create a new asset id
+  AssetId newAssetId(AssetId assetId, String path);
 
   /// Stores [output] as an output created by this transformation.
   ///

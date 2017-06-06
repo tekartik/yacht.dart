@@ -139,7 +139,7 @@ Future checkYachtTransformMarkdown(
   expect(transformer.htmlLines, lines);
 }
 
-assetId(String path) => new AssetId(null, path);
+assetId(String path) => new MemoryAssetId(null, path);
 main() {
   group('yacht_impl', () {
     test('isPrimary', () {
@@ -147,13 +147,14 @@ main() {
         YachtTransformer transformer = new YachtTransformer();
 
         // no await here in our implementation
-        expect(transformer.isPrimary(id), expected);
+        expect(transformer.isAssetPrimary(id), expected);
 
         var transform = new StringIsPrimaryTransform(id);
 
         // no await here in our implementation
         expect(transformer.run(transform), expected);
       }
+
       _checkPrimary(assetId('in'), isFalse);
       _checkPrimary(assetId('test.js'), isFalse);
       _checkPrimary(assetId('test.html'), isTrue);

@@ -35,7 +35,7 @@ StringAssets simpleStringAssets = stringAssets([
   ['yacht_template.html', simpleTemplate]
 ]);
 
-assetId(String path) => new AssetId(null, path);
+assetId(String path) => new MemoryAssetId(null, path);
 main() {
   //YachtTransformer transformer;
   group('yacht_gen_impl', () {

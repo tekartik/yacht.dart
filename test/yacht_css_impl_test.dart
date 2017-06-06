@@ -9,7 +9,7 @@ class YachtTransformer extends Object with YachtTransformerMixin {
   YachtTransformer([this.settings]);
 }
 
-assetId(String path) => new AssetId(null, path);
+assetId(String path) => new MemoryAssetId(null, path);
 main() {
   //YachtTransformer transformer;
   group('yacht_css_impl', () {

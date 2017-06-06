@@ -30,9 +30,7 @@ main() {
       //print(pkg);
       ProcessResult result = await run(
           dartExecutable, pubArguments(['build', 'example']),
-          connectStderr: true,
-          workingDirectory: projectTop,
-          connectStdout: false);
+          workingDirectory: projectTop, stderr: stderr);
 
       // on 1.13, current windows is failing
       if (!Platform.isWindows) {

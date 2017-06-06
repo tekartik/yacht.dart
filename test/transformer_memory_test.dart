@@ -1,7 +1,6 @@
 import 'package:dev_test/test.dart';
 import 'package:yacht/src/transformer_memory.dart';
 import 'package:yacht/src/transformer.dart';
-import 'package:yacht/src/assetid_utils.dart';
 
 export 'package:yacht/src/transformer_memory.dart';
 
@@ -18,12 +17,13 @@ stringAssets(List data) {
       }
       String path = item[index++];
       String content = item[index++];
-      AssetId id = new AssetId(package, path);
+      AssetId id = new MemoryAssetId(package, path);
       assets[id] = stringAsset(id, content);
     } catch (e) {
       throw new ArgumentError('Cannot parse ${item} ${e}');
     }
   }
+
   if (data.isNotEmpty) {
     if (data.first is List) {
       for (var item in data) {
@@ -39,24 +39,26 @@ stringAssets(List data) {
 main() {
   group('transformer_memory', () {
     test('stringAsset', () {
-      StringAsset asset1 = stringAsset(new AssetId(null, ''), null);
-      StringAsset asset2 = stringAsset(new AssetId(null, ''), null);
+      StringAsset asset1 = stringAsset(assetIdWithPath(null, ''), null);
+      StringAsset asset2 = stringAsset(assetIdWithPath(null, ''), null);
       expect(asset1, asset2);
-      asset2 = stringAsset(new AssetId(null, 'in'), null);
+      asset2 = stringAsset(assetIdWithPath(null, 'in'), null);
       expect(asset1, isNot(asset2));
-      asset2 = stringAsset(new AssetId(null, ''), 'content');
+      asset2 = stringAsset(assetIdWithPath(null, ''), 'content');
       expect(asset1, isNot(asset2));
     });
 
     test('stringAssets', () {
-      StringAssets assets = stringAssets(['', null]);
-      AssetId id = new AssetId(null, '');
+      StringAssets assets = stringAssets(['.', null]);
+      AssetId id = assetIdWithPath(null, '');
       expect(assets.length, 1);
-      expect(assets[id], stringAsset(id, null));
+      StringAsset asset1 = assets[id];
+      StringAsset asset2 = stringAsset(id, null);
+      expect(asset1, asset2);
 
       // package
       assets = stringAssets(['pkg', 'asset', null]);
-      id = new AssetId("pkg", 'asset');
+      id = new MemoryAssetId("pkg", 'asset');
       expect(assets.length, 1);
       expect(assets[id], stringAsset(id, null));
 

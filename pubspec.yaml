@@ -15,7 +15,7 @@ dependencies:
   markdown: any
   quiver: any
 dev_dependencies:
-  sass_builder: any
+#  sass_builder: any
   build_runner: any
   grinder: any
   test: any

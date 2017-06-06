@@ -14,9 +14,7 @@ main() {
       //print(pkg);
       ProcessResult result = await run(
           dartExecutable, pubArguments(['build', 'example']),
-          connectStderr: true,
-          workingDirectory: projectTop,
-          connectStdout: false);
+          stderr: stderr, workingDirectory: projectTop);
 
       // on 1.13, current windows is failing
       if (!Platform.isWindows) {
@@ -29,9 +27,11 @@ main() {
       _checkFile(String file, String content) {
         expect(new File(join(outPath, file)).readAsStringSync(), content);
       }
+
       _checkFileExists(String file, Matcher exists) {
         expect(new File(join(outPath, file)).existsSync(), exists);
       }
+
       _checkFile(
           'simple.html',
           '''

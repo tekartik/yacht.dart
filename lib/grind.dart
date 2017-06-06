@@ -29,7 +29,8 @@ clean() => defaultClean();
 
 @Task()
 watch() async {
-  await buildRunner.watch(buildRunnerSassPhase);
+  //await buildRunner.watch(buildRunnerSassPhase);
+  await buildRunner.watch(phase);
 }
 
 @Task()

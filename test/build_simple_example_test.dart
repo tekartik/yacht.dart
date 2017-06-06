@@ -29,9 +29,7 @@ main() {
       // run test one at a time as debug/release write on the same folder
       result = await run(
           dartExecutable, pubArguments(['run', 'test', '-j', '1']),
-          stderr: stderr,
-          stdout: stdout,
-          workingDirectory: simpleProjectTop);
+          stderr: stderr, stdout: stdout, workingDirectory: simpleProjectTop);
 
       // on 1.13, current windows is failing
       if (!Platform.isWindows) {
