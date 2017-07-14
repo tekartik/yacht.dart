@@ -1,13 +1,17 @@
 import 'dart:async';
 
+import 'dart:convert';
 import 'package:build/build.dart';
 import 'package:build/build.dart' as build;
+import 'package:source_span/source_span.dart' as source_span;
+
 /*
 export 'transformer.dart';
 */
 import '../transformer.dart' hide Asset, AssetId, Transformer, Transform;
 
 import '../transformer.dart' as common;
+import 'package:yacht/src/transformer.dart';
 
 class BuilderAssetId extends common.AssetId {
   build.AssetId _impl;
@@ -40,11 +44,12 @@ common.AssetId _wrapAssetId(build.AssetId id) {
   return new BuilderAssetId.wrap(id);
 }
 
-/*
 build.AssetId _unwrapAssetId(common.AssetId id) {
+  if (id == null) {
+    return null;
+  }
   return (id as BuilderAssetId)._impl;
 }
-*/
 
 // for declaration
 abstract class TransformBuilder implements build.Builder, common.Transformer {
@@ -59,6 +64,7 @@ abstract class TransformBuilder implements build.Builder, common.Transformer {
   declareOutputs(brbck.DeclaringTransform transform) =>
       run(new BarbackDeclaringTransform.wrap(transform));
       */
+
 }
 
 /*
@@ -85,69 +91,81 @@ class BarbackDeclaringTransform extends BarbackPrimaryTransform
 /**
  * Used in transformers
  */
-class BuildStepTransform implements AssetTransform
+class BuildStepTransform implements Transform
 //extends BarbackPrimaryTransform
 //  implements common.Transform
 {
   build.BuildStep buildStep;
   BuildStepTransform.wrap(this.buildStep);
-/*
-  @override
-  AssetId get primaryId => transform.primaryInput.id;
-
-  // add the content in a given asset
-  @override
-  AssetId addOutputFromString(AssetId id, String content, {Encoding encoding}) {
-    buildStep.writeAsString(id, content);
-    //transform.addOutput(new brbck.Asset.fromString(id, content));
-    return id;
-  }
-*/
-  /*
-  @override
-  Future<String> readPrimaryAsString({Encoding encoding}) =>
-      transform.primaryInput.readAsString(encoding: encoding);
 
   @override
-  Future<String> readInputAsString(AssetId id, {Encoding encoding}) {
-    return transform.readInputAsString(id, encoding: encoding);
+  void addOutputFromString(common.AssetId assetId, String content,
+      {Encoding encoding: UTF8}) {
+    buildStep.writeAsString(_unwrapAssetId(assetId), content,
+        encoding: encoding);
   }
 
   @override
-  Future<bool> hasInput(AssetId id) => transform.hasInput(id);
+  void consumePrimary() {
+    // TODO: implement consumePrimary
+  }
+
   @override
-  TransformLogger get logger => new BarbackTransformLogger(transform.logger);
-  // TODO delete
+  Future<bool> hasInput(common.AssetId id) {
+    // TODO: implement hasInput - confirm
+    return buildStep.canRead(_unwrapAssetId(id));
+  }
+
   @override
-  void consumePrimary() => {}
-  */
-  // TODO: implement primaryId
+  TransformLogger get logger => new BuildTransformLogger();
+
+  @override
+  common.AssetId newAssetId(common.AssetId assetId, String path) {
+    return _wrapAssetId(
+        new build.AssetId.resolve(path, from: _unwrapAssetId(assetId)));
+  }
+
   @override
   common.AssetId get primaryId => _wrapAssetId(buildStep.inputId);
+
+  @override
+  Future<String> readInputAsString(common.AssetId id,
+      {Encoding encoding: UTF8}) {
+    return buildStep.readAsString(_unwrapAssetId(id), encoding: encoding);
+  }
+
+  @override
+  Future<String> readPrimaryAsString({Encoding encoding: UTF8}) {
+    return readInputAsString(primaryId, encoding: encoding);
+  }
 }
 
-/*
 /// Object used to report warnings and errors encountered while running a
 /// transformer.
-class BarbackTransformLogger implements TransformLogger {
-  brbck.TransformLogger _impl;
-
-  BarbackTransformLogger(this._impl);
+class BuildTransformLogger implements TransformLogger {
+  // BuildTransformLogger();
 
   @override
-  void info(String message, {AssetId asset, source_span.SourceSpan span}) =>
-      _impl.info(message, asset: asset, span: span);
+  void info(String message,
+          {common.AssetId asset, source_span.SourceSpan span}) =>
+      //_impl.info(message, asset: asset, span: span);
+      print('INFO: ${message}');
 
   @override
-  void fine(String message, {AssetId asset, source_span.SourceSpan span}) =>
-      _impl.fine(message, asset: asset, span: span);
+  void fine(String message,
+          {common.AssetId asset, source_span.SourceSpan span}) =>
+      //_impl.fine(message, asset: asset, span: span);
+      print('FINE: ${message}');
 
   @override
-  void warning(String message, {AssetId asset, source_span.SourceSpan span}) =>
-      _impl.warning(message, asset: asset, span: span);
+  void warning(String message,
+          {common.AssetId asset, source_span.SourceSpan span}) =>
+      //_impl.warning(message, asset: asset, span: span);
+      print('WARN: ${message}');
 
   @override
-  void error(String message, {AssetId asset, source_span.SourceSpan span}) =>
-      _impl.error(message, asset: asset, span: span);
+  void error(String message,
+          {common.AssetId asset, source_span.SourceSpan span}) =>
+      //_impl.error(message, asset: asset, span: span);
+      print('ERR: ${message}');
 }
-*/

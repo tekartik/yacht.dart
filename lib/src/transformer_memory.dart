@@ -99,7 +99,7 @@ class StringAsset {
   int get hashCode => id.hashCode;
 
   @override
-  bool operator ==(StringAsset o) {
+  bool operator ==(o) {
     if (o is StringAsset) {
       return o.id == id && o.content == content;
     }
@@ -111,7 +111,7 @@ class StringAssets extends MapBase<AssetId, StringAsset> {
   Map<AssetId, StringAsset> assets = {};
 
   @override
-  StringAsset remove(AssetId id) => assets.remove(id);
+  StringAsset remove(Object id) => assets.remove(id);
 
   @override
   Iterable<AssetId> get keys => assets.keys;
@@ -121,7 +121,7 @@ class StringAssets extends MapBase<AssetId, StringAsset> {
     assets.clear();
   }
 
-  StringAsset operator [](AssetId id) => assets[id];
+  StringAsset operator [](Object id) => assets[id];
   operator []=(AssetId id, StringAsset asset) => assets[id] = asset;
 }
 

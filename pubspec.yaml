@@ -1,5 +1,5 @@
 name: yacht
-version: 0.0.2
+version: 0.1.0
 description: Yet another css/html transformer
 sdk: '^1.0.0'
 dependencies:
@@ -9,8 +9,8 @@ dependencies:
   csslib: '>=0.13.6'
   html: any
   fs_shim: any
-  tekartik_utils:
-    git: git://github.com/alextekartik/tekartik_utils.dart
+  tekartik_common_utils:
+    git: git://github.com/tekartik/common_utils.dart
   mustache_no_mirror: any
   markdown: any
   quiver: any

@@ -12,7 +12,7 @@ import 'text_utils.dart';
 import 'common_import.dart';
 import 'csslib_utils.dart';
 import 'package:fs_shim/utils/glob.dart';
-import 'package:tekartik_utils/map_utils.dart';
+import 'package:tekartik_common_utils/map_utils.dart';
 import 'package:markdown/markdown.dart' as markdown;
 import 'package:mustache_no_mirror/mustache.dart' as mustache;
 
@@ -97,7 +97,7 @@ abstract class YachtTransformerMixin {
 
     //devPrint('before: ${element.outerHtml}');
     // element =
-    element = await handleElement(new _HtmlTransform()..transform = transform,
+    element = await handleElement(new HtmlTransform()..transform = transform,
         transform.primaryId, element);
 
     //devPrint('after: ${element.outerHtml}');
@@ -222,7 +222,7 @@ abstract class YachtTransformerMixin {
   /// the path.
   /// - If an empty key exists, all inputs are considered matching.
   Map<String, List<String>> get buildExtensions => {
-        '.html': [".html"]
+        '.html': [".g.html"]
       };
 
   // <<end build only
@@ -375,7 +375,7 @@ abstract class YachtTransformerMixin {
     // Convert content
     // - include
     await handleElement(
-        new _HtmlTransform()
+        new HtmlTransform()
           ..transform = transform
           ..document = document
           ..settings = settings,
@@ -436,7 +436,7 @@ abstract class YachtTransformerMixin {
     // Convert content
     // - include
     await handleElement(
-        new _HtmlTransform()
+        new HtmlTransform()
           ..transform = transform
           ..document = document,
         primaryId,
@@ -592,7 +592,7 @@ abstract class YachtTransformerMixin {
   }
 
   Future<Element> handleElement(
-      _HtmlTransform htmlTransform, AssetId assetId, Element element_) async {
+      HtmlTransform htmlTransform, AssetId assetId, Element element_) async {
     Element element = element_;
 
     Transform transform = htmlTransform.transform;
@@ -790,7 +790,7 @@ abstract class YachtTransformerMixin {
         ..insert(index, includedElement);
 
       // handle recursively first
-      await handleElement(new _HtmlTransform()..transform = transform,
+      await handleElement(new HtmlTransform()..transform = transform,
           includedAssetId, includedElement);
 
       // multi element 'un-merge'
@@ -826,7 +826,7 @@ abstract class YachtTransformerMixin {
   }
 }
 
-class _HtmlTransform {
+class HtmlTransform {
   Map settings;
   Transform transform;
   Document document;

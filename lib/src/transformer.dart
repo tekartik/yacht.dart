@@ -253,7 +253,8 @@ abstract class Transform extends ConsumableTransform {
   Future<String> readPrimaryAsString({Encoding encoding});
 
   // add the content in a given asset
-  void addOutputFromString(AssetId, String content, {Encoding encoding});
+  void addOutputFromString(AssetId assetId, String content,
+      {Encoding encoding});
 
   //@deprecated
   //Asset get primaryInput;

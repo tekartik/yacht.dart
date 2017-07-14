@@ -1,10 +1,15 @@
 import 'package:barback/src/transformer/barback_settings.dart';
 import 'package:build/build.dart';
+//import 'package:build/build.dart' as build;
 import 'package:build_runner/build_runner.dart';
 //import 'package:sass_builder/phase.dart';
+import 'package:html/dom.dart';
 import 'package:yacht/src/builder/build_runner_dev.dart';
 import 'package:yacht/src/builder/builder.dart';
 import 'package:yacht/src/common_import.dart';
+import 'package:yacht/src/html_printer.dart';
+import 'package:yacht/src/transformer.dart';
+import 'package:yacht/src/transformer.dart' as common;
 import 'package:yacht/src/yacht_impl.dart';
 //export 'src/builder/build_runner_dev.dart';
 
@@ -30,22 +35,73 @@ class YachtBuilder extends TransformBuilder
   @override
   Future build(BuildStep buildStep) async {
     //devPrint("running buildStep on ${buildStep.inputId}");
+    await super.build(buildStep);
   }
 
-  // TODO: implement buildExtensions
-  //@override
-  //Map<String, List<String>> get buildExtensions => null;
-  // TODO: implement settings
   @override
   BarbackSettings get settings => null;
 
-  /*
   @override
-  List<AssetId> declareOutputs(AssetId inputId) {
-    // TODO: implement declareOutputs
-    return null;
+  Future transformHtml(Transform transform) async {
+    common.AssetId primaryId = transform.primaryId;
+    String input = await transform.readPrimaryAsString();
+
+    // only for testing
+    if (input == null) {
+      return null;
+    }
+
+    // trim extra spaces as data after </html> might include TEXT_NODE in the body
+    Document document = new Document.html(input.trim());
+
+    HtmlPrinterOptions options =
+        new HtmlPrinterOptions.fromBarbackSettings(settings);
+
+    // Convert content
+    // - include
+    await handleElement(
+        new HtmlTransform()
+          ..transform = transform
+          ..document = document,
+        primaryId,
+        document.documentElement);
+
+    // Rewrite script
+    if (!option.isDebug) {
+      removeDartDotJsTags(document);
+      rewriteDartTags(document);
+    }
+    // extract lines
+    HtmlDocumentPrinter printer = new HtmlDocumentPrinter();
+    await printer.visitDocument(document);
+    HtmlLines outHtmlLines = printer.lines;
+    // test subclass my override this to get the lines emitted
+    htmlLines = outHtmlLines;
+
+    // print
+    String output = await htmlPrintLines(outHtmlLines, options: options);
+
+    /*
+        if (false) {
+          // quick debug
+          HtmlDocumentNodeLinesPrinter builder =
+              new HtmlDocumentNodeLinesPrinter();
+          await builder.visitDocument(document);
+          print('nodes: ${builder.lines}');
+
+          HtmlDocumentPrinter printer = new HtmlDocumentPrinter();
+          await printer.visitDocument(document);
+          print('lines: ${printer.lines}');
+
+          print('input: ${input}');
+          print('output: ${output}');
+        }
+        */
+
+    common.AssetId outputAssetId = primaryId.changeExtension(".g.html");
+
+    transform.addOutputFromString(outputAssetId, output);
   }
-  */
 }
 
 /// A really simple [Builder], it just makes copies!
@@ -58,7 +114,7 @@ class CopyBuilder implements Builder {
     /// Each [buildStep] has a single input.
     var inputId = buildStep.inputId;
 
-    /// Create a new target [AssetId] based on the old one.
+    /// Create a new target [common.AssetId] based on the old one.
     var copy = inputId.addExtension(extension);
     var contents = await buildStep.readAsString(inputId);
 
