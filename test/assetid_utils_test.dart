@@ -1,8 +1,9 @@
-import 'package:barback/barback.dart';
 import 'package:dev_test/test.dart';
 import 'package:yacht/src/assetid_utils.dart';
-import 'package:yacht/src/transformer_barback.dart' hide AssetId;
 import 'package:path/path.dart';
+import 'package:yacht/src/transformer.dart';
+
+import 'transformer_memory_test.dart';
 
 main() {
   group('assetid_utils', () {
@@ -31,10 +32,6 @@ main() {
       expect(id.package, 'pkg');
       expect(id.path, posix.join("lib", dir));
 
-      // not relative
-      id = assetIdWithPath(id, 'sub');
-      expect(id.path, posix.join("sub"));
-
       // null id
       id = assetIdWithPath(null, 'dir');
       expect(id.package, isNull);
@@ -48,30 +45,6 @@ main() {
       expect(normalizePath("a/b"), "a/b");
       expect(normalizePath("a/../b"), "b");
       expect(normalizePath("a\\b"), "a/b");
-    });
-
-    test('sub_folder', () {
-      AssetId id = new AssetId('pkg', 'sub/file');
-      // package
-      id = assetIdWithPath(id, '../dir');
-      expect(id.package, 'pkg');
-      expect(id.path, "dir");
-    });
-
-    test('package sub_folder', () {
-      AssetId id = new AssetId('pkg', 'sub/file');
-      // package
-      id = assetIdWithPath(id, '../packages/pkg/dir');
-      expect(id.package, 'pkg');
-      expect(id.path, posix.join("lib", "dir"));
-    });
-
-    test('sub new', () {
-      AssetId id = new AssetId('pkg', 'sub/file');
-      // package
-      id = assetIdWithPath(id, 'sub/file2');
-      expect(id.package, 'pkg');
-      expect(id.path, posix.join("sub", "file2"));
     });
   });
 }

@@ -3,9 +3,6 @@
 # Fast fail the script on failures.
 set -e
 
-dartanalyzer --fatal-warnings \
-  lib/build.dart \
-  lib/grind.dart \
-  lib/yacht.dart
+dartanalyzer --fatal-warnings lib
 
 pub run test -p vm,firefox,chrome

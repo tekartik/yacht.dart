@@ -5,7 +5,6 @@ import 'dart:async';
 import 'dart:convert';
 //import 'package:barback/src/asset/asset_id.dart';
 //export 'package:barback/src/asset/asset_id.dart';
-export 'package:barback/src/transformer/barback_settings.dart';
 import 'package:source_span/source_span.dart' as source_span;
 
 abstract class AssetId {

@@ -1,5 +1,4 @@
 import 'package:grinder/grinder.dart';
-import 'package:yacht/build.dart';
 
 yachtGrind(List<String> args) {
   if (args.isEmpty) {
@@ -27,6 +26,7 @@ pubbuild() {
 @Task()
 clean() => defaultClean();
 
+/*
 @Task()
 watch() async {
   //await buildRunner.watch(buildRunnerSassPhase);
@@ -37,3 +37,4 @@ watch() async {
 build() async {
   await buildRunner.build(phase);
 }
+*/

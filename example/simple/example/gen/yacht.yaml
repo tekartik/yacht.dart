@@ -1,4 +1,0 @@
-template:
-  yacht_template.html
-src:
-  - post/*.md

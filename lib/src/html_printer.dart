@@ -2,7 +2,6 @@ import 'html_visitor.dart';
 import 'package:html/dom.dart';
 import 'package:html/dom_parsing.dart';
 import 'package:collection/collection.dart';
-import 'package:barback/src/transformer/barback_settings.dart';
 import 'text_utils.dart';
 import 'html_utils.dart';
 import 'html_tag_utils.dart';
@@ -14,9 +13,6 @@ class HtmlPreprocessorOptions {}
 
 class HtmlPrinterOptions {
   HtmlPrinterOptions();
-  HtmlPrinterOptions.fromBarbackSettings(BarbackSettings settings) {
-    //TODO
-  }
 
   /// start for index min
   int indentDepthMin = 2;
@@ -452,7 +448,7 @@ abstract class HtmlLinesBuilderMixin {
 
       //print(node.outerHtml);
 
-      bool parentInline = inlineContent;
+      bool parentInline = this.inlineContent;
       bool parentDoNotConvertContent = doNotConvertContent;
       bool parentIsRawTag = isRawTag;
       doNotConvertContent = _doNotConvertContentForTag(tag);
@@ -462,12 +458,16 @@ abstract class HtmlLinesBuilderMixin {
       // bool tryToInline =  _hasSingleTextNodeLines(node);
       bool tryToInline = !_elementBeginEndsWithWhiteSpace(node);
       // inlineContent = _inlineContentForTag(tag) || tryToInline;
-      inlineContent = tryToInline;
+      bool inlineContent = tryToInline;
+      this.inlineContent = inlineContent;
 
       // end line for head tags
+      /*
       bool _isHeadTag = isHeadTag(tag) &&
           node.parent != null &&
           node.parent.localName != "noscript";
+          */
+      var _isHeadTag = tag == 'head';
       if (_isHeadTag) {
         _addLine();
       }
@@ -492,7 +492,7 @@ abstract class HtmlLinesBuilderMixin {
       _add(elementEndTag(node));
 
       doNotConvertContent = parentDoNotConvertContent;
-      inlineContent = parentInline == true;
+      inlineContent = inlineContent || parentInline == true;
       isRawTag = parentIsRawTag;
       if (!inlineContent) {
         _addLine();
@@ -502,6 +502,8 @@ abstract class HtmlLinesBuilderMixin {
       if (_isHeadTag) {
         _addLine();
       }
+
+      this.inlineContent = inlineContent;
     } else {
       // Escape text
       // &gt; won't get converted to <
@@ -528,8 +530,13 @@ abstract class HtmlLinesBuilderMixin {
             _addLines(LineSplitter.split(text));
           }
         } else if (inlineContent) {
-          // trim and add minimum space
-          _add(utilsInlineText(text), options.contentLength);
+          // Handle return case explicitely
+          if (isWhitespaceLine(text) && text.contains('\n')) {
+            _addLine();
+          } else {
+            // trim and add minimum space
+            _add(utilsInlineText(text), options.contentLength);
+          }
 
           // if we continue inlining require a space
           //spaceRequired = utilsEndsWithWhitespace(text);

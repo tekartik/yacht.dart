@@ -298,6 +298,11 @@ main() {
       checkHtmlElement("<style>\n</style>", htmlLines(['<style>', '</style>']));
     });
 
+    test('style_linefeed_and_spaces', () {
+      checkHtmlElement(
+          "<style>\n \n</style>", htmlLines(['<style>', '</style>']));
+    });
+
     test('style_multi_spaces', () async {
       checkHtmlElement(
           "<style>\r \r</style>", htmlLines(['<style>', '</style>']));
@@ -401,7 +406,7 @@ main() {
       checkHtmlElement("<p>some <span>text\n</span></p>",
           htmlLines(['<p>some <span>text </span></p>']));
       checkHtmlElement("<p>some <span>text</span>\n</p>",
-          htmlLines(['<p>some <span>text</span> </p>']));
+          htmlLines(['<p>some <span>text</span>', '</p>']));
       checkHtmlElement(
           "<p>\nsome <span>text</span>\n</p>",
           htmlLines([
@@ -438,10 +443,45 @@ main() {
               ['<noscript><style>body { color: red; }</style></noscript>']));
     });
 
+    test('two_elements_no_break', () {
+      checkHtmlElement(
+          '<div>\n<style></style><noscript></noscript>\n</div>',
+          htmlLines([
+            '<div>',
+            [1, '<style></style><noscript></noscript>'],
+            '</div>'
+          ]));
+    });
+
+    test('two_elements_with_break', () {
+      checkHtmlElement(
+          '<div>\n<style></style>\n<noscript></noscript>\n</div>',
+          htmlLines([
+            '<div>',
+            [
+              1,
+              ['<style></style>', '<noscript></noscript>']
+            ],
+            '</div>'
+          ]));
+    });
+    test('two_elements_with_break', () {
+      checkHtmlElement(
+          '<div>\n<style></style> \n <noscript></noscript>\n</div>',
+          htmlLines([
+            '<div>',
+            [
+              1,
+              ['<style></style>', '<noscript></noscript>']
+            ],
+            '</div>'
+          ]));
+    });
+
     test('element_base_debug', () async {
       // copy the test here and make it solo
       checkHtmlElement(
-          '<head><meta charset="utf-8"><title>Included Title</title>  </head>',
+          '<head>\n<meta charset="utf-8">\n<title>Included Title</title>  </head>',
           htmlLines([
             '<head>',
             [
