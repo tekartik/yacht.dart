@@ -22,9 +22,6 @@ dev_dependencies:
   process_run: any
   chrome_travis:
     git: git://github.com/tekartik/chrome_travis.dart
-  build_runner: ^0.8.2
-  build_web_compilers: ^0.3.6
-  build_test: any
 
 dependency_overrides:
   # build: '>=0.9.3'
