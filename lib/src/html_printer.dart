@@ -53,13 +53,13 @@ String htmlPrintLines(HtmlLines htmlLines, {HtmlPrinterOptions options}) {
   return _htmlPrintLines(htmlLines, options);
 }
 
-Future<String> htmlPrintDocument(Document doc,
-    {HtmlPrinterOptions options}) async {
+String htmlPrintDocument(Document doc,
+    {HtmlPrinterOptions options}) {
   if (options == null) {
     options = new HtmlPrinterOptions();
   }
   HtmlDocumentPrinter printer = new HtmlDocumentPrinter();
-  await printer.visitDocument(doc);
+  printer.visitDocument(doc);
   return _htmlPrintLines(printer.lines, options);
 }
 
