@@ -4,7 +4,7 @@ import 'package:yacht/src/transformer.dart';
 
 export 'package:yacht/src/transformer_memory.dart';
 
-stringAssets(List data) {
+StringAssets stringAssets(List data) {
   StringAssets assets = new StringAssets();
 
   // parse ['pkg'], 'path,' 'content'
@@ -13,7 +13,7 @@ stringAssets(List data) {
       int index = 0;
       String package;
       if (item.length > 2) {
-        package = item[index++];
+        package = item[index++] as String;
       }
       String path = item[index++];
       String content = item[index++];
@@ -27,7 +27,7 @@ stringAssets(List data) {
   if (data.isNotEmpty) {
     if (data.first is List) {
       for (var item in data) {
-        _add(item);
+        _add(item as List);
       }
     } else {
       _add(data);

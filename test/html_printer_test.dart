@@ -26,7 +26,7 @@ _addItem(HtmlLines lines, dynamic item) {
   if (item is List) {
     int index = 0;
     if (item.length > 1) {
-      depth = item[index++];
+      depth = item[index++] as int;
     }
     content = item[index++];
 
@@ -40,7 +40,7 @@ _addItem(HtmlLines lines, dynamic item) {
   } else {
     content = item;
   }
-  lines.add(htmlLine(depth, content));
+  lines.add(htmlLine(depth, content as String));
 }
 
 @deprecated // use htmlLines

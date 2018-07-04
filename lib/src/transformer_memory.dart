@@ -126,7 +126,7 @@ class StringAssets extends MapBase<AssetId, StringAsset> {
 }
 
 StringAsset stringAsset(AssetId id, String content) =>
-    new StringAsset(id, content);
+    new StringAsset(id as MemoryAssetId, content);
 
 class StringAssetTransform implements AssetTransform {
   @override
@@ -205,6 +205,6 @@ class StringTransform extends StringConsumableTransform implements Transform {
 
   @override
   void addOutputFromString(AssetId id, String content, {Encoding encoding}) {
-    outputs[id] = new StringAsset(id, content);
+    outputs[id] = new StringAsset(id as MemoryAssetId, content);
   }
 }

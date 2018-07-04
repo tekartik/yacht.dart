@@ -53,8 +53,7 @@ String htmlPrintLines(HtmlLines htmlLines, {HtmlPrinterOptions options}) {
   return _htmlPrintLines(htmlLines, options);
 }
 
-String htmlPrintDocument(Document doc,
-    {HtmlPrinterOptions options}) {
+String htmlPrintDocument(Document doc, {HtmlPrinterOptions options}) {
   if (options == null) {
     options = new HtmlPrinterOptions();
   }
