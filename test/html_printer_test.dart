@@ -230,46 +230,46 @@ main() {
     });
 
     test('span', () async {
-      await checkHtmlElement('<a></a>', htmlLines('<a></a>'));
-      await checkHtmlElement('<a>link</a>', htmlLines('<a>link</a>'));
-      await checkHtmlElement('<a> link</a>', htmlLines('<a> link</a>'));
-      await checkHtmlElement('<a>  link</a>', htmlLines('<a> link</a>'));
-      await checkHtmlElement('<a>link </a>', htmlLines('<a>link </a>'));
-      await checkHtmlElement(
+      checkHtmlElement('<a></a>', htmlLines('<a></a>'));
+      checkHtmlElement('<a>link</a>', htmlLines('<a>link</a>'));
+      checkHtmlElement('<a> link</a>', htmlLines('<a> link</a>'));
+      checkHtmlElement('<a>  link</a>', htmlLines('<a> link</a>'));
+      checkHtmlElement('<a>link </a>', htmlLines('<a>link </a>'));
+      checkHtmlElement(
           '<a> link </a>',
           htmlLines([
             '<a>',
             [1, 'link'],
             '</a>'
           ]));
-      await checkHtmlElement(
+      checkHtmlElement(
           '<a>\rlink\n</a>',
           htmlLines([
             '<a>',
             [1, 'link'],
             '</a>'
           ]));
-      await checkHtmlElement('<a>\n</a>', htmlLines(['<a>', '</a>']));
+      checkHtmlElement('<a>\n</a>', htmlLines(['<a>', '</a>']));
     });
 
     test('element_base', () async {
-      //await checkHtmlElement('<a>\r0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 012345789 link\n</a>', htmlLines('<a> link </a>'));
-      await checkHtmlElement('<div></div>', htmlLines('<div></div>'));
-      await checkHtmlElement('<div>\n</div>', htmlLines(['<div>', '</div>']));
-      await checkHtmlElement('<div>\na</div>', htmlLines('<div> a</div>'));
-      await checkHtmlElement('<div>a\n</div>', htmlLines('<div>a </div>'));
-      await checkHtmlElement('<div> a</div>', htmlLines(['<div> a</div>']));
-      await checkHtmlElement('<div>a </div>', htmlLines(['<div>a </div>']));
+      //checkHtmlElement('<a>\r0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 0123456789 012345789 link\n</a>', htmlLines('<a> link </a>'));
+      checkHtmlElement('<div></div>', htmlLines('<div></div>'));
+      checkHtmlElement('<div>\n</div>', htmlLines(['<div>', '</div>']));
+      checkHtmlElement('<div>\na</div>', htmlLines('<div> a</div>'));
+      checkHtmlElement('<div>a\n</div>', htmlLines('<div>a </div>'));
+      checkHtmlElement('<div> a</div>', htmlLines(['<div> a</div>']));
+      checkHtmlElement('<div>a </div>', htmlLines(['<div>a </div>']));
     });
 
     test('element_sub', () async {
-      await checkHtmlElement(
+      checkHtmlElement(
           '<a><span></span></a>', htmlLines('<a><span></span></a>'));
-      await checkHtmlElement(
+      checkHtmlElement(
           '<div><span></span></div>', htmlLines('<div><span></span></div>'));
-      await checkHtmlElement(
+      checkHtmlElement(
           '<div><div></div></div>', htmlLines('<div><div></div></div>'));
-      await checkHtmlElement('<div><div>text</div></div>',
+      checkHtmlElement('<div><div>text</div></div>',
           htmlLines('<div><div>text</div></div>'));
     });
 
