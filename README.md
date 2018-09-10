@@ -10,19 +10,19 @@
 
 [![Build Status](https://travis-ci.org/tekartik/yacht.dart.svg?branch=master)](https://travis-ci.org/tekartik/yacht.dart)
 
-## install as a transformer
+## install dependencies
 
 in your `pubspec.yaml`
 
-````
-...
+```yaml
 dependencies:
-  yacht: any
-  ...
-transformers:
-  - yacht
-  ...
-````
+  yacht:
+    git:
+      url: git://github.com/tekartik/yacht.dart
+      ref: dart2
+    version: '>=0.3.1'
+...
+```
 
 options
 * import: can be `true` (default), `false`, `debug` or `release`; it controls whether
