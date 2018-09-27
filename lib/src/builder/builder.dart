@@ -54,7 +54,7 @@ build.AssetId _unwrapAssetId(common.AssetId id) {
 // for declaration
 abstract class TransformBuilder implements build.Builder, common.Transformer {
   Future build(BuildStep buildStep) =>
-      run(new BuildStepTransform.wrap(buildStep));
+      new Future.sync(() => run(new BuildStepTransform.wrap(buildStep)));
 
   /*
   @override
@@ -100,7 +100,7 @@ class BuildStepTransform implements Transform
 
   @override
   void addOutputFromString(common.AssetId assetId, String content,
-      {Encoding encoding: UTF8}) {
+      {Encoding encoding: utf8}) {
     buildStep.writeAsString(_unwrapAssetId(assetId), content,
         encoding: encoding);
   }
@@ -130,12 +130,12 @@ class BuildStepTransform implements Transform
 
   @override
   Future<String> readInputAsString(common.AssetId id,
-      {Encoding encoding: UTF8}) {
+      {Encoding encoding: utf8}) {
     return buildStep.readAsString(_unwrapAssetId(id), encoding: encoding);
   }
 
   @override
-  Future<String> readPrimaryAsString({Encoding encoding: UTF8}) {
+  Future<String> readPrimaryAsString({Encoding encoding: utf8}) {
     return readInputAsString(primaryId, encoding: encoding);
   }
 }

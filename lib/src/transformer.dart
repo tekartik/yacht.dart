@@ -29,8 +29,8 @@ abstract class Asset {
   ///
   /// If the asset was created from a [String] the original string is always
   /// returned and [encoding] is ignored. Otherwise, the binary data of the
-  /// asset is decoded using [encoding], which defaults to [UTF8].
-  Future<String> readAsString({Encoding encoding});
+  /// asset is decoded using [encoding], which defaults to [utf8].
+  Future<String> readAsString({Encoding encoding: utf8});
 }
 
 /// A set of [Asset]s with distinct IDs.
@@ -235,7 +235,7 @@ abstract class Transformer {
   ///
   /// If this does asynchronous work, it should return a [Future] that completes
   /// once it's finished.
-  run(AssetTransform transform);
+  FutureOr run(AssetTransform transform);
 
   String toString(); // => runtimeType.toString().replaceAll("Transformer", "");
 }
@@ -279,7 +279,7 @@ abstract class Transform extends ConsumableTransform {
   ///
   /// If the asset was created from a [String] the original string is always
   /// returned and [encoding] is ignored. Otherwise, the binary data of the
-  /// asset is decoded using [encoding], which defaults to [UTF8].
+  /// asset is decoded using [encoding], which defaults to [utf8].
   ///
   /// If an input with [id] cannot be found, throws an [AssetNotFoundException].
   Future<String> readInputAsString(AssetId id, {Encoding encoding});
