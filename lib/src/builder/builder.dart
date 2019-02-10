@@ -1,17 +1,17 @@
 import 'dart:async';
-
 import 'dart:convert';
+
 import 'package:build/build.dart';
 import 'package:build/build.dart' as build;
 import 'package:source_span/source_span.dart' as source_span;
+import 'package:yacht/src/transformer.dart';
 
+import 'package:yacht/src/transformer.dart'
+    hide Asset, AssetId, Transformer, Transform;
+import 'package:yacht/src/transformer.dart' as common;
 /*
 export 'transformer.dart';
 */
-import '../transformer.dart' hide Asset, AssetId, Transformer, Transform;
-
-import '../transformer.dart' as common;
-import 'package:yacht/src/transformer.dart';
 
 class BuilderAssetId extends common.AssetId {
   build.AssetId _impl;
@@ -31,7 +31,7 @@ class BuilderAssetId extends common.AssetId {
   String get path => _impl.path;
 
   @override
-  toString() => _impl.toString();
+  String toString() => _impl.toString();
 
   @override
   int get hashCode => _impl.hashCode;
@@ -41,7 +41,7 @@ class BuilderAssetId extends common.AssetId {
 }
 
 common.AssetId _wrapAssetId(build.AssetId id) {
-  return new BuilderAssetId.wrap(id);
+  return BuilderAssetId.wrap(id);
 }
 
 build.AssetId _unwrapAssetId(common.AssetId id) {
@@ -53,10 +53,11 @@ build.AssetId _unwrapAssetId(common.AssetId id) {
 
 // for declaration
 abstract class TransformBuilder implements build.Builder, common.Transformer {
+  @override
   Future build(BuildStep buildStep) =>
-      new Future.sync(() => run(new BuildStepTransform.wrap(buildStep)));
+      Future.sync(() => run(BuildStepTransform.wrap(buildStep)));
 
-  /*
+/*
   @override
   apply(brbck.Transform transform) => run(new BarbackTransform.wrap(transform));
 
@@ -88,19 +89,17 @@ class BarbackDeclaringTransform extends BarbackPrimaryTransform
 }
 */
 
-/**
- * Used in transformers
- */
-class BuildStepTransform implements Transform
-//extends BarbackPrimaryTransform
+/// Used in transformers
+class BuildStepTransform implements Transform //extends BarbackPrimaryTransform
 //  implements common.Transform
 {
   build.BuildStep buildStep;
+
   BuildStepTransform.wrap(this.buildStep);
 
   @override
   void addOutputFromString(common.AssetId assetId, String content,
-      {Encoding encoding: utf8}) {
+      {Encoding encoding = utf8}) {
     buildStep.writeAsString(_unwrapAssetId(assetId), content,
         encoding: encoding);
   }
@@ -117,12 +116,12 @@ class BuildStepTransform implements Transform
   }
 
   @override
-  TransformLogger get logger => new BuildTransformLogger();
+  TransformLogger get logger => BuildTransformLogger();
 
   @override
   common.AssetId newAssetId(common.AssetId assetId, String path) {
     return _wrapAssetId(
-        new build.AssetId.resolve(path, from: _unwrapAssetId(assetId)));
+        build.AssetId.resolve(path, from: _unwrapAssetId(assetId)));
   }
 
   @override
@@ -130,12 +129,12 @@ class BuildStepTransform implements Transform
 
   @override
   Future<String> readInputAsString(common.AssetId id,
-      {Encoding encoding: utf8}) {
+      {Encoding encoding = utf8}) {
     return buildStep.readAsString(_unwrapAssetId(id), encoding: encoding);
   }
 
   @override
-  Future<String> readPrimaryAsString({Encoding encoding: utf8}) {
+  Future<String> readPrimaryAsString({Encoding encoding = utf8}) {
     return readInputAsString(primaryId, encoding: encoding);
   }
 }

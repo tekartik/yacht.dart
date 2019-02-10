@@ -1,13 +1,14 @@
 library yacht.src.transformer_memory;
 
-import 'package:yacht/src/assetid_utils.dart';
-import 'transformer.dart';
-
 import 'dart:async';
-import 'dart:convert';
 import 'dart:collection';
+import 'dart:convert';
+
 import 'package:path/path.dart' as p;
 import 'package:path/path.dart';
+import 'package:yacht/src/assetid_utils.dart';
+
+import 'transformer.dart';
 
 class MemoryAssetId implements AssetId {
   @override
@@ -17,12 +18,13 @@ class MemoryAssetId implements AssetId {
   final String path;
 
   MemoryAssetId(this.package, this.path);
+
   @override
 
   /// Returns a new [AssetId] with the same [package] and [path] as this one
   /// but with file extension [newExtension].
   AssetId changeExtension(String newExtension) =>
-      new MemoryAssetId(package, p.withoutExtension(path) + newExtension);
+      MemoryAssetId(package, p.withoutExtension(path) + newExtension);
 
   @override
   int get hashCode => path?.hashCode ?? 0;
@@ -84,16 +86,17 @@ AssetId assetIdWithPath(AssetId id, String path) {
       }
     }
   }
-  return new MemoryAssetId(package, path);
+  return MemoryAssetId(package, path);
 }
 
 class StringAsset {
   MemoryAssetId id;
   String content;
+
   StringAsset(this.id, this.content);
 
   @override
-  toString() => '$id:$content';
+  String toString() => '$id:$content';
 
   @override
   int get hashCode => id.hashCode;
@@ -121,12 +124,15 @@ class StringAssets extends MapBase<AssetId, StringAsset> {
     assets.clear();
   }
 
+  @override
   StringAsset operator [](Object id) => assets[id];
+
+  @override
   operator []=(AssetId id, StringAsset asset) => assets[id] = asset;
 }
 
 StringAsset stringAsset(AssetId id, String content) =>
-    new StringAsset(id as MemoryAssetId, content);
+    StringAsset(id as MemoryAssetId, content);
 
 class StringAssetTransform implements AssetTransform {
   @override
@@ -143,7 +149,9 @@ class StringAssetTransform implements AssetTransform {
 class StringConsumableTransform extends StringAssetTransform
     implements ConsumableTransform {
   bool isConsumed;
+
   TransformLogger get logger => null;
+
   StringConsumableTransform(AssetId primaryId) : super(primaryId);
 
   @override
@@ -170,8 +178,8 @@ class StringDeclaringTransform extends StringConsumableTransform
 }
 
 class StringTransform extends StringConsumableTransform implements Transform {
-  final StringAssets assets = new StringAssets();
-  final StringAssets outputs = new StringAssets();
+  final StringAssets assets = StringAssets();
+  final StringAssets outputs = StringAssets();
 
   // only string supported for now
   StringTransform(StringAsset asset, StringAssets inputAssets)
@@ -205,6 +213,6 @@ class StringTransform extends StringConsumableTransform implements Transform {
 
   @override
   void addOutputFromString(AssetId id, String content, {Encoding encoding}) {
-    outputs[id] = new StringAsset(id as MemoryAssetId, content);
+    outputs[id] = StringAsset(id as MemoryAssetId, content);
   }
 }

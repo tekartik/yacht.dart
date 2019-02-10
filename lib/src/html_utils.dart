@@ -35,7 +35,7 @@ void noScriptFix(Element element) {
         element.nodes.first.nodeType == Node.TEXT_NODE) {
       // try to parse html
       try {
-        Element child = new Element.html(element.nodes.first.text);
+        Element child = Element.html(element.nodes.first.text);
         if (element != null) {
           element.nodes
             ..removeAt(0)

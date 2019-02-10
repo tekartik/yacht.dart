@@ -5,38 +5,38 @@ import 'package:yacht/src/transformer.dart';
 export 'package:yacht/src/transformer_memory.dart';
 
 StringAssets stringAssets(List data) {
-  StringAssets assets = new StringAssets();
+  StringAssets assets = StringAssets();
 
   // parse ['pkg'], 'path,' 'content'
-  _add(List item) {
+  void _add(List<String> item) {
     try {
       int index = 0;
       String package;
       if (item.length > 2) {
-        package = item[index++] as String;
+        package = item[index++];
       }
       String path = item[index++];
       String content = item[index++];
-      AssetId id = new MemoryAssetId(package, path);
+      AssetId id = MemoryAssetId(package, path);
       assets[id] = stringAsset(id, content);
     } catch (e) {
-      throw new ArgumentError('Cannot parse ${item} ${e}');
+      throw ArgumentError('Cannot parse ${item} ${e}');
     }
   }
 
   if (data.isNotEmpty) {
     if (data.first is List) {
       for (var item in data) {
-        _add(item as List);
+        _add((item as List)?.cast<String>());
       }
     } else {
-      _add(data);
+      _add(data.cast<String>());
     }
   }
   return assets;
 }
 
-main() {
+void main() {
   group('transformer_memory', () {
     test('stringAsset', () {
       StringAsset asset1 = stringAsset(assetIdWithPath(null, ''), null);
@@ -58,7 +58,7 @@ main() {
 
       // package
       assets = stringAssets(['pkg', 'asset', null]);
-      id = new MemoryAssetId("pkg", 'asset');
+      id = MemoryAssetId("pkg", 'asset');
       expect(assets.length, 1);
       expect(assets[id], stringAsset(id, null));
 
