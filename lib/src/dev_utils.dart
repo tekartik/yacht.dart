@@ -17,18 +17,18 @@ void devPrint(Object object) {
 @deprecated
 int devWarning;
 
-_devError([String msg = null]) {
+void _devError([String msg]) {
   // one day remove the print however sometimes the error thrown is hidden
   try {
-    throw new UnsupportedError(msg);
+    throw UnsupportedError(msg);
   } catch (e, st) {
     if (_devPrintEnabled) {
       print("# ERROR $msg");
       print(st);
     }
-    throw e;
+    rethrow;
   }
 }
 
 @deprecated
-devError([String msg = null]) => _devError(msg);
+void devError([String msg]) => _devError(msg);

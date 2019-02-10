@@ -1,8 +1,9 @@
 library yacht.test.html_visitor_test;
 
-import 'test_common.dart';
-import 'package:yacht/src/html_printer.dart';
 import 'package:html/dom.dart';
+import 'package:yacht/src/html_printer.dart';
+
+import 'test_common.dart';
 
 const String minHtml = '''
 <!doctype html>
@@ -20,7 +21,7 @@ HtmlLines minHtmlLines = htmlLines([
   [0, '</html>']
 ]);
 // Allow for [0,'<a>'] or ['</a>'] or '<a>'
-_addItem(HtmlLines lines, dynamic item) {
+void _addItem(HtmlLines lines, dynamic item) {
   int depth = 0;
   dynamic content;
   if (item is List) {
@@ -32,7 +33,7 @@ _addItem(HtmlLines lines, dynamic item) {
 
     // the content can be a list as well..
     if (content is List) {
-      for (String _content in content) {
+      for (String _content in content?.cast<String>()) {
         lines.add(htmlLine(depth, _content));
       }
       return;
@@ -45,7 +46,7 @@ _addItem(HtmlLines lines, dynamic item) {
 
 @deprecated // use htmlLines
 HtmlLines htmlMultiHtmlLines(List data) {
-  HtmlLines lines = new HtmlLines();
+  HtmlLines lines = HtmlLines();
   for (var item in data) {
     _addItem(lines, item);
   }
@@ -53,9 +54,9 @@ HtmlLines htmlMultiHtmlLines(List data) {
 }
 
 HtmlLines htmlLinesFromElementHtml(String html, {HtmlPrinterOptions options}) {
-  Element element = new Element.html(html);
+  Element element = Element.html(html);
   //print(element.outerHtml');
-  HtmlElementPrinter printer = new HtmlElementPrinter();
+  HtmlElementPrinter printer = HtmlElementPrinter();
   if (options != null) {
     printer.options = options;
   }
@@ -67,7 +68,7 @@ HtmlLines htmlLinesFromElementHtml(String html, {HtmlPrinterOptions options}) {
 // ['<a>', '</a>']
 
 HtmlLines htmlLines(dynamic data) {
-  HtmlLines lines = new HtmlLines();
+  HtmlLines lines = HtmlLines();
 
   if (data is List) {
     if (data.isNotEmpty) {
@@ -90,7 +91,7 @@ HtmlLines htmlLines(dynamic data) {
 }
 
 void checkHtmlElement(String html, HtmlLines lines, [int contentLength]) {
-  HtmlPrinterOptions options = new HtmlPrinterOptions();
+  HtmlPrinterOptions options = HtmlPrinterOptions();
   if (contentLength != null) {
     options.contentLength = contentLength;
   }
@@ -102,7 +103,7 @@ void checkHtmlElement(String html, HtmlLines lines, [int contentLength]) {
       reason: 'outhtml: ${outHtml}\n/\n ${html}');
 }
 
-main() {
+void main() {
   group('html_line', () {
     test('equals', () {
       HtmlLine line1 = htmlLine(null, null);
@@ -180,51 +181,51 @@ main() {
 
   group('html_printer', () {
     test('empty', () {
-      HtmlElementPrinter printer = new HtmlElementPrinter();
+      HtmlElementPrinter printer = HtmlElementPrinter();
       expect(printer.lines, isEmpty);
     });
 
     test('element', () {
-      Element element = new Element.html('<a></a>');
+      Element element = Element.html('<a></a>');
       expect(element.outerHtml, '<a></a>');
-      HtmlElementPrinter printer = new HtmlElementPrinter();
+      HtmlElementPrinter printer = HtmlElementPrinter();
       printer.visitElement(element);
       expect(printer.lines, htmlLines(['<a></a>']));
     });
 
     test('inner_element', () {
-      Element element = new Element.html('<div><a></a></div>');
+      Element element = Element.html('<div><a></a></div>');
       expect(element.outerHtml, '<div><a></a></div>');
       /*
       devPrint(element.innerHtml);
       devPrint(element.text);
       */
-      HtmlElementPrinter printer = new HtmlElementPrinter();
+      HtmlElementPrinter printer = HtmlElementPrinter();
       printer.visitElement(element);
       expect(printer.lines, htmlLines(['<div><a></a></div>']));
     });
 
     test('element_with_text_node', () {
-      Element element = new Element.tag('div');
+      Element element = Element.tag('div');
       element.text = '<a></a>';
-      HtmlElementPrinter printer = new HtmlElementPrinter();
+      HtmlElementPrinter printer = HtmlElementPrinter();
       printer.visitElement(element);
       expect(printer.lines, htmlLines(['<div>&lt;a&gt;&lt;/a&gt;</div>']));
     });
 
     test('element_html', () {
       try {
-        new Element.html('&lt;a&gt;&lt;/a&gt;');
+        Element.html('&lt;a&gt;&lt;/a&gt;');
         fail("should fail");
       } on ArgumentError catch (_) {
         //print(_);
         //print(_.runtimeType);
 
       }
-      Element element = new Element.html('<div>&lt;a&gt;&lt;/a&gt;</div>');
+      Element element = Element.html('<div>&lt;a&gt;&lt;/a&gt;</div>');
       expect(element.outerHtml, '<div>&lt;a&gt;&lt;/a&gt;</div>');
       expect(element.text, '<a></a>');
-      HtmlElementPrinter printer = new HtmlElementPrinter();
+      HtmlElementPrinter printer = HtmlElementPrinter();
       printer.visitElement(element);
       expect(printer.lines, htmlLines(['<div>&lt;a&gt;&lt;/a&gt;</div>']));
     });
@@ -497,56 +498,56 @@ main() {
     });
 
     test('element_with_text', () async {
-      Element element = new Element.html('<a>link</a>');
+      Element element = Element.html('<a>link</a>');
       expect(element.outerHtml, '<a>link</a>');
-      HtmlElementPrinter printer = new HtmlElementPrinter();
-      await printer.visitElement(element);
+      HtmlElementPrinter printer = HtmlElementPrinter();
+      printer.visitElement(element);
       expect(printer.lines, htmlLines([0, '<a>link</a>']));
     });
   });
 
   group('print_document', () {
     test('document', () async {
-      Document document = new Document();
+      Document document = Document();
       expect(document.outerHtml, '');
-      HtmlDocumentPrinter printer = new HtmlDocumentPrinter();
-      await printer.visitDocument(document);
+      HtmlDocumentPrinter printer = HtmlDocumentPrinter();
+      printer.visitDocument(document);
       //print(printer.lines);
       expect(printer.lines, htmlLines([]));
     });
 
     test('document_html_empty', () async {
-      Document document = new Document.html('');
+      Document document = Document.html('');
       expect(document.outerHtml, '<html><head></head><body></body></html>');
 
       //print(document.outerHtml);
-      HtmlDocumentPrinter builder = new HtmlDocumentPrinter();
-      await builder.visitDocument(document);
+      HtmlDocumentPrinter builder = HtmlDocumentPrinter();
+      builder.visitDocument(document);
       expect(builder.lines, minHtmlLines);
       //print(builder.nodes);
     });
 
     test('document_html_basic', () async {
-      Document document = new Document.html(
+      Document document = Document.html(
           '<!DOCTYPE html><html><head></head><body></body></html>');
 
       //print(document.outerHtml);
-      HtmlDocumentPrinter builder = new HtmlDocumentPrinter();
-      await builder.visitDocument(document);
+      HtmlDocumentPrinter builder = HtmlDocumentPrinter();
+      builder.visitDocument(document);
       expect(builder.lines, minHtmlLines);
       //print(builder.nodes);
     });
 
     test('document_html_tag_in_head', () async {
-      Document document = new Document.html(
+      Document document = Document.html(
           '<!DOCTYPE html><html><head><my-tag></my-tag></head><body></body></html>');
 
       // my-tag move to body!
       expect(document.head.querySelector('my-tag'), isNull);
       expect(document.body.querySelector('my-tag'), isNotNull);
       //print(document.outerHtml);
-      HtmlDocumentPrinter builder = new HtmlDocumentPrinter();
-      await builder.visitDocument(document);
+      HtmlDocumentPrinter builder = HtmlDocumentPrinter();
+      builder.visitDocument(document);
       //expect(builder.lines, minHtmlLines);
       //print(builder.nodes);
     });
@@ -564,15 +565,15 @@ main() {
     });
 
     test('htmlPrintDocument', () async {
-      Document document = new Document();
-      expect(await htmlPrintDocument(document), '${htmlDoctype}\n');
-      document = new Document.html('');
-      expect(await htmlPrintDocument(document),
+      Document document = Document();
+      expect(htmlPrintDocument(document), '${htmlDoctype}\n');
+      document = Document.html('');
+      expect(htmlPrintDocument(document),
           '${htmlDoctype}\n<html>\n<head></head>\n<body></body>\n</html>');
-      document = new Document.html(
+      document = Document.html(
           '<!DOCTYPE html><html><head></head><body></body></html>');
       //minHtml
-      expect(await htmlPrintDocument(document), minHtml);
+      expect(htmlPrintDocument(document), minHtml);
       //'${htmlDoctype}\n<html>\n<head></head>\n<body></body>\n</html>');
       //document = new Document.html('<!DOCTYPE html><html><head></head><body></body></html>\n');
       //expect(await htmlPrintDocument(document), '${htmlDoctype}\n<html>\n<head>\n</head>\n<body>\n</body>\n</html>\n');

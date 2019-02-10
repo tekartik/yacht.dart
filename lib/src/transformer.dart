@@ -30,7 +30,7 @@ abstract class Asset {
   /// If the asset was created from a [String] the original string is always
   /// returned and [encoding] is ignored. Otherwise, the binary data of the
   /// asset is decoded using [encoding], which defaults to [utf8].
-  Future<String> readAsString({Encoding encoding: utf8});
+  Future<String> readAsString({Encoding encoding = utf8});
 }
 
 /// A set of [Asset]s with distinct IDs.
@@ -55,8 +55,10 @@ abstract class AssetSet implements Iterable<Asset> {
   }
   */
 
+  @override
   Iterator<Asset> get iterator;
 
+  @override
   int get length;
 
   /// Gets the [Asset] in the set with [id], or returns `null` if no asset with
@@ -101,7 +103,7 @@ abstract class TransformerImpl {
   ///
   /// If this does asynchronous work, it should return a [Future] that completes
   /// once it's finished.
-  apply(Transform transform);
+  Future apply(Transform transform);
 }
 
 /*
@@ -165,10 +167,11 @@ Future<TransformerContext> transformerBuildDir(TransformerImpl transformer, Stri
 // Super class must implement Transformer
 abstract class TransformerMixin implements Transformer {
   // can be overriden
+  @override
   String get allowedExtensions => null;
 
   // can be overriden
-  isPrimary(AssetId id) {
+  bool isPrimary(AssetId id) {
     // Allow all files if [primaryExtensions] is not overridden.
     if (allowedExtensions == null) return true;
 
@@ -219,7 +222,7 @@ abstract class Transformer {
   ///
   /// This may return a `Future<bool>` or, if it's entirely synchronous, a
   /// `bool`.
-  isAssetPrimary(AssetId id);
+  FutureOr<bool> isAssetPrimary(AssetId id);
 
   /// Run this transformer on the primary input specified by [transform].
   ///
@@ -236,8 +239,6 @@ abstract class Transformer {
   /// If this does asynchronous work, it should return a [Future] that completes
   /// once it's finished.
   FutureOr run(AssetTransform transform);
-
-  String toString(); // => runtimeType.toString().replaceAll("Transformer", "");
 }
 
 /// While a [Transformer] represents a *kind* of transformation, this defines
@@ -305,6 +306,7 @@ abstract class Transform extends ConsumableTransform {
   /// transformer overwrites it by emitting an input with the same id. This
   /// allows the transformer to tell barback not to forward the primary input
   /// even if it's not overwritten.
+  @override
   void consumePrimary(); // => _aggregate.consumePrimary(primaryInput.id);
 }
 
@@ -375,14 +377,15 @@ abstract class DeclaringTransform extends ConsumableTransform {
 
 /// The severity of a logged message.
 class LogLevel {
-  static const INFO = const LogLevel("Info");
-  static const FINE = const LogLevel("Fine");
-  static const WARNING = const LogLevel("Warning");
-  static const ERROR = const LogLevel("Error");
+  static const INFO = LogLevel("Info");
+  static const FINE = LogLevel("Fine");
+  static const WARNING = LogLevel("Warning");
+  static const ERROR = LogLevel("Error");
 
   final String name;
   const LogLevel(this.name);
 
+  @override
   String toString() => name;
 }
 

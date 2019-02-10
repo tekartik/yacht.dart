@@ -5,7 +5,7 @@ import 'package:yacht/src/transformer.dart';
 
 import 'transformer_memory_test.dart';
 
-main() {
+void main() {
   group('assetid_utils', () {
     test('withPath', () {
       String dir = posix.join('dir');

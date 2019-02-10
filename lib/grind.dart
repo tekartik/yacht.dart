@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:grinder/grinder.dart';
 
-yachtGrind(List<String> args) {
+void yachtGrind(List<String> args) {
   if (args.isEmpty) {
     grind(['--help']);
   } else {
@@ -9,22 +11,22 @@ yachtGrind(List<String> args) {
 }
 
 @Task()
-test() => new TestRunner().testAsync();
+Future test() => TestRunner().testAsync();
 
 @DefaultTask()
 @Task()
-init() async {
+Future init() async {
   //await grind(['--help']);
 }
 
 @Depends(test)
 @Task()
-pubbuild() {
+Future pubbuild() async {
   Pub.build();
 }
 
 @Task()
-clean() => defaultClean();
+void clean() => defaultClean();
 
 /*
 @Task()

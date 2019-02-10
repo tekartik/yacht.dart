@@ -1,11 +1,12 @@
-import 'html_visitor.dart';
+import 'package:collection/collection.dart';
 import 'package:html/dom.dart';
 import 'package:html/dom_parsing.dart';
-import 'package:collection/collection.dart';
-import 'text_utils.dart';
-import 'html_utils.dart';
-import 'html_tag_utils.dart';
+
 import 'common_import.dart';
+import 'html_tag_utils.dart';
+import 'html_utils.dart';
+import 'html_visitor.dart';
+import 'text_utils.dart';
 
 const String htmlDoctype = '<!doctype html>';
 
@@ -23,7 +24,7 @@ class HtmlPrinterOptions {
 }
 
 String _htmlPrintLines(HtmlLines htmlLines, HtmlPrinterOptions options) {
-  StringBuffer sb = new StringBuffer();
+  StringBuffer sb = StringBuffer();
   sb.writeln(htmlDoctype);
   String indent = options.indent;
   int indentDepthMin = options.indentDepthMin;
@@ -48,16 +49,16 @@ String _htmlPrintLines(HtmlLines htmlLines, HtmlPrinterOptions options) {
 
 String htmlPrintLines(HtmlLines htmlLines, {HtmlPrinterOptions options}) {
   if (options == null) {
-    options = new HtmlPrinterOptions();
+    options = HtmlPrinterOptions();
   }
   return _htmlPrintLines(htmlLines, options);
 }
 
 String htmlPrintDocument(Document doc, {HtmlPrinterOptions options}) {
   if (options == null) {
-    options = new HtmlPrinterOptions();
+    options = HtmlPrinterOptions();
   }
-  HtmlDocumentPrinter printer = new HtmlDocumentPrinter();
+  HtmlDocumentPrinter printer = HtmlDocumentPrinter();
   printer.visitDocument(doc);
   return _htmlPrintLines(printer.lines, options);
 }
@@ -72,7 +73,7 @@ abstract class PrinterLine {
   PrinterLine(this.depth);
 
   @override
-  toString() => '$depth';
+  String toString() => '$depth';
 
   @override
   int get hashCode => depth.hashCode;
@@ -88,12 +89,15 @@ abstract class PrinterLine {
 
 class NodeLine extends PrinterLine {
   final Node node;
+
   NodeLine(int depth, this.node) : super(depth);
+
   @override
-  toString() => '$depth:$node';
+  String toString() => '$depth:$node';
 
   @override
   int get hashCode => super.hashCode + node.hashCode;
+
   @override
   bool operator ==(o) {
     if (super == (o)) {
@@ -106,9 +110,11 @@ class NodeLine extends PrinterLine {
 /// an output line with a given depth
 class HtmlLine extends PrinterLine {
   final String content;
+
   HtmlLine(int depth, this.content) : super(depth);
+
   @override
-  toString() => '$depth:$content';
+  String toString() => '$depth:$content';
 
   @override
   int get hashCode => super.hashCode + content.hashCode;
@@ -123,7 +129,7 @@ class HtmlLine extends PrinterLine {
 }
 
 abstract class NodeLinesBuilderMixin {
-  NodeLines lines = new NodeLines();
+  NodeLines lines = NodeLines();
   int depth = 0;
 
   // implemented by BaseVisitor
@@ -131,7 +137,7 @@ abstract class NodeLinesBuilderMixin {
 
   // @override
   Node visit(Node node) {
-    lines.add(new NodeLine(depth, node));
+    lines.add(NodeLine(depth, node));
     depth++;
     var result = visitChildren(node);
     depth--;
@@ -153,6 +159,7 @@ class HtmlLines extends DelegatingList<HtmlLine> {
   //final List<HtmlLine> _l;
 
   HtmlLines() : this.from(<HtmlLine>[]);
+
   HtmlLines.from(List<HtmlLine> l)
       : //_l = l,
         super(l);
@@ -162,6 +169,7 @@ class PrinterLines extends DelegatingList<PrinterLine> {
   //final List<PrinterLine> _l;
 
   PrinterLines() : this.from(<PrinterLine>[]);
+
   PrinterLines.from(List<PrinterLine> l)
       : //_l = l,
         super(l);
@@ -171,6 +179,7 @@ class NodeLines extends DelegatingList<NodeLine> {
   //final List<NodeLine> _l;
 
   NodeLines() : this.from(<NodeLine>[]);
+
   NodeLines.from(List<NodeLine> l)
       : //_l = l,
         super(l);
@@ -184,7 +193,7 @@ bool _elementBeginWithWhiteSpace(Element element) {
   Node firstChild = element.firstChild;
   if (firstChild != null && firstChild.nodeType == Node.TEXT_NODE) {
     // handle empty (for style)
-    if (!firstChild.text.isEmpty) {
+    if (firstChild.text.isNotEmpty) {
       return beginWithWhiteSpace(firstChild.text);
     }
   }
@@ -222,11 +231,11 @@ bool _doNotEscapeContentForTag(String tagName) {
 }
 
 String elementBeginTag(Element element) {
-  StringBuffer sb = new StringBuffer();
+  StringBuffer sb = StringBuffer();
   sb.write('<${element.localName}');
   element.attributes.forEach((key, value) {
     sb.write(' $key');
-    if (value.length > 0) {
+    if (value.isNotEmpty) {
       sb.write('="$value"');
     }
   });
@@ -243,17 +252,17 @@ String elementEndTag(Element element) {
 }
 
 HtmlLine htmlLine(int depth, String content) {
-  return new HtmlLine(depth, content);
+  return HtmlLine(depth, content);
 }
 
 List<String> _wordSplit(String input) {
   List<String> out = [];
-  StringBuffer sb = new StringBuffer();
+  StringBuffer sb = StringBuffer();
 
-  _addCurrent() {
+  void _addCurrent() {
     if (sb.length > 0) {
       out.add(sb.toString());
-      sb = new StringBuffer();
+      sb = StringBuffer();
     }
   }
 
@@ -282,7 +291,7 @@ String utilsTrimText(String text, [bool keepExternalSpaces = false]) {
   bool hasWhitespaceBefore = isWhitespace(runes.first);
   bool hasWhitespaceAfter = isWhitespace(runes.last);
   List<String> list = _wordSplit(text);
-  StringBuffer sb = new StringBuffer();
+  StringBuffer sb = StringBuffer();
   if (keepExternalSpaces && hasWhitespaceBefore) {
     sb.write(' ');
   }
@@ -297,6 +306,7 @@ String utilsTrimText(String text, [bool keepExternalSpaces = false]) {
 
 abstract class HtmlLinesBuilderMixin {
   HtmlPrinterOptions _options;
+
   set options(HtmlPrinterOptions options) {
     assert(options != null);
     _options = options;
@@ -304,27 +314,29 @@ abstract class HtmlLinesBuilderMixin {
 
   HtmlPrinterOptions get options {
     if (_options == null) {
-      _options = new HtmlPrinterOptions();
+      _options = HtmlPrinterOptions();
     }
     return _options;
   }
 
-  HtmlLines _lines = new HtmlLines();
+  HtmlLines _lines = HtmlLines();
+
   HtmlLines get lines {
     _addLine();
     return _lines;
   }
 
   int depth = 0;
+
   // implemented by BaseVisitor
   Node visitChildren(Node node);
 
   String elementBeginTag(Element element) {
-    StringBuffer sb = new StringBuffer();
+    StringBuffer sb = StringBuffer();
     sb.write('<${element.localName}');
     element.attributes.forEach((key, value) {
       sb.write(' $key');
-      if (value.length > 0) {
+      if (value.isNotEmpty) {
         sb.write('="$value"');
       }
     });
@@ -332,7 +344,7 @@ abstract class HtmlLinesBuilderMixin {
     return sb.toString();
   }
 
-  StringBuffer sb = new StringBuffer();
+  StringBuffer sb = StringBuffer();
 
   // specified at the beginning
   bool spaceRequired = false;
@@ -345,7 +357,7 @@ abstract class HtmlLinesBuilderMixin {
   int beginLineDepth;
 
   // only add if not at the beginning of a line
-  _addWhitespace() {
+  void _addWhitespace() {
     if (sb.isEmpty) {
       beginLineDepth = depth;
     } else {
@@ -355,7 +367,7 @@ abstract class HtmlLinesBuilderMixin {
   }
 
   // if content length is set, truncate when possible
-  _add(String content, [int contentLength]) {
+  void _add(String content, [int contentLength]) {
     if (sb.isEmpty) {
       beginLineDepth = depth;
       spaceRequired = false;
@@ -376,14 +388,14 @@ abstract class HtmlLinesBuilderMixin {
     //_lines.add(htmlLine(depth, content));
   }
 
-  _resetLine() {
+  void _resetLine() {
     // reset
-    sb = new StringBuffer();
+    sb = StringBuffer();
     spaceRequired = false;
     beginLineDepth = depth;
   }
 
-  _addLine() {
+  void _addLine() {
     if (sb.length > 0) {
       // chech whether to trimRight here
       String line = sb.toString().trimRight();
@@ -394,7 +406,7 @@ abstract class HtmlLinesBuilderMixin {
   }
 
   // create new lines for every lines
-  _addLines([Iterable<String> lines]) {
+  void _addLines([Iterable<String> lines]) {
     for (String line in lines) {
       _addLine();
       if (!isWhitespaceLine(line)) {
@@ -430,7 +442,7 @@ abstract class HtmlLinesBuilderMixin {
       sb.write(word);
     }
 
-    if (words.length > 0) {
+    if (words.isNotEmpty) {
       if (endWithWhiteSpace(input)) {
         _addWhitespace();
       }
@@ -567,12 +579,12 @@ List<String> convertContent(String input, int contentLength) {
   List<String> words = _wordSplit(input);
   List<String> out = [];
 
-  StringBuffer sb = new StringBuffer();
+  StringBuffer sb = StringBuffer();
 
-  _addCurrent() {
+  void _addCurrent() {
     if (sb.length > 0) {
       out.add(sb.toString());
-      sb = new StringBuffer();
+      sb = StringBuffer();
     }
   }
 
