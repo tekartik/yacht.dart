@@ -13,11 +13,6 @@ const String argDryRunFlag = 'dry-run';
 
 final Version binVersion = Version(0, 1, 0);
 
-void addCommonOptions(ArgParser parser) {
-  parser.addFlag(argDryRunFlag, abbr: 'd', help: 'Don\'t execture the command');
-  parser.addFlag(argVersionFlag, help: 'Version', negatable: false);
-}
-
 Future main(List<String> args) async {
   void _addHelp(ArgParser parser) {
     parser.addFlag(argHelpFlag, abbr: 'h', help: 'Help info');

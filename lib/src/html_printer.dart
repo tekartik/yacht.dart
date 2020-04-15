@@ -44,6 +44,10 @@ String _htmlPrintLines(HtmlLines htmlLines, HtmlPrinterOptions options) {
 
     sb.write(line.content);
   }
+  // Add ending new line
+  if (addLn) {
+    sb.writeln('');
+  }
   return sb.toString();
 }
 
