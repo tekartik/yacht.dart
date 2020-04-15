@@ -37,7 +37,7 @@ class MemoryAssetId implements AssetId {
   @override
   String toString() {
     if (package != null) {
-      return "package:$package/$path";
+      return 'package:$package/$path';
     }
     return path;
   }
@@ -50,9 +50,9 @@ AssetId assetIdWithPath(AssetId id, String path) {
   }
   path = normalizePath(path);
 
-  bool normalized = false;
+  var normalized = false;
 
-  String firstPart = posix.split(path)[0];
+  var firstPart = posix.split(path)[0];
   if (firstPart == '.' || firstPart == '..') {
     if (id != null) {
       path = posix.normalize(join(posix.dirname(id.path), path));
@@ -62,15 +62,15 @@ AssetId assetIdWithPath(AssetId id, String path) {
   String package;
 
   // resolve other package?
-  if (path.startsWith(posix.join("packages", ""))) {
-    List<String> parts = posix.split(path);
+  if (path.startsWith(posix.join('packages', ''))) {
+    var parts = posix.split(path);
     // 0 is packages
     if (parts.length > 2) {
       package = parts[1];
     }
-    // Beware append "lib" here to only get what is exported
+    // Beware append 'lib' here to only get what is exported
     path = posix.joinAll(parts.sublist(2));
-    path = posix.join("lib", path);
+    path = posix.join('lib', path);
   } else {
     // default id
     if (id != null) {
@@ -78,9 +78,9 @@ AssetId assetIdWithPath(AssetId id, String path) {
 
       // try relative
       if ((!normalized) && (!posix.isAbsolute(path))) {
-        String dirname = posix.dirname(id.path);
+        var dirname = posix.dirname(id.path);
         // Don't join .
-        if (dirname != ".") {
+        if (dirname != '.') {
           path = posix.join(dirname, path);
         }
       }
@@ -194,7 +194,7 @@ class StringTransform extends StringConsumableTransform implements Transform {
 
   @override
   Future<String> readInputAsString(AssetId id, {Encoding encoding}) async {
-    StringAsset asset = assets[id];
+    var asset = assets[id];
     if (asset == null) {
       return null;
     }

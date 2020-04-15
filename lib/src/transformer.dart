@@ -150,7 +150,7 @@ Future<TransformerContext> transformerBuildDir(TransformerImpl transformer, Stri
 
         //_packageName
 //          return fse.stat().then((FileStat stat) {
-//            //devPrint("${stat.size} ${fse}");
+//            //devPrint('${stat.size} ${fse}');
 //            size += stat.size;
 //          });
       }
@@ -175,7 +175,7 @@ abstract class TransformerMixin implements Transformer {
     // Allow all files if [primaryExtensions] is not overridden.
     if (allowedExtensions == null) return true;
 
-    for (var extension in allowedExtensions.split(" ")) {
+    for (var extension in allowedExtensions.split(' ')) {
       if (id.path.endsWith(extension)) return true;
     }
 
@@ -206,13 +206,13 @@ abstract class Transformer {
   /// Returns `true` if [id] can be a primary input for this transformer.
   ///
   /// While a transformer can read from multiple input files, one must be the
-  /// "primary" input. This asset determines whether the transformation should
+  /// 'primary' input. This asset determines whether the transformation should
   /// be run at all. If the primary input is removed, the transformer will no
   /// longer be run.
   ///
   /// A concrete example is dart2js. When you run dart2js, it will traverse
   /// all of the imports in your Dart source files and use the contents of all
-  /// of those to generate the final JS. However you still run dart2js "on" a
+  /// of those to generate the final JS. However you still run dart2js 'on' a
   /// single file: the entrypoint Dart file that has your `main()` method.
   /// This entrypoint file would be the primary input.
   ///
@@ -346,7 +346,7 @@ abstract class AssetTransform {
   /// Gets the primary input asset id
   ///
   /// While a transformation can use multiple input assets, one must be a
-  /// special "primary" asset. This will be the "entrypoint" or "main" input
+  /// special 'primary' asset. This will be the 'entrypoint' or 'main' input
   /// file for a transformation.
   ///
   /// For example, with a dart2js transform, the primary input would be the
@@ -377,10 +377,24 @@ abstract class DeclaringTransform extends ConsumableTransform {
 
 /// The severity of a logged message.
 class LogLevel {
-  static const INFO = LogLevel("Info");
-  static const FINE = LogLevel("Fine");
-  static const WARNING = LogLevel("Warning");
-  static const ERROR = LogLevel("Error");
+  static const info = LogLevel('Info');
+  static const fine = LogLevel('Fine');
+  static const warning = LogLevel('Warning');
+  static const error = LogLevel('Error');
+
+  // Deprecated since v0.4.0 2020-04-05
+  @deprecated
+  // ignore: constant_identifier_names
+  static const INFO = info;
+  @deprecated
+  // ignore: constant_identifier_names
+  static const FINE = fine;
+  @deprecated
+  // ignore: constant_identifier_names
+  static const WARNING = warning;
+  @deprecated
+  // ignore: constant_identifier_names
+  static const ERROR = error;
 
   final String name;
   const LogLevel(this.name);
@@ -389,7 +403,7 @@ class LogLevel {
   String toString() => name;
 }
 
-typedef void LogFunction(
+typedef LogFunction = void Function(
     AssetId asset, LogLevel level, String message, source_span.SourceSpan span);
 
 /// Object used to report warnings and errors encountered while running a
