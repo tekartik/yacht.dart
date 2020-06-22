@@ -1,4 +1,4 @@
-@TestOn("vm")
+@TestOn('vm')
 import 'dart:io';
 
 import 'package:path/path.dart';
@@ -18,12 +18,12 @@ void main() {
     test('fixCssInline', () async {
       await fixCssInline(
           join('test', 'data', 'html_css_inliner', 'index1.html'),
-          join(outDir, "index1.html"));
+          join(outDir, 'index1.html'));
       await fixCssInline(
           join('test', 'data', 'html_css_inliner', 'index2.html'),
-          join(outDir, "index2.html"));
+          join(outDir, 'index2.html'));
 
-      expect(await File(join(outDir, "index2.html")).readAsString(),
+      expect(await File(join(outDir, 'index2.html')).readAsString(),
           contains('<style data-custom>body { color: red; }</style>'));
     });
   });

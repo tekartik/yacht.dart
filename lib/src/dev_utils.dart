@@ -23,7 +23,7 @@ void _devError([String msg]) {
     throw UnsupportedError(msg);
   } catch (e, st) {
     if (_devPrintEnabled) {
-      print("# ERROR $msg");
+      print('# ERROR $msg');
       print(st);
     }
     rethrow;

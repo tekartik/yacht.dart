@@ -61,8 +61,9 @@ List<String> inlineTags = [
 
 List<String> innerInlineTags = [
   'meta', 'title', 'link', // for head
-  "h1", "h2", "h3", "h4", "h5", "h6", // for title
-]..addAll(inlineTags);
+  'h1', 'h2', 'h3', 'h4', 'h5', 'h6', // for title
+  ...inlineTags
+];
 
 // private definition
 List<String> rawTags = ['script', 'style'];

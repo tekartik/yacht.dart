@@ -8,8 +8,8 @@ import 'visitor.dart' show Visitor;
 abstract class HtmlVisitorBase implements Visitor<Node> {
   Node visitChildren(Node node) {
     if (node.hasChildNodes()) {
-      NodeList nodeList = node.nodes;
-      for (Node node in nodeList) {
+      var nodeList = node.nodes;
+      for (var node in nodeList) {
         visit(node);
       }
     }

@@ -24,41 +24,43 @@ class HtmlPrinterOptions {
 }
 
 String _htmlPrintLines(HtmlLines htmlLines, HtmlPrinterOptions options) {
-  StringBuffer sb = StringBuffer();
+  var sb = StringBuffer();
   sb.writeln(htmlDoctype);
-  String indent = options.indent;
-  int indentDepthMin = options.indentDepthMin;
+  var indent = options.indent;
+  var indentDepthMin = options.indentDepthMin;
 
-  bool addLn = false;
-  for (HtmlLine line in htmlLines) {
+  var addLn = false;
+  for (var line in htmlLines) {
     if (addLn) {
       sb.writeln('');
     } else {
       addLn = true;
     }
-    int depth = 1 + line.depth - indentDepthMin;
+    var depth = 1 + line.depth - indentDepthMin;
     // depth might be negative
-    for (int i = 0; i < depth; i++) {
+    for (var i = 0; i < depth; i++) {
       sb.write(indent);
     }
 
     sb.write(line.content);
   }
+  // Add ending new line
+  if (addLn) {
+    sb.writeln('');
+  }
   return sb.toString();
 }
 
 String htmlPrintLines(HtmlLines htmlLines, {HtmlPrinterOptions options}) {
-  if (options == null) {
-    options = HtmlPrinterOptions();
-  }
+  options ??= HtmlPrinterOptions();
+
   return _htmlPrintLines(htmlLines, options);
 }
 
 String htmlPrintDocument(Document doc, {HtmlPrinterOptions options}) {
-  if (options == null) {
-    options = HtmlPrinterOptions();
-  }
-  HtmlDocumentPrinter printer = HtmlDocumentPrinter();
+  options ??= HtmlPrinterOptions();
+
+  var printer = HtmlDocumentPrinter();
   printer.visitDocument(doc);
   return _htmlPrintLines(printer.lines, options);
 }
@@ -190,7 +192,7 @@ class NodeLines extends DelegatingList<NodeLine> {
 //
 
 bool _elementBeginWithWhiteSpace(Element element) {
-  Node firstChild = element.firstChild;
+  var firstChild = element.firstChild;
   if (firstChild != null && firstChild.nodeType == Node.TEXT_NODE) {
     // handle empty (for style)
     if (firstChild.text.isNotEmpty) {
@@ -202,7 +204,7 @@ bool _elementBeginWithWhiteSpace(Element element) {
 
 bool _elementBeginEndsWithWhiteSpace(Element element) {
   if (_elementBeginWithWhiteSpace(element)) {
-    Node child = element.nodes.last;
+    var child = element.nodes.last;
     if (child.nodeType == Node.TEXT_NODE) {
       return endWithWhiteSpace(child.text);
     }
@@ -231,7 +233,7 @@ bool _doNotEscapeContentForTag(String tagName) {
 }
 
 String elementBeginTag(Element element) {
-  StringBuffer sb = StringBuffer();
+  var sb = StringBuffer();
   sb.write('<${element.localName}');
   element.attributes.forEach((key, value) {
     sb.write(' $key');
@@ -256,8 +258,8 @@ HtmlLine htmlLine(int depth, String content) {
 }
 
 List<String> _wordSplit(String input) {
-  List<String> out = [];
-  StringBuffer sb = StringBuffer();
+  var out = <String>[];
+  var sb = StringBuffer();
 
   void _addCurrent() {
     if (sb.length > 0) {
@@ -266,7 +268,7 @@ List<String> _wordSplit(String input) {
     }
   }
 
-  for (int rune in input.runes) {
+  for (var rune in input.runes) {
     if (isWhitespace(rune)) {
       _addCurrent();
     } else {
@@ -280,18 +282,18 @@ List<String> _wordSplit(String input) {
 String utilsInlineText(String text) => utilsTrimText(text, true);
 
 bool utilsEndsWithWhitespace(String text) {
-  Runes runes = text.runes;
-  bool hasWhitespaceAfter = isWhitespace(runes.last);
+  var runes = text.runes;
+  var hasWhitespaceAfter = isWhitespace(runes.last);
   return hasWhitespaceAfter;
 }
 
 String utilsTrimText(String text, [bool keepExternalSpaces = false]) {
   // remove and/trailing space
-  Runes runes = text.runes;
-  bool hasWhitespaceBefore = isWhitespace(runes.first);
-  bool hasWhitespaceAfter = isWhitespace(runes.last);
-  List<String> list = _wordSplit(text);
-  StringBuffer sb = StringBuffer();
+  var runes = text.runes;
+  var hasWhitespaceBefore = isWhitespace(runes.first);
+  var hasWhitespaceAfter = isWhitespace(runes.last);
+  var list = _wordSplit(text);
+  var sb = StringBuffer();
   if (keepExternalSpaces && hasWhitespaceBefore) {
     sb.write(' ');
   }
@@ -313,13 +315,12 @@ abstract class HtmlLinesBuilderMixin {
   }
 
   HtmlPrinterOptions get options {
-    if (_options == null) {
-      _options = HtmlPrinterOptions();
-    }
+    _options ??= HtmlPrinterOptions();
+
     return _options;
   }
 
-  HtmlLines _lines = HtmlLines();
+  final _lines = HtmlLines();
 
   HtmlLines get lines {
     _addLine();
@@ -332,7 +333,7 @@ abstract class HtmlLinesBuilderMixin {
   Node visitChildren(Node node);
 
   String elementBeginTag(Element element) {
-    StringBuffer sb = StringBuffer();
+    var sb = StringBuffer();
     sb.write('<${element.localName}');
     element.attributes.forEach((key, value) {
       sb.write(' $key');
@@ -398,7 +399,7 @@ abstract class HtmlLinesBuilderMixin {
   void _addLine() {
     if (sb.length > 0) {
       // chech whether to trimRight here
-      String line = sb.toString().trimRight();
+      var line = sb.toString().trimRight();
       _lines.add(htmlLine(beginLineDepth, line));
 
       _resetLine();
@@ -407,7 +408,7 @@ abstract class HtmlLinesBuilderMixin {
 
   // create new lines for every lines
   void _addLines([Iterable<String> lines]) {
-    for (String line in lines) {
+    for (var line in lines) {
       _addLine();
       if (!isWhitespaceLine(line)) {
         _add(line);
@@ -418,17 +419,17 @@ abstract class HtmlLinesBuilderMixin {
   }
 
   void inBufferConvertContent(String input, int contentLength) {
-    List<String> words = _wordSplit(input);
+    var words = _wordSplit(input);
 
-    bool beginWithWhitespace = beginWithWhiteSpace(input);
+    var beginWithWhitespace = beginWithWhiteSpace(input);
     if (sb.length >= contentLength) {
       _addLine();
     } else if (beginWithWhitespace) {
       _addWhitespace();
     }
 
-    for (int i = 0; i < words.length; i++) {
-      String word = words[i];
+    for (var i = 0; i < words.length; i++) {
+      var word = words[i];
       if (sb.length == 0) {
         // if empty never create a new line
         // Special first word case with no whitespaces
@@ -452,24 +453,24 @@ abstract class HtmlLinesBuilderMixin {
   // @override
   Node visit(Node node) {
     if (node is Element) {
-      String tag = node.localName;
+      var tag = node.localName;
 
       // fix noscript issue
       noScriptFix(node);
 
       //print(node.outerHtml);
 
-      bool parentInline = this.inlineContent;
-      bool parentDoNotConvertContent = doNotConvertContent;
-      bool parentIsRawTag = isRawTag;
+      var parentInline = this.inlineContent;
+      var parentDoNotConvertContent = doNotConvertContent;
+      var parentIsRawTag = isRawTag;
       doNotConvertContent = _doNotConvertContentForTag(tag);
       doNotEscapeContent = _doNotEscapeContentForTag(tag);
       // raw tags are script/style that we keep as is here
       isRawTag = rawTags.contains(tag);
       // bool tryToInline =  _hasSingleTextNodeLines(node);
-      bool tryToInline = !_elementBeginEndsWithWhiteSpace(node);
+      var tryToInline = !_elementBeginEndsWithWhiteSpace(node);
       // inlineContent = _inlineContentForTag(tag) || tryToInline;
-      bool inlineContent = tryToInline;
+      var inlineContent = tryToInline;
       this.inlineContent = inlineContent;
 
       // end line for head tags
@@ -562,7 +563,7 @@ abstract class HtmlLinesBuilderMixin {
             // if we continue inlining require a space
             spaceRequired = utilsEndsWithWhitespace(text);
           } else {
-            List<String> lines = convertContent(text, options.contentLength);
+            var lines = convertContent(text, options.contentLength);
             _addLines(lines);
           }
         }
@@ -576,10 +577,10 @@ abstract class HtmlLinesBuilderMixin {
 }
 
 List<String> convertContent(String input, int contentLength) {
-  List<String> words = _wordSplit(input);
-  List<String> out = [];
+  var words = _wordSplit(input);
+  var out = <String>[];
 
-  StringBuffer sb = StringBuffer();
+  var sb = StringBuffer();
 
   void _addCurrent() {
     if (sb.length > 0) {
@@ -588,8 +589,8 @@ List<String> convertContent(String input, int contentLength) {
     }
   }
 
-  for (int i = 0; i < words.length; i++) {
-    String word = words[i];
+  for (var i = 0; i < words.length; i++) {
+    var word = words[i];
     if (sb.length == 0) {
       // if empty never create a new line
     } else if (sb.length + word.length + 1 > contentLength) {
