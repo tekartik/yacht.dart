@@ -148,23 +148,23 @@ class BuildTransformLogger implements TransformLogger {
   void info(String message,
           {common.AssetId asset, source_span.SourceSpan span}) =>
       //_impl.info(message, asset: asset, span: span);
-      print('INFO: ${message}');
+      print('INFO: $message');
 
   @override
   void fine(String message,
           {common.AssetId asset, source_span.SourceSpan span}) =>
       //_impl.fine(message, asset: asset, span: span);
-      print('FINE: ${message}');
+      print('FINE: $message');
 
   @override
   void warning(String message,
           {common.AssetId asset, source_span.SourceSpan span}) =>
       //_impl.warning(message, asset: asset, span: span);
-      print('WARN: ${message}');
+      print('WARN: $message');
 
   @override
   void error(String message,
           {common.AssetId asset, source_span.SourceSpan span}) =>
       //_impl.error(message, asset: asset, span: span);
-      print('ERR: ${message}');
+      print('ERR: $message');
 }

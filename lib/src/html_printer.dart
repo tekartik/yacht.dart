@@ -569,7 +569,7 @@ abstract class HtmlLinesBuilderMixin {
         }
       } else {
         // skip other
-        print('${node.nodeType} ${text}');
+        print('${node.nodeType} $text');
       }
     }
     return node;

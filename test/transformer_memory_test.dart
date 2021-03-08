@@ -20,7 +20,7 @@ StringAssets stringAssets(List data) {
       AssetId id = MemoryAssetId(package, path);
       assets[id] = stringAsset(id, content);
     } catch (e) {
-      throw ArgumentError('Cannot parse ${item} ${e}');
+      throw ArgumentError('Cannot parse $item $e');
     }
   }
 

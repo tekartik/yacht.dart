@@ -81,7 +81,7 @@ HtmlLines htmlLines(dynamic data) {
           _addItem(lines, item);
         }
       } else {
-        throw 'invalid param: ${data}';
+        throw 'invalid param: $data';
       }
     }
   } else {
@@ -97,11 +97,11 @@ void checkHtmlElement(String html, HtmlLines lines, [int contentLength]) {
     options.contentLength = contentLength;
   }
   expect(htmlLinesFromElementHtml(html, options: options), lines,
-      reason: 'html: \'${html}\'');
+      reason: 'html: \'$html\'');
   // reconvert result to be sure
   var outHtml = htmlPrintLines(lines, options: options);
   expect(htmlLinesFromElementHtml(outHtml, options: options), lines,
-      reason: 'outhtml: ${outHtml}\n/\n ${html}');
+      reason: 'outhtml: $outHtml\n/\n $html');
 }
 
 void main() {
@@ -556,21 +556,21 @@ void main() {
 
   group('utils', () {
     test('htmlPrintLines', () {
-      expect(htmlPrintLines(htmlLines([])), '${htmlDoctype}\n');
-      expect(htmlPrintLines(htmlLines([0, '<html/>'])),
-          '${htmlDoctype}\n<html/>\n');
-      expect(htmlPrintLines(htmlLines([1, '<html/>'])),
-          '${htmlDoctype}\n<html/>\n');
+      expect(htmlPrintLines(htmlLines([])), '$htmlDoctype\n');
+      expect(
+          htmlPrintLines(htmlLines([0, '<html/>'])), '$htmlDoctype\n<html/>\n');
+      expect(
+          htmlPrintLines(htmlLines([1, '<html/>'])), '$htmlDoctype\n<html/>\n');
       expect(htmlPrintLines(htmlLines([2, '<html/>'])),
-          '${htmlDoctype}\n  <html/>\n');
+          '$htmlDoctype\n  <html/>\n');
     });
 
     test('htmlPrintDocument', () async {
       var document = Document();
-      expect(htmlPrintDocument(document), '${htmlDoctype}\n');
+      expect(htmlPrintDocument(document), '$htmlDoctype\n');
       document = Document.html('');
       expect(htmlPrintDocument(document),
-          '${htmlDoctype}\n<html>\n<head></head>\n<body></body>\n</html>\n');
+          '$htmlDoctype\n<html>\n<head></head>\n<body></body>\n</html>\n');
 
       //'${htmlDoctype}\n<html>\n<head></head>\n<body></body>\n</html>');
       //document = new Document.html('<!DOCTYPE html><html><head></head><body></body></html>\n');
