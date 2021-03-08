@@ -1,11 +1,12 @@
-import 'html_visitor.dart';
+import 'package:collection/collection.dart';
 import 'package:html/dom.dart';
 import 'package:html/dom_parsing.dart';
-import 'package:collection/collection.dart';
-import 'text_utils.dart';
-import 'html_utils.dart';
-import 'html_tag_utils.dart';
+
 import 'common_import.dart';
+import 'html_tag_utils.dart';
+import 'html_utils.dart';
+import 'html_visitor.dart';
+import 'text_utils.dart';
 
 const String htmlDoctype = '<!doctype html>';
 
@@ -23,41 +24,43 @@ class HtmlPrinterOptions {
 }
 
 String _htmlPrintLines(HtmlLines htmlLines, HtmlPrinterOptions options) {
-  StringBuffer sb = new StringBuffer();
+  var sb = StringBuffer();
   sb.writeln(htmlDoctype);
-  String indent = options.indent;
-  int indentDepthMin = options.indentDepthMin;
+  var indent = options.indent;
+  var indentDepthMin = options.indentDepthMin;
 
-  bool addLn = false;
-  for (HtmlLine line in htmlLines) {
+  var addLn = false;
+  for (var line in htmlLines) {
     if (addLn) {
       sb.writeln('');
     } else {
       addLn = true;
     }
-    int depth = 1 + line.depth - indentDepthMin;
+    var depth = 1 + line.depth - indentDepthMin;
     // depth might be negative
-    for (int i = 0; i < depth; i++) {
+    for (var i = 0; i < depth; i++) {
       sb.write(indent);
     }
 
     sb.write(line.content);
   }
+  // Add ending new line
+  if (addLn) {
+    sb.writeln('');
+  }
   return sb.toString();
 }
 
 String htmlPrintLines(HtmlLines htmlLines, {HtmlPrinterOptions options}) {
-  if (options == null) {
-    options = new HtmlPrinterOptions();
-  }
+  options ??= HtmlPrinterOptions();
+
   return _htmlPrintLines(htmlLines, options);
 }
 
 String htmlPrintDocument(Document doc, {HtmlPrinterOptions options}) {
-  if (options == null) {
-    options = new HtmlPrinterOptions();
-  }
-  HtmlDocumentPrinter printer = new HtmlDocumentPrinter();
+  options ??= HtmlPrinterOptions();
+
+  var printer = HtmlDocumentPrinter();
   printer.visitDocument(doc);
   return _htmlPrintLines(printer.lines, options);
 }
@@ -72,7 +75,7 @@ abstract class PrinterLine {
   PrinterLine(this.depth);
 
   @override
-  toString() => '$depth';
+  String toString() => '$depth';
 
   @override
   int get hashCode => depth.hashCode;
@@ -88,12 +91,15 @@ abstract class PrinterLine {
 
 class NodeLine extends PrinterLine {
   final Node node;
+
   NodeLine(int depth, this.node) : super(depth);
+
   @override
-  toString() => '$depth:$node';
+  String toString() => '$depth:$node';
 
   @override
   int get hashCode => super.hashCode + node.hashCode;
+
   @override
   bool operator ==(o) {
     if (super == (o)) {
@@ -106,9 +112,11 @@ class NodeLine extends PrinterLine {
 /// an output line with a given depth
 class HtmlLine extends PrinterLine {
   final String content;
+
   HtmlLine(int depth, this.content) : super(depth);
+
   @override
-  toString() => '$depth:$content';
+  String toString() => '$depth:$content';
 
   @override
   int get hashCode => super.hashCode + content.hashCode;
@@ -123,7 +131,7 @@ class HtmlLine extends PrinterLine {
 }
 
 abstract class NodeLinesBuilderMixin {
-  NodeLines lines = new NodeLines();
+  NodeLines lines = NodeLines();
   int depth = 0;
 
   // implemented by BaseVisitor
@@ -131,7 +139,7 @@ abstract class NodeLinesBuilderMixin {
 
   // @override
   Node visit(Node node) {
-    lines.add(new NodeLine(depth, node));
+    lines.add(NodeLine(depth, node));
     depth++;
     var result = visitChildren(node);
     depth--;
@@ -153,6 +161,7 @@ class HtmlLines extends DelegatingList<HtmlLine> {
   //final List<HtmlLine> _l;
 
   HtmlLines() : this.from(<HtmlLine>[]);
+
   HtmlLines.from(List<HtmlLine> l)
       : //_l = l,
         super(l);
@@ -162,6 +171,7 @@ class PrinterLines extends DelegatingList<PrinterLine> {
   //final List<PrinterLine> _l;
 
   PrinterLines() : this.from(<PrinterLine>[]);
+
   PrinterLines.from(List<PrinterLine> l)
       : //_l = l,
         super(l);
@@ -171,6 +181,7 @@ class NodeLines extends DelegatingList<NodeLine> {
   //final List<NodeLine> _l;
 
   NodeLines() : this.from(<NodeLine>[]);
+
   NodeLines.from(List<NodeLine> l)
       : //_l = l,
         super(l);
@@ -181,10 +192,10 @@ class NodeLines extends DelegatingList<NodeLine> {
 //
 
 bool _elementBeginWithWhiteSpace(Element element) {
-  Node firstChild = element.firstChild;
+  var firstChild = element.firstChild;
   if (firstChild != null && firstChild.nodeType == Node.TEXT_NODE) {
     // handle empty (for style)
-    if (!firstChild.text.isEmpty) {
+    if (firstChild.text.isNotEmpty) {
       return beginWithWhiteSpace(firstChild.text);
     }
   }
@@ -193,7 +204,7 @@ bool _elementBeginWithWhiteSpace(Element element) {
 
 bool _elementBeginEndsWithWhiteSpace(Element element) {
   if (_elementBeginWithWhiteSpace(element)) {
-    Node child = element.nodes.last;
+    var child = element.nodes.last;
     if (child.nodeType == Node.TEXT_NODE) {
       return endWithWhiteSpace(child.text);
     }
@@ -222,11 +233,11 @@ bool _doNotEscapeContentForTag(String tagName) {
 }
 
 String elementBeginTag(Element element) {
-  StringBuffer sb = new StringBuffer();
+  var sb = StringBuffer();
   sb.write('<${element.localName}');
   element.attributes.forEach((key, value) {
     sb.write(' $key');
-    if (value.length > 0) {
+    if (value.isNotEmpty) {
       sb.write('="$value"');
     }
   });
@@ -243,21 +254,21 @@ String elementEndTag(Element element) {
 }
 
 HtmlLine htmlLine(int depth, String content) {
-  return new HtmlLine(depth, content);
+  return HtmlLine(depth, content);
 }
 
 List<String> _wordSplit(String input) {
-  List<String> out = [];
-  StringBuffer sb = new StringBuffer();
+  var out = <String>[];
+  var sb = StringBuffer();
 
-  _addCurrent() {
+  void _addCurrent() {
     if (sb.length > 0) {
       out.add(sb.toString());
-      sb = new StringBuffer();
+      sb = StringBuffer();
     }
   }
 
-  for (int rune in input.runes) {
+  for (var rune in input.runes) {
     if (isWhitespace(rune)) {
       _addCurrent();
     } else {
@@ -271,18 +282,18 @@ List<String> _wordSplit(String input) {
 String utilsInlineText(String text) => utilsTrimText(text, true);
 
 bool utilsEndsWithWhitespace(String text) {
-  Runes runes = text.runes;
-  bool hasWhitespaceAfter = isWhitespace(runes.last);
+  var runes = text.runes;
+  var hasWhitespaceAfter = isWhitespace(runes.last);
   return hasWhitespaceAfter;
 }
 
 String utilsTrimText(String text, [bool keepExternalSpaces = false]) {
   // remove and/trailing space
-  Runes runes = text.runes;
-  bool hasWhitespaceBefore = isWhitespace(runes.first);
-  bool hasWhitespaceAfter = isWhitespace(runes.last);
-  List<String> list = _wordSplit(text);
-  StringBuffer sb = new StringBuffer();
+  var runes = text.runes;
+  var hasWhitespaceBefore = isWhitespace(runes.first);
+  var hasWhitespaceAfter = isWhitespace(runes.last);
+  var list = _wordSplit(text);
+  var sb = StringBuffer();
   if (keepExternalSpaces && hasWhitespaceBefore) {
     sb.write(' ');
   }
@@ -297,34 +308,36 @@ String utilsTrimText(String text, [bool keepExternalSpaces = false]) {
 
 abstract class HtmlLinesBuilderMixin {
   HtmlPrinterOptions _options;
+
   set options(HtmlPrinterOptions options) {
     assert(options != null);
     _options = options;
   }
 
   HtmlPrinterOptions get options {
-    if (_options == null) {
-      _options = new HtmlPrinterOptions();
-    }
+    _options ??= HtmlPrinterOptions();
+
     return _options;
   }
 
-  HtmlLines _lines = new HtmlLines();
+  final _lines = HtmlLines();
+
   HtmlLines get lines {
     _addLine();
     return _lines;
   }
 
   int depth = 0;
+
   // implemented by BaseVisitor
   Node visitChildren(Node node);
 
   String elementBeginTag(Element element) {
-    StringBuffer sb = new StringBuffer();
+    var sb = StringBuffer();
     sb.write('<${element.localName}');
     element.attributes.forEach((key, value) {
       sb.write(' $key');
-      if (value.length > 0) {
+      if (value.isNotEmpty) {
         sb.write('="$value"');
       }
     });
@@ -332,7 +345,7 @@ abstract class HtmlLinesBuilderMixin {
     return sb.toString();
   }
 
-  StringBuffer sb = new StringBuffer();
+  StringBuffer sb = StringBuffer();
 
   // specified at the beginning
   bool spaceRequired = false;
@@ -345,7 +358,7 @@ abstract class HtmlLinesBuilderMixin {
   int beginLineDepth;
 
   // only add if not at the beginning of a line
-  _addWhitespace() {
+  void _addWhitespace() {
     if (sb.isEmpty) {
       beginLineDepth = depth;
     } else {
@@ -355,7 +368,7 @@ abstract class HtmlLinesBuilderMixin {
   }
 
   // if content length is set, truncate when possible
-  _add(String content, [int contentLength]) {
+  void _add(String content, [int contentLength]) {
     if (sb.isEmpty) {
       beginLineDepth = depth;
       spaceRequired = false;
@@ -376,17 +389,17 @@ abstract class HtmlLinesBuilderMixin {
     //_lines.add(htmlLine(depth, content));
   }
 
-  _resetLine() {
+  void _resetLine() {
     // reset
-    sb = new StringBuffer();
+    sb = StringBuffer();
     spaceRequired = false;
     beginLineDepth = depth;
   }
 
-  _addLine() {
+  void _addLine() {
     if (sb.length > 0) {
       // chech whether to trimRight here
-      String line = sb.toString().trimRight();
+      var line = sb.toString().trimRight();
       _lines.add(htmlLine(beginLineDepth, line));
 
       _resetLine();
@@ -394,8 +407,8 @@ abstract class HtmlLinesBuilderMixin {
   }
 
   // create new lines for every lines
-  _addLines([Iterable<String> lines]) {
-    for (String line in lines) {
+  void _addLines([Iterable<String> lines]) {
+    for (var line in lines) {
       _addLine();
       if (!isWhitespaceLine(line)) {
         _add(line);
@@ -406,17 +419,17 @@ abstract class HtmlLinesBuilderMixin {
   }
 
   void inBufferConvertContent(String input, int contentLength) {
-    List<String> words = _wordSplit(input);
+    var words = _wordSplit(input);
 
-    bool beginWithWhitespace = beginWithWhiteSpace(input);
+    var beginWithWhitespace = beginWithWhiteSpace(input);
     if (sb.length >= contentLength) {
       _addLine();
     } else if (beginWithWhitespace) {
       _addWhitespace();
     }
 
-    for (int i = 0; i < words.length; i++) {
-      String word = words[i];
+    for (var i = 0; i < words.length; i++) {
+      var word = words[i];
       if (sb.length == 0) {
         // if empty never create a new line
         // Special first word case with no whitespaces
@@ -430,7 +443,7 @@ abstract class HtmlLinesBuilderMixin {
       sb.write(word);
     }
 
-    if (words.length > 0) {
+    if (words.isNotEmpty) {
       if (endWithWhiteSpace(input)) {
         _addWhitespace();
       }
@@ -440,24 +453,24 @@ abstract class HtmlLinesBuilderMixin {
   // @override
   Node visit(Node node) {
     if (node is Element) {
-      String tag = node.localName;
+      var tag = node.localName;
 
       // fix noscript issue
       noScriptFix(node);
 
       //print(node.outerHtml);
 
-      bool parentInline = this.inlineContent;
-      bool parentDoNotConvertContent = doNotConvertContent;
-      bool parentIsRawTag = isRawTag;
+      var parentInline = this.inlineContent;
+      var parentDoNotConvertContent = doNotConvertContent;
+      var parentIsRawTag = isRawTag;
       doNotConvertContent = _doNotConvertContentForTag(tag);
       doNotEscapeContent = _doNotEscapeContentForTag(tag);
       // raw tags are script/style that we keep as is here
       isRawTag = rawTags.contains(tag);
       // bool tryToInline =  _hasSingleTextNodeLines(node);
-      bool tryToInline = !_elementBeginEndsWithWhiteSpace(node);
+      var tryToInline = !_elementBeginEndsWithWhiteSpace(node);
       // inlineContent = _inlineContentForTag(tag) || tryToInline;
-      bool inlineContent = tryToInline;
+      var inlineContent = tryToInline;
       this.inlineContent = inlineContent;
 
       // end line for head tags
@@ -550,13 +563,13 @@ abstract class HtmlLinesBuilderMixin {
             // if we continue inlining require a space
             spaceRequired = utilsEndsWithWhitespace(text);
           } else {
-            List<String> lines = convertContent(text, options.contentLength);
+            var lines = convertContent(text, options.contentLength);
             _addLines(lines);
           }
         }
       } else {
         // skip other
-        print('${node.nodeType} ${text}');
+        print('${node.nodeType} $text');
       }
     }
     return node;
@@ -564,20 +577,20 @@ abstract class HtmlLinesBuilderMixin {
 }
 
 List<String> convertContent(String input, int contentLength) {
-  List<String> words = _wordSplit(input);
-  List<String> out = [];
+  var words = _wordSplit(input);
+  var out = <String>[];
 
-  StringBuffer sb = new StringBuffer();
+  var sb = StringBuffer();
 
-  _addCurrent() {
+  void _addCurrent() {
     if (sb.length > 0) {
       out.add(sb.toString());
-      sb = new StringBuffer();
+      sb = StringBuffer();
     }
   }
 
-  for (int i = 0; i < words.length; i++) {
-    String word = words[i];
+  for (var i = 0; i < words.length; i++) {
+    var word = words[i];
     if (sb.length == 0) {
       // if empty never create a new line
     } else if (sb.length + word.length + 1 > contentLength) {

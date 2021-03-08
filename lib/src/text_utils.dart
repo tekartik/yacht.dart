@@ -42,11 +42,11 @@ bool beginOrEndWithWhiteSpace(String text) {
 }
 
 // Character constants.
-const int _LF = 10;
-const int _CR = 13;
+const int _lf = 10;
+const int _cr = 13;
 
 bool hasLineFeed(String text) {
-  return (text.codeUnits.contains(_CR) || text.codeUnits.contains(_LF));
+  return (text.codeUnits.contains(_cr) || text.codeUnits.contains(_lf));
 }
 
 bool isSingleLineText(String text) => !hasLineFeed(text);

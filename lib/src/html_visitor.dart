@@ -1,14 +1,15 @@
 library yacht.src.html_visitor;
 
 //import 'visitor.dart' as visitor;
-import 'visitor.dart' show Visitor;
 import 'package:html/dom.dart';
+
+import 'visitor.dart' show Visitor;
 
 abstract class HtmlVisitorBase implements Visitor<Node> {
   Node visitChildren(Node node) {
     if (node.hasChildNodes()) {
-      NodeList nodeList = node.nodes;
-      for (Node node in nodeList) {
+      var nodeList = node.nodes;
+      for (var node in nodeList) {
         visit(node);
       }
     }
@@ -20,7 +21,7 @@ abstract class HtmlElementVisitor extends HtmlVisitorBase {
   HtmlElementVisitor();
 
   // public API to call
-  visitElement(Element element) => visit(element);
+  Node visitElement(Element element) => visit(element);
 }
 
 class HtmlDocumentVisitor extends HtmlElementVisitor {
@@ -28,7 +29,7 @@ class HtmlDocumentVisitor extends HtmlElementVisitor {
 
   // public API to call
   Document visitDocument(Document document) {
-    _visitElement(Element element) {
+    void _visitElement(Element element) {
       if (element != null) {
         visitElement(element);
       }
@@ -39,5 +40,5 @@ class HtmlDocumentVisitor extends HtmlElementVisitor {
   }
 
   @override
-  visit(node) => node;
+  Node visit(node) => node;
 }
