@@ -34,7 +34,7 @@ void _addItem(HtmlLines lines, dynamic item) {
 
     // the content can be a list as well..
     if (content is List) {
-      for (var _content in content?.cast<String>()) {
+      for (var _content in content.cast<String>()) {
         lines.add(htmlLine(depth, _content));
       }
       return;
@@ -54,7 +54,7 @@ HtmlLines htmlMultiHtmlLines(List data) {
   return lines;
 }
 
-HtmlLines htmlLinesFromElementHtml(String html, {HtmlPrinterOptions options}) {
+HtmlLines htmlLinesFromElementHtml(String html, {HtmlPrinterOptions? options}) {
   var element = Element.html(html);
   //print(element.outerHtml');
   var printer = HtmlElementPrinter();
@@ -81,7 +81,7 @@ HtmlLines htmlLines(dynamic data) {
           _addItem(lines, item);
         }
       } else {
-        throw 'invalid param: ${data}';
+        throw 'invalid param: $data';
       }
     }
   } else {
@@ -91,17 +91,17 @@ HtmlLines htmlLines(dynamic data) {
   return lines;
 }
 
-void checkHtmlElement(String html, HtmlLines lines, [int contentLength]) {
+void checkHtmlElement(String html, HtmlLines lines, [int? contentLength]) {
   var options = HtmlPrinterOptions();
   if (contentLength != null) {
     options.contentLength = contentLength;
   }
   expect(htmlLinesFromElementHtml(html, options: options), lines,
-      reason: 'html: \'${html}\'');
+      reason: 'html: \'$html\'');
   // reconvert result to be sure
   var outHtml = htmlPrintLines(lines, options: options);
   expect(htmlLinesFromElementHtml(outHtml, options: options), lines,
-      reason: 'outhtml: ${outHtml}\n/\n ${html}');
+      reason: 'outhtml: $outHtml\n/\n $html');
 }
 
 void main() {
@@ -544,8 +544,8 @@ void main() {
           '<!DOCTYPE html><html><head><my-tag></my-tag></head><body></body></html>');
 
       // my-tag move to body!
-      expect(document.head.querySelector('my-tag'), isNull);
-      expect(document.body.querySelector('my-tag'), isNotNull);
+      expect(document.head!.querySelector('my-tag'), isNull);
+      expect(document.body!.querySelector('my-tag'), isNotNull);
       //print(document.outerHtml);
       var builder = HtmlDocumentPrinter();
       builder.visitDocument(document);
@@ -556,21 +556,21 @@ void main() {
 
   group('utils', () {
     test('htmlPrintLines', () {
-      expect(htmlPrintLines(htmlLines([])), '${htmlDoctype}\n');
-      expect(htmlPrintLines(htmlLines([0, '<html/>'])),
-          '${htmlDoctype}\n<html/>\n');
-      expect(htmlPrintLines(htmlLines([1, '<html/>'])),
-          '${htmlDoctype}\n<html/>\n');
+      expect(htmlPrintLines(htmlLines([])), '$htmlDoctype\n');
+      expect(
+          htmlPrintLines(htmlLines([0, '<html/>'])), '$htmlDoctype\n<html/>\n');
+      expect(
+          htmlPrintLines(htmlLines([1, '<html/>'])), '$htmlDoctype\n<html/>\n');
       expect(htmlPrintLines(htmlLines([2, '<html/>'])),
-          '${htmlDoctype}\n  <html/>\n');
+          '$htmlDoctype\n  <html/>\n');
     });
 
     test('htmlPrintDocument', () async {
       var document = Document();
-      expect(htmlPrintDocument(document), '${htmlDoctype}\n');
+      expect(htmlPrintDocument(document), '$htmlDoctype\n');
       document = Document.html('');
       expect(htmlPrintDocument(document),
-          '${htmlDoctype}\n<html>\n<head></head>\n<body></body>\n</html>\n');
+          '$htmlDoctype\n<html>\n<head></head>\n<body></body>\n</html>\n');
 
       //'${htmlDoctype}\n<html>\n<head></head>\n<body></body>\n</html>');
       //document = new Document.html('<!DOCTYPE html><html><head></head><body></body></html>\n');

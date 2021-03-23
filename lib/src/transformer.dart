@@ -10,7 +10,7 @@ import 'package:source_span/source_span.dart' as source_span;
 abstract class AssetId {
   String get path;
 
-  String get package;
+  String? get package;
 
   AssetId changeExtension(String newExtension);
 }
@@ -76,7 +76,7 @@ abstract class AssetSet implements Iterable<Asset> {
 
   /// Returns `true` if the set contains [asset].
   @override
-  bool contains(Object asset);
+  bool contains(Object? asset);
 
   /// Returns `true` if the set contains an [Asset] with [id].
   bool containsId(AssetId id);
@@ -168,14 +168,14 @@ Future<TransformerContext> transformerBuildDir(TransformerImpl transformer, Stri
 abstract class TransformerMixin implements Transformer {
   // can be overriden
   @override
-  String get allowedExtensions => null;
+  String? get allowedExtensions => null;
 
   // can be overriden
   bool isPrimary(AssetId id) {
     // Allow all files if [primaryExtensions] is not overridden.
     if (allowedExtensions == null) return true;
 
-    for (var extension in allowedExtensions.split(' ')) {
+    for (var extension in allowedExtensions!.split(' ')) {
       if (id.path.endsWith(extension)) return true;
     }
 
@@ -201,7 +201,7 @@ abstract class Transformer {
   /// If you don't override [isPrimary] yourself, it defaults to allowing any
   /// asset whose extension matches one of the ones returned by this. If you
   /// don't override [isPrimary] *or* this, it allows all files.
-  String get allowedExtensions;
+  String? get allowedExtensions;
 
   /// Returns `true` if [id] can be a primary input for this transformer.
   ///
@@ -250,18 +250,18 @@ abstract class Transformer {
 /// outputs.
 abstract class Transform extends ConsumableTransform {
   // Read the primary asset
-  Future<String> readPrimaryAsString({Encoding encoding});
+  Future<String?> readPrimaryAsString({Encoding? encoding});
 
   // add the content in a given asset
   void addOutputFromString(AssetId assetId, String content,
-      {Encoding encoding});
+      {Encoding? encoding});
 
   //@deprecated
   //Asset get primaryInput;
 
   /// A logger so that the [Transformer] can report build details.
   //TransformLogger get logger => _aggregate.logger;
-  TransformLogger get logger;
+  TransformLogger? get logger;
 
   /*
   Transform(this.primaryInput);
@@ -283,7 +283,7 @@ abstract class Transform extends ConsumableTransform {
   /// asset is decoded using [encoding], which defaults to [utf8].
   ///
   /// If an input with [id] cannot be found, throws an [AssetNotFoundException].
-  Future<String> readInputAsString(AssetId id, {Encoding encoding});
+  Future<String?> readInputAsString(AssetId id, {Encoding? encoding});
 
   /// A convenience method to return whether or not an asset exists.
   ///
@@ -363,7 +363,7 @@ abstract class IsPrimaryTransform extends AssetTransform {}
 /// those outputs.
 abstract class DeclaringTransform extends ConsumableTransform {
   /// A logger so that the [Transformer] can report build details.
-  TransformLogger get logger;
+  TransformLogger? get logger;
 
   /// Stores [id] as the id of an output that will be created by this
   /// transformation when it's run.
@@ -415,7 +415,7 @@ abstract class TransformLogger {
   /// Otherwise it's associated with the primary input of [transformer]. If
   /// present, [span] indicates the location in the input asset that caused the
   /// error.
-  void info(String message, {AssetId asset, source_span.SourceSpan span});
+  void info(String message, {AssetId? asset, source_span.SourceSpan? span});
 
   /// Logs a message that won't be displayed unless the user is running in
   /// verbose mode.
@@ -424,7 +424,7 @@ abstract class TransformLogger {
   /// Otherwise it's associated with the primary input of [transformer]. If
   /// present, [span] indicates the location in the input asset that caused the
   /// error.
-  void fine(String message, {AssetId asset, source_span.SourceSpan span});
+  void fine(String message, {AssetId? asset, source_span.SourceSpan? span});
 
   /// Logs a warning message.
   ///
@@ -432,7 +432,7 @@ abstract class TransformLogger {
   /// Otherwise it's associated with the primary input of [transformer]. If
   /// present, [span] indicates the location in the input asset that caused the
   /// error.
-  void warning(String message, {AssetId asset, source_span.SourceSpan span});
+  void warning(String message, {AssetId? asset, source_span.SourceSpan? span});
 
   /// Logs an error message.
   ///
@@ -449,5 +449,5 @@ abstract class TransformLogger {
   /// Unlike throwing an exception, this doesn't cause a transformer to stop
   /// running. This makes it useful in cases where a single input may have
   /// multiple errors that the user wants to know about.
-  void error(String message, {AssetId asset, source_span.SourceSpan span});
+  void error(String message, {AssetId? asset, source_span.SourceSpan? span});
 }

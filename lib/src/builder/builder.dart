@@ -14,7 +14,7 @@ export 'transformer.dart';
 */
 
 class BuilderAssetId extends common.AssetId {
-  build.AssetId _impl;
+  build.AssetId? _impl;
 
   BuilderAssetId.wrap(build.AssetId assetId) {
     _impl = assetId;
@@ -22,13 +22,13 @@ class BuilderAssetId extends common.AssetId {
 
   @override
   common.AssetId changeExtension(String newExtension) =>
-      _wrapAssetId(_impl.changeExtension(newExtension));
+      _wrapAssetId(_impl!.changeExtension(newExtension));
 
   @override
-  String get package => _impl.package;
+  String get package => _impl!.package;
 
   @override
-  String get path => _impl.path;
+  String get path => _impl!.path;
 
   @override
   String toString() => _impl.toString();
@@ -44,10 +44,7 @@ common.AssetId _wrapAssetId(build.AssetId id) {
   return BuilderAssetId.wrap(id);
 }
 
-build.AssetId _unwrapAssetId(common.AssetId id) {
-  if (id == null) {
-    return null;
-  }
+build.AssetId? _unwrapAssetId(common.AssetId id) {
   return (id as BuilderAssetId)._impl;
 }
 
@@ -99,9 +96,9 @@ class BuildStepTransform implements Transform //extends BarbackPrimaryTransform
 
   @override
   void addOutputFromString(common.AssetId assetId, String content,
-      {Encoding encoding = utf8}) {
-    buildStep.writeAsString(_unwrapAssetId(assetId), content,
-        encoding: encoding);
+      {Encoding? encoding = utf8}) {
+    buildStep.writeAsString(_unwrapAssetId(assetId)!, content,
+        encoding: encoding!);
   }
 
   @override
@@ -112,7 +109,7 @@ class BuildStepTransform implements Transform //extends BarbackPrimaryTransform
   @override
   Future<bool> hasInput(common.AssetId id) {
     // TODO: implement hasInput - confirm
-    return buildStep.canRead(_unwrapAssetId(id));
+    return buildStep.canRead(_unwrapAssetId(id)!);
   }
 
   @override
@@ -121,7 +118,7 @@ class BuildStepTransform implements Transform //extends BarbackPrimaryTransform
   @override
   common.AssetId newAssetId(common.AssetId assetId, String path) {
     return _wrapAssetId(
-        build.AssetId.resolve(path, from: _unwrapAssetId(assetId)));
+        build.AssetId.resolve(Uri.parse(path), from: _unwrapAssetId(assetId)));
   }
 
   @override
@@ -129,12 +126,12 @@ class BuildStepTransform implements Transform //extends BarbackPrimaryTransform
 
   @override
   Future<String> readInputAsString(common.AssetId id,
-      {Encoding encoding = utf8}) {
-    return buildStep.readAsString(_unwrapAssetId(id), encoding: encoding);
+      {Encoding? encoding = utf8}) {
+    return buildStep.readAsString(_unwrapAssetId(id)!, encoding: encoding!);
   }
 
   @override
-  Future<String> readPrimaryAsString({Encoding encoding = utf8}) {
+  Future<String> readPrimaryAsString({Encoding? encoding = utf8}) {
     return readInputAsString(primaryId, encoding: encoding);
   }
 }
@@ -146,25 +143,25 @@ class BuildTransformLogger implements TransformLogger {
 
   @override
   void info(String message,
-          {common.AssetId asset, source_span.SourceSpan span}) =>
+          {common.AssetId? asset, source_span.SourceSpan? span}) =>
       //_impl.info(message, asset: asset, span: span);
-      print('INFO: ${message}');
+      print('INFO: $message');
 
   @override
   void fine(String message,
-          {common.AssetId asset, source_span.SourceSpan span}) =>
+          {common.AssetId? asset, source_span.SourceSpan? span}) =>
       //_impl.fine(message, asset: asset, span: span);
-      print('FINE: ${message}');
+      print('FINE: $message');
 
   @override
   void warning(String message,
-          {common.AssetId asset, source_span.SourceSpan span}) =>
+          {common.AssetId? asset, source_span.SourceSpan? span}) =>
       //_impl.warning(message, asset: asset, span: span);
-      print('WARN: ${message}');
+      print('WARN: $message');
 
   @override
   void error(String message,
-          {common.AssetId asset, source_span.SourceSpan span}) =>
+          {common.AssetId? asset, source_span.SourceSpan? span}) =>
       //_impl.error(message, asset: asset, span: span);
-      print('ERR: ${message}');
+      print('ERR: $message');
 }

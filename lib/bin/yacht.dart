@@ -19,7 +19,7 @@ Future main(List<String> args) async {
   }
 
   var parser = ArgParser(allowTrailingOptions: false);
-  parser.addFlag(argDryRunFlag, abbr: 'd', help: 'Don\'t execture the command');
+  parser.addFlag(argDryRunFlag, abbr: 'd', help: 'Don\'t execute the command');
   _addHelp(parser);
   parser.addFlag(argVersionFlag, help: 'Version', negatable: false);
   parser.addFlag(argVerboseFlag,

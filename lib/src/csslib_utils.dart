@@ -12,7 +12,7 @@ String printStyleSheet(StyleSheet styleSheet, {bool pretty = true}) {
 }
 
 class CssCompileResult {
-  String out;
+  String? out;
 }
 
 // Compile the resulting css

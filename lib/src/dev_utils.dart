@@ -15,9 +15,9 @@ void devPrint(Object object) {
 }
 
 @deprecated
-int devWarning;
+int? devWarning;
 
-void _devError([String msg]) {
+void _devError([String msg = '']) {
   // one day remove the print however sometimes the error thrown is hidden
   try {
     throw UnsupportedError(msg);
@@ -31,4 +31,4 @@ void _devError([String msg]) {
 }
 
 @deprecated
-void devError([String msg]) => _devError(msg);
+void devError([String msg = '']) => _devError(msg);
