@@ -36,7 +36,7 @@ String _htmlPrintLines(HtmlLines htmlLines, HtmlPrinterOptions options) {
     } else {
       addLn = true;
     }
-    var depth = 1 + line.depth - indentDepthMin;
+    var depth = 1 + line.depth! - indentDepthMin;
     // depth might be negative
     for (var i = 0; i < depth; i++) {
       sb.write(indent);
@@ -51,13 +51,13 @@ String _htmlPrintLines(HtmlLines htmlLines, HtmlPrinterOptions options) {
   return sb.toString();
 }
 
-String htmlPrintLines(HtmlLines htmlLines, {HtmlPrinterOptions options}) {
+String htmlPrintLines(HtmlLines htmlLines, {HtmlPrinterOptions? options}) {
   options ??= HtmlPrinterOptions();
 
   return _htmlPrintLines(htmlLines, options);
 }
 
-String htmlPrintDocument(Document doc, {HtmlPrinterOptions options}) {
+String htmlPrintDocument(Document doc, {HtmlPrinterOptions? options}) {
   options ??= HtmlPrinterOptions();
 
   var printer = HtmlDocumentPrinter();
@@ -70,7 +70,7 @@ String htmlPrintDocument(Document doc, {HtmlPrinterOptions options}) {
 //
 
 abstract class PrinterLine {
-  final int depth;
+  final int? depth;
 
   PrinterLine(this.depth);
 
@@ -102,7 +102,7 @@ class NodeLine extends PrinterLine {
 
   @override
   bool operator ==(o) {
-    if (super == (o)) {
+    if (super == (o) && o is NodeLine) {
       return o.node == node;
     }
     return false;
@@ -111,9 +111,9 @@ class NodeLine extends PrinterLine {
 
 /// an output line with a given depth
 class HtmlLine extends PrinterLine {
-  final String content;
+  final String? content;
 
-  HtmlLine(int depth, this.content) : super(depth);
+  HtmlLine(int? depth, this.content) : super(depth);
 
   @override
   String toString() => '$depth:$content';
@@ -123,7 +123,7 @@ class HtmlLine extends PrinterLine {
 
   @override
   bool operator ==(o) {
-    if (super == (o)) {
+    if (super == (o) && o is HtmlLine) {
       return o.content == content;
     }
     return false;
@@ -195,8 +195,8 @@ bool _elementBeginWithWhiteSpace(Element element) {
   var firstChild = element.firstChild;
   if (firstChild != null && firstChild.nodeType == Node.TEXT_NODE) {
     // handle empty (for style)
-    if (firstChild.text.isNotEmpty) {
-      return beginWithWhiteSpace(firstChild.text);
+    if (firstChild.text!.isNotEmpty) {
+      return beginWithWhiteSpace(firstChild.text!);
     }
   }
   return false;
@@ -206,13 +206,13 @@ bool _elementBeginEndsWithWhiteSpace(Element element) {
   if (_elementBeginWithWhiteSpace(element)) {
     var child = element.nodes.last;
     if (child.nodeType == Node.TEXT_NODE) {
-      return endWithWhiteSpace(child.text);
+      return endWithWhiteSpace(child.text!);
     }
   }
   return false;
 }
 
-bool _doNotConvertContentForTag(String tagName) {
+bool _doNotConvertContentForTag(String? tagName) {
   switch (tagName) {
     case 'pre':
       return true;
@@ -222,7 +222,7 @@ bool _doNotConvertContentForTag(String tagName) {
 }
 
 // prevent converting > to &gt;
-bool _doNotEscapeContentForTag(String tagName) {
+bool _doNotEscapeContentForTag(String? tagName) {
   switch (tagName) {
     case 'style':
     case 'script':
@@ -245,7 +245,7 @@ String elementBeginTag(Element element) {
   return sb.toString();
 }
 
-String elementEndTag(Element element) {
+String? elementEndTag(Element element) {
   if (voidTags.contains(element.localName)) {
     return null;
   } else {
@@ -253,7 +253,7 @@ String elementEndTag(Element element) {
   }
 }
 
-HtmlLine htmlLine(int depth, String content) {
+HtmlLine htmlLine(int? depth, String? content) {
   return HtmlLine(depth, content);
 }
 
@@ -307,17 +307,16 @@ String utilsTrimText(String text, [bool keepExternalSpaces = false]) {
 }
 
 abstract class HtmlLinesBuilderMixin {
-  HtmlPrinterOptions _options;
+  HtmlPrinterOptions? _options;
 
   set options(HtmlPrinterOptions options) {
-    assert(options != null);
     _options = options;
   }
 
   HtmlPrinterOptions get options {
     _options ??= HtmlPrinterOptions();
 
-    return _options;
+    return _options!;
   }
 
   final _lines = HtmlLines();
@@ -350,12 +349,12 @@ abstract class HtmlLinesBuilderMixin {
   // specified at the beginning
   bool spaceRequired = false;
 
-  bool parentInline;
-  bool inlineContent;
-  bool doNotConvertContent;
-  bool doNotEscapeContent; // for style/script
-  bool isRawTag;
-  int beginLineDepth;
+  bool? parentInline;
+  bool? inlineContent;
+  bool? doNotConvertContent;
+  late bool doNotEscapeContent; // for style/script
+  bool? isRawTag;
+  int? beginLineDepth;
 
   // only add if not at the beginning of a line
   void _addWhitespace() {
@@ -368,7 +367,7 @@ abstract class HtmlLinesBuilderMixin {
   }
 
   // if content length is set, truncate when possible
-  void _add(String content, [int contentLength]) {
+  void _add(String? content, [int? contentLength]) {
     if (sb.isEmpty) {
       beginLineDepth = depth;
       spaceRequired = false;
@@ -407,7 +406,7 @@ abstract class HtmlLinesBuilderMixin {
   }
 
   // create new lines for every lines
-  void _addLines([Iterable<String> lines]) {
+  void _addLines(Iterable<String> lines) {
     for (var line in lines) {
       _addLine();
       if (!isWhitespaceLine(line)) {
@@ -519,21 +518,21 @@ abstract class HtmlLinesBuilderMixin {
     } else {
       // Escape text
       // &gt; won't get converted to <
-      String text;
+      String? text;
       if (doNotEscapeContent) {
         text = node.text;
       } else {
-        text = htmlSerializeEscape(node.text);
+        text = htmlSerializeEscape(node.text!);
       }
       // make sure new line starts deeper
       //beginLineDepth = depth;
-      if (doNotConvertContent) {
+      if (doNotConvertContent!) {
         _add(text);
       } else if (node.nodeType == Node.TEXT_NODE) {
         // remove and/trailing space
-        if (isRawTag) {
+        if (isRawTag!) {
           // Keep as is if single line
-          if (isSingleLineText(text)) {
+          if (isSingleLineText(text!)) {
             if (!isWhitespaceLine(text)) {
               _add(text);
             }
@@ -541,9 +540,9 @@ abstract class HtmlLinesBuilderMixin {
             _addLine();
             _addLines(LineSplitter.split(text));
           }
-        } else if (inlineContent) {
+        } else if (inlineContent!) {
           // Handle return case explicitely
-          if (isWhitespaceLine(text) && text.contains('\n')) {
+          if (isWhitespaceLine(text!) && text.contains('\n')) {
             _addLine();
           } else {
             // trim and add minimum space
@@ -557,7 +556,7 @@ abstract class HtmlLinesBuilderMixin {
 
           _addLine();
           // Single line trimmed add it if can
-          if (isSingleLineText(text.trim())) {
+          if (isSingleLineText(text!.trim())) {
             _add(utilsTrimText(text));
 
             // if we continue inlining require a space

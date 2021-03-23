@@ -12,7 +12,7 @@ import 'transformer.dart';
 
 class MemoryAssetId implements AssetId {
   @override
-  final String package;
+  final String? package;
 
   @override
   final String path;
@@ -27,7 +27,7 @@ class MemoryAssetId implements AssetId {
       MemoryAssetId(package, p.withoutExtension(path) + newExtension);
 
   @override
-  int get hashCode => path?.hashCode ?? 0;
+  int get hashCode => path.hashCode;
 
   @override
   bool operator ==(o) {
@@ -44,10 +44,7 @@ class MemoryAssetId implements AssetId {
 }
 
 /// generate the target assetId for a given path
-AssetId assetIdWithPath(AssetId id, String path) {
-  if (path == null) {
-    return null;
-  }
+AssetId assetIdWithPath(AssetId? id, String path) {
   path = normalizePath(path);
 
   var normalized = false;
@@ -59,7 +56,7 @@ AssetId assetIdWithPath(AssetId id, String path) {
     }
     normalized = true;
   }
-  String package;
+  String? package;
 
   // resolve other package?
   if (path.startsWith(posix.join('packages', ''))) {
@@ -91,7 +88,7 @@ AssetId assetIdWithPath(AssetId id, String path) {
 
 class StringAsset {
   MemoryAssetId id;
-  String content;
+  String? content;
 
   StringAsset(this.id, this.content);
 
@@ -114,7 +111,7 @@ class StringAssets extends MapBase<AssetId, StringAsset> {
   Map<AssetId, StringAsset> assets = {};
 
   @override
-  StringAsset remove(Object id) => assets.remove(id);
+  StringAsset? remove(Object? id) => assets.remove(id);
 
   @override
   Iterable<AssetId> get keys => assets.keys;
@@ -125,13 +122,13 @@ class StringAssets extends MapBase<AssetId, StringAsset> {
   }
 
   @override
-  StringAsset operator [](Object id) => assets[id];
+  StringAsset? operator [](Object? id) => assets[id as AssetId];
 
   @override
   operator []=(AssetId id, StringAsset asset) => assets[id] = asset;
 }
 
-StringAsset stringAsset(AssetId id, String content) =>
+StringAsset stringAsset(AssetId id, String? content) =>
     StringAsset(id as MemoryAssetId, content);
 
 class StringAssetTransform implements AssetTransform {
@@ -148,9 +145,9 @@ class StringAssetTransform implements AssetTransform {
 
 class StringConsumableTransform extends StringAssetTransform
     implements ConsumableTransform {
-  bool isConsumed;
+  bool? isConsumed;
 
-  TransformLogger get logger => null;
+  TransformLogger? get logger => null;
 
   StringConsumableTransform(AssetId primaryId) : super(primaryId);
 
@@ -184,16 +181,15 @@ class StringTransform extends StringConsumableTransform implements Transform {
   // only string supported for now
   StringTransform(StringAsset asset, StringAssets inputAssets)
       : super(asset.id) {
-    if (inputAssets != null) {
-      inputAssets.forEach((id, asset) {
-        assets[id] = asset;
-      });
-    }
+    inputAssets.forEach((id, asset) {
+      assets[id] = asset;
+    });
+
     assets[primaryId] = asset;
   }
 
   @override
-  Future<String> readInputAsString(AssetId id, {Encoding encoding}) async {
+  Future<String?> readInputAsString(AssetId id, {Encoding? encoding}) async {
     var asset = assets[id];
     if (asset == null) {
       return null;
@@ -202,7 +198,7 @@ class StringTransform extends StringConsumableTransform implements Transform {
   }
 
   @override
-  Future<String> readPrimaryAsString({Encoding encoding}) async {
+  Future<String?> readPrimaryAsString({Encoding? encoding}) async {
     return readInputAsString(primaryId, encoding: encoding);
   }
 
@@ -212,7 +208,7 @@ class StringTransform extends StringConsumableTransform implements Transform {
   }
 
   @override
-  void addOutputFromString(AssetId id, String content, {Encoding encoding}) {
+  void addOutputFromString(AssetId id, String content, {Encoding? encoding}) {
     outputs[id] = StringAsset(id as MemoryAssetId, content);
   }
 }

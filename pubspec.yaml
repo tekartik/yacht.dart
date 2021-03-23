@@ -2,7 +2,7 @@ name: yacht
 version: 0.4.0
 description: Yet another css/html transformer
 environment:
-  sdk: '>=2.7.0-dev <3.0.0'
+  sdk: '>=2.12.0 <3.0.0'
 publish_to: none
 
 dependencies:
@@ -14,10 +14,11 @@ dependencies:
   tekartik_common_utils:
     git:
       url: git://github.com/tekartik/common_utils.dart
-      ref: dart2
+      ref: null_safety
     version: '>=0.9.3'
   markdown: any
   quiver: any
+  path:
 dev_dependencies:
 #  sass_builder: any
 #  build_runner: any
@@ -28,7 +29,7 @@ dev_dependencies:
   chrome_travis:
     git:
       url: git://github.com/tekartik/chrome_travis.dart
-      ref: dart2
+      ref: null_safety
   build_runner: '>=0.9.0'
   build_test: '>=0.10.2'
 

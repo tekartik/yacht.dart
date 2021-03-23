@@ -34,7 +34,7 @@ void _addItem(HtmlLines lines, dynamic item) {
 
     // the content can be a list as well..
     if (content is List) {
-      for (var _content in content?.cast<String>()) {
+      for (var _content in content.cast<String>()) {
         lines.add(htmlLine(depth, _content));
       }
       return;
@@ -54,7 +54,7 @@ HtmlLines htmlMultiHtmlLines(List data) {
   return lines;
 }
 
-HtmlLines htmlLinesFromElementHtml(String html, {HtmlPrinterOptions options}) {
+HtmlLines htmlLinesFromElementHtml(String html, {HtmlPrinterOptions? options}) {
   var element = Element.html(html);
   //print(element.outerHtml');
   var printer = HtmlElementPrinter();
@@ -91,7 +91,7 @@ HtmlLines htmlLines(dynamic data) {
   return lines;
 }
 
-void checkHtmlElement(String html, HtmlLines lines, [int contentLength]) {
+void checkHtmlElement(String html, HtmlLines lines, [int? contentLength]) {
   var options = HtmlPrinterOptions();
   if (contentLength != null) {
     options.contentLength = contentLength;
@@ -544,8 +544,8 @@ void main() {
           '<!DOCTYPE html><html><head><my-tag></my-tag></head><body></body></html>');
 
       // my-tag move to body!
-      expect(document.head.querySelector('my-tag'), isNull);
-      expect(document.body.querySelector('my-tag'), isNotNull);
+      expect(document.head!.querySelector('my-tag'), isNull);
+      expect(document.body!.querySelector('my-tag'), isNotNull);
       //print(document.outerHtml);
       var builder = HtmlDocumentPrinter();
       builder.visitDocument(document);

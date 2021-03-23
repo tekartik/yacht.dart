@@ -35,12 +35,10 @@ void noScriptFix(Element element) {
         element.nodes.first.nodeType == Node.TEXT_NODE) {
       // try to parse html
       try {
-        var child = Element.html(element.nodes.first.text);
-        if (element != null) {
-          element.nodes
-            ..removeAt(0)
-            ..insert(0, child);
-        }
+        var child = Element.html(element.nodes.first.text!);
+        element.nodes
+          ..removeAt(0)
+          ..insert(0, child);
       } catch (_) {}
     }
   }
