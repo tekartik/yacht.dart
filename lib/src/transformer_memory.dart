@@ -52,7 +52,7 @@ AssetId assetIdWithPath(AssetId? id, String path) {
   var firstPart = posix.split(path)[0];
   if (firstPart == '.' || firstPart == '..') {
     if (id != null) {
-      path = posix.normalize(join(posix.dirname(id.path), path));
+      path = posix.normalize(posix.join(posix.dirname(id.path), path));
     }
     normalized = true;
   }
