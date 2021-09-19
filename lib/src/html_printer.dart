@@ -81,9 +81,9 @@ abstract class PrinterLine {
   int get hashCode => depth.hashCode;
 
   @override
-  bool operator ==(o) {
-    if (o is PrinterLine) {
-      return o.depth == depth;
+  bool operator ==(Object other) {
+    if (other is PrinterLine) {
+      return other.depth == depth;
     }
     return false;
   }
@@ -101,9 +101,9 @@ class NodeLine extends PrinterLine {
   int get hashCode => super.hashCode + node.hashCode;
 
   @override
-  bool operator ==(o) {
-    if (super == (o) && o is NodeLine) {
-      return o.node == node;
+  bool operator ==(Object other) {
+    if (super == (other) && other is NodeLine) {
+      return other.node == node;
     }
     return false;
   }
@@ -122,9 +122,9 @@ class HtmlLine extends PrinterLine {
   int get hashCode => super.hashCode + content.hashCode;
 
   @override
-  bool operator ==(o) {
-    if (super == (o) && o is HtmlLine) {
-      return o.content == content;
+  bool operator ==(Object other) {
+    if (super == (other) && other is HtmlLine) {
+      return other.content == content;
     }
     return false;
   }

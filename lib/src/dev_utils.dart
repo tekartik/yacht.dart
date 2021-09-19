@@ -4,17 +4,17 @@
 
 bool _devPrintEnabled = true;
 
-@deprecated
+@Deprecated('Dev only')
 set devPrintEnabled(bool enabled) => _devPrintEnabled = enabled;
 
-@deprecated
+@Deprecated('Dev only')
 void devPrint(Object object) {
   if (_devPrintEnabled) {
     print(object);
   }
 }
 
-@deprecated
+@Deprecated('Dev only')
 int? devWarning;
 
 void _devError([String msg = '']) {
@@ -30,5 +30,5 @@ void _devError([String msg = '']) {
   }
 }
 
-@deprecated
+@Deprecated('Dev only')
 void devError([String msg = '']) => _devError(msg);
