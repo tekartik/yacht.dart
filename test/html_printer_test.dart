@@ -45,7 +45,7 @@ void _addItem(HtmlLines lines, dynamic item) {
   lines.add(htmlLine(depth, content as String));
 }
 
-@deprecated // use htmlLines
+@Deprecated('use htmlLines')
 HtmlLines htmlMultiHtmlLines(List data) {
   var lines = HtmlLines();
   for (var item in data) {

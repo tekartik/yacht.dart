@@ -5,7 +5,6 @@ import 'package:build/build.dart';
 import 'package:build/build.dart' as build;
 import 'package:source_span/source_span.dart' as source_span;
 import 'package:yacht/src/transformer.dart';
-
 import 'package:yacht/src/transformer.dart'
     hide Asset, AssetId, Transformer, Transform;
 import 'package:yacht/src/transformer.dart' as common;
@@ -37,7 +36,8 @@ class BuilderAssetId extends common.AssetId {
   int get hashCode => _impl.hashCode;
 
   @override
-  bool operator ==(o) => (o is BuilderAssetId) && (o._impl == _impl);
+  bool operator ==(Object other) =>
+      (other is BuilderAssetId) && (other._impl == _impl);
 }
 
 common.AssetId _wrapAssetId(build.AssetId id) {

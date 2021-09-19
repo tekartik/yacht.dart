@@ -26,7 +26,7 @@ Future fixCssInline(String srcHtmlFilePath, String dstHtmlFilePath) async {
       if (css.contains('\n')) {
         styleElement.text = '\n$css';
       } else {
-        styleElement.text = '$css';
+        styleElement.text = css;
       }
       element.replaceWith(styleElement);
     }

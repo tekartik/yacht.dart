@@ -1,8 +1,8 @@
 library tekartik_barback.transformer;
 
 import 'dart:async';
-
 import 'dart:convert';
+
 //import 'package:barback/src/asset/asset_id.dart';
 //export 'package:barback/src/asset/asset_id.dart';
 import 'package:source_span/source_span.dart' as source_span;
@@ -383,16 +383,16 @@ class LogLevel {
   static const error = LogLevel('Error');
 
   // Deprecated since v0.4.0 2020-04-05
-  @deprecated
+  @Deprecated('use info')
   // ignore: constant_identifier_names
   static const INFO = info;
-  @deprecated
+  @Deprecated('use fine')
   // ignore: constant_identifier_names
   static const FINE = fine;
-  @deprecated
+  @Deprecated('use warning')
   // ignore: constant_identifier_names
   static const WARNING = warning;
-  @deprecated
+  @Deprecated('use error')
   // ignore: constant_identifier_names
   static const ERROR = error;
 

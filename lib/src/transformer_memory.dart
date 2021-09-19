@@ -30,8 +30,9 @@ class MemoryAssetId implements AssetId {
   int get hashCode => path.hashCode;
 
   @override
-  bool operator ==(o) {
-    return (o is MemoryAssetId) && ((o.package == package) && (o.path == path));
+  bool operator ==(Object other) {
+    return (other is MemoryAssetId) &&
+        ((other.package == package) && (other.path == path));
   }
 
   @override
@@ -99,9 +100,9 @@ class StringAsset {
   int get hashCode => id.hashCode;
 
   @override
-  bool operator ==(o) {
-    if (o is StringAsset) {
-      return o.id == id && o.content == content;
+  bool operator ==(Object other) {
+    if (other is StringAsset) {
+      return other.id == id && other.content == content;
     }
     return false;
   }
@@ -111,7 +112,7 @@ class StringAssets extends MapBase<AssetId, StringAsset> {
   Map<AssetId, StringAsset> assets = {};
 
   @override
-  StringAsset? remove(Object? id) => assets.remove(id);
+  StringAsset? remove(Object? key) => assets.remove(key);
 
   @override
   Iterable<AssetId> get keys => assets.keys;
@@ -122,10 +123,10 @@ class StringAssets extends MapBase<AssetId, StringAsset> {
   }
 
   @override
-  StringAsset? operator [](Object? id) => assets[id as AssetId];
+  StringAsset? operator [](Object? key) => assets[key as AssetId];
 
   @override
-  operator []=(AssetId id, StringAsset asset) => assets[id] = asset;
+  operator []=(AssetId key, StringAsset value) => assets[key] = value;
 }
 
 StringAsset stringAsset(AssetId id, String? content) =>
