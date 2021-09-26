@@ -5,8 +5,6 @@ import 'package:build/build.dart';
 import 'package:build/build.dart' as build;
 import 'package:source_span/source_span.dart' as source_span;
 import 'package:yacht/src/transformer.dart';
-import 'package:yacht/src/transformer.dart'
-    hide Asset, AssetId, Transformer, Transform;
 import 'package:yacht/src/transformer.dart' as common;
 /*
 export 'transformer.dart';

@@ -76,12 +76,10 @@ HtmlLines htmlLines(dynamic data) {
       // not a list, might be a line data [0, 'test'] directly
       if (data.first is int) {
         _addItem(lines, data);
-      } else if (data is List) {
+      } else {
         for (var item in data) {
           _addItem(lines, item);
         }
-      } else {
-        throw 'invalid param: $data';
       }
     }
   } else {
