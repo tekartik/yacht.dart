@@ -18,8 +18,8 @@ in your `pubspec.yaml`
 dependencies:
   yacht:
     git:
-      url: git://github.com/tekartik/yacht.dart
-      ref: dart2
+      url: https://github.com/tekartik/yacht.dart
+      ref: dart2_3
     version: '>=0.3.1'
 ...
 ```
