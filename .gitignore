@@ -3,7 +3,6 @@
 .buildlog
 .pub/
 build/
-packages
 .packages
 
 # Or the files created by dart2js.
@@ -17,3 +16,6 @@ pubspec.lock
 
 # WebStorm idea
 .idea/
+*.iml
+.vscode/
+.local/
