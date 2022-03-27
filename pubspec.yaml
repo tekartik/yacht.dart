@@ -19,10 +19,14 @@ dependencies:
   markdown: any
   quiver: any
   path:
+  args:
+  pub_semver:
+  source_span:
+  collection:
+  grinder:
 dev_dependencies:
 #  sass_builder: any
 #  build_runner: any
-  grinder: any
   test: any
   dev_test: any
   process_run: any
