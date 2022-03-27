@@ -478,8 +478,8 @@ abstract class HtmlLinesBuilderMixin {
           node.parent != null &&
           node.parent.localName != "noscript";
           */
-      var _isHeadTag = tag == 'head';
-      if (_isHeadTag) {
+      var isHeadTag = tag == 'head';
+      if (isHeadTag) {
         _addLine();
       }
       // Don't inline for html
@@ -510,7 +510,7 @@ abstract class HtmlLinesBuilderMixin {
       }
 
       // close line for head tag
-      if (_isHeadTag) {
+      if (isHeadTag) {
         _addLine();
       }
 

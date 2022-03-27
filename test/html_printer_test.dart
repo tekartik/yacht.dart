@@ -34,8 +34,8 @@ void _addItem(HtmlLines lines, dynamic item) {
 
     // the content can be a list as well..
     if (content is List) {
-      for (var _content in content.cast<String>()) {
-        lines.add(htmlLine(depth, _content));
+      for (var stringContent in content.cast<String>()) {
+        lines.add(htmlLine(depth, stringContent));
       }
       return;
     }
