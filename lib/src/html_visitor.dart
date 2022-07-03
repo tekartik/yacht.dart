@@ -29,13 +29,13 @@ class HtmlDocumentVisitor extends HtmlElementVisitor {
 
   // public API to call
   Document visitDocument(Document document) {
-    void _visitElement(Element? element) {
+    void doVisitElement(Element? element) {
       if (element != null) {
         visitElement(element);
       }
     }
 
-    _visitElement(document.documentElement);
+    doVisitElement(document.documentElement);
     return document;
   }
 

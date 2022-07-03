@@ -8,7 +8,7 @@ StringAssets stringAssets(List<String> data) {
   var assets = StringAssets();
 
   // parse ['pkg'], 'path,' 'content'
-  void _add(List<String> item) {
+  void addItems(List<String> item) {
     try {
       var index = 0;
       String? package;
@@ -27,11 +27,11 @@ StringAssets stringAssets(List<String> data) {
   if (data.isNotEmpty) {
     if (data.first is List) {
       for (var item in data) {
-        _add((item as List).cast<String>());
+        addItems((item as List).cast<String>());
       }
     } else {
       // devPrint(data);
-      _add(data.cast<String>());
+      addItems(data.cast<String>());
     }
   }
   return assets;

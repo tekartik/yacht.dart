@@ -14,24 +14,24 @@ const String argDryRunFlag = 'dry-run';
 final Version binVersion = Version(0, 1, 0);
 
 Future main(List<String> args) async {
-  void _addHelp(ArgParser parser) {
+  void addHelp(ArgParser parser) {
     parser.addFlag(argHelpFlag, abbr: 'h', help: 'Help info');
   }
 
   var parser = ArgParser(allowTrailingOptions: false);
   parser.addFlag(argDryRunFlag, abbr: 'd', help: 'Don\'t execute the command');
-  _addHelp(parser);
+  addHelp(parser);
   parser.addFlag(argVersionFlag, help: 'Version', negatable: false);
   parser.addFlag(argVerboseFlag,
       abbr: 'v', help: 'verbose output', negatable: false);
 
   var result = parser.parse(args);
 
-  void _version() {
+  void printVersion() {
     stdout.write('$binVersion');
   }
 
-  void _help() {
+  void printHelp() {
     stdout.writeln('General utility');
     stdout.writeln();
     stdout.writeln(parser.usage);
@@ -40,17 +40,17 @@ Future main(List<String> args) async {
 
   final version = result[argVersionFlag] as bool;
   if (version) {
-    _version();
+    printVersion();
     return;
   }
   final help = result[argHelpFlag] as bool;
   if (help) {
-    _help();
+    printHelp();
     return;
   }
 
   if (result.rest.isEmpty) {
-    _help();
+    printHelp();
     return;
   }
 }
