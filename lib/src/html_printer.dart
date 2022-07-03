@@ -261,7 +261,7 @@ List<String> _wordSplit(String input) {
   var out = <String>[];
   var sb = StringBuffer();
 
-  void _addCurrent() {
+  void addCurrent() {
     if (sb.length > 0) {
       out.add(sb.toString());
       sb = StringBuffer();
@@ -270,12 +270,12 @@ List<String> _wordSplit(String input) {
 
   for (var rune in input.runes) {
     if (isWhitespace(rune)) {
-      _addCurrent();
+      addCurrent();
     } else {
       sb.writeCharCode(rune);
     }
   }
-  _addCurrent();
+  addCurrent();
   return out;
 }
 
@@ -581,7 +581,7 @@ List<String> convertContent(String input, int contentLength) {
 
   var sb = StringBuffer();
 
-  void _addCurrent() {
+  void addCurrent() {
     if (sb.length > 0) {
       out.add(sb.toString());
       sb = StringBuffer();
@@ -593,14 +593,14 @@ List<String> convertContent(String input, int contentLength) {
     if (sb.length == 0) {
       // if empty never create a new line
     } else if (sb.length + word.length + 1 > contentLength) {
-      _addCurrent();
+      addCurrent();
     } else {
       // add a space
       sb.write(' ');
     }
     sb.write(word);
   }
-  _addCurrent();
+  addCurrent();
   return out;
 }
 
