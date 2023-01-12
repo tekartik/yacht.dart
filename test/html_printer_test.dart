@@ -68,7 +68,8 @@ HtmlLines htmlLinesFromElementHtml(String html, {HtmlPrinterOptions? options}) {
 // Allow for [[0,'<a>'],[0,'</a']]
 // ['<a>', '</a>']
 
-HtmlLines htmlLines(dynamic data) {
+/// [data] can be a list or a single item.
+HtmlLines htmlLines(Object? data) {
   var lines = HtmlLines();
 
   if (data is List) {
@@ -219,7 +220,6 @@ void main() {
       } on ArgumentError catch (_) {
         //print(_);
         //print(_.runtimeType);
-
       }
       var element = Element.html('<div>&lt;a&gt;&lt;/a&gt;</div>');
       expect(element.outerHtml, '<div>&lt;a&gt;&lt;/a&gt;</div>');
