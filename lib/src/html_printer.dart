@@ -607,5 +607,5 @@ List<String> convertContent(String input, int contentLength) {
 class HtmlDocumentPrinter extends HtmlDocumentVisitor
     with HtmlLinesBuilderMixin {}
 
-class HtmlElementPrinter extends HtmlElementVisitor with HtmlLinesBuilderMixin {
-}
+class HtmlElementPrinter extends HtmlElementVisitor
+    with HtmlLinesBuilderMixin {}
