@@ -60,7 +60,6 @@ abstract class TransformBuilder implements build.Builder, common.Transformer {
   declareOutputs(brbck.DeclaringTransform transform) =>
       run(new BarbackDeclaringTransform.wrap(transform));
       */
-
 }
 
 /*
