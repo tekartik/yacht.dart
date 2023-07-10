@@ -19,7 +19,7 @@ dependencies:
   yacht:
     git:
       url: https://github.com/tekartik/yacht.dart
-      ref: dart2_3
+      ref: dart3a
     version: '>=0.3.1'
 ...
 ```

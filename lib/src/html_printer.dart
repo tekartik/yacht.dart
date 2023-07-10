@@ -130,7 +130,7 @@ class HtmlLine extends PrinterLine {
   }
 }
 
-abstract class NodeLinesBuilderMixin {
+abstract mixin class NodeLinesBuilderMixin {
   NodeLines lines = NodeLines();
   int depth = 0;
 
@@ -306,7 +306,7 @@ String utilsTrimText(String text, [bool keepExternalSpaces = false]) {
   return sb.toString();
 }
 
-abstract class HtmlLinesBuilderMixin {
+abstract mixin class HtmlLinesBuilderMixin {
   HtmlPrinterOptions? _options;
 
   set options(HtmlPrinterOptions options) {
