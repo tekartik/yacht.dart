@@ -150,7 +150,7 @@ class StringConsumableTransform extends StringAssetTransform
 
   TransformLogger? get logger => null;
 
-  StringConsumableTransform(AssetId primaryId) : super(primaryId);
+  StringConsumableTransform(super.primaryId);
 
   @override
   void consumePrimary() {
@@ -160,14 +160,14 @@ class StringConsumableTransform extends StringAssetTransform
 
 class StringIsPrimaryTransform extends StringAssetTransform
     implements IsPrimaryTransform {
-  StringIsPrimaryTransform(AssetId primaryId) : super(primaryId);
+  StringIsPrimaryTransform(super.primaryId);
 }
 
 class StringDeclaringTransform extends StringConsumableTransform
     implements DeclaringTransform {
   final List<AssetId> outputs = [];
 
-  StringDeclaringTransform(AssetId primaryId) : super(primaryId);
+  StringDeclaringTransform(super.primaryId);
 
   @override
   void declareOutput(AssetId id) {

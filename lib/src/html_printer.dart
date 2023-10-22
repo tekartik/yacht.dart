@@ -92,7 +92,7 @@ abstract class PrinterLine {
 class NodeLine extends PrinterLine {
   final Node node;
 
-  NodeLine(int depth, this.node) : super(depth);
+  NodeLine(int super.depth, this.node);
 
   @override
   String toString() => '$depth:$node';
@@ -113,7 +113,7 @@ class NodeLine extends PrinterLine {
 class HtmlLine extends PrinterLine {
   final String? content;
 
-  HtmlLine(int? depth, this.content) : super(depth);
+  HtmlLine(super.depth, this.content);
 
   @override
   String toString() => '$depth:$content';
@@ -162,9 +162,7 @@ class HtmlLines extends DelegatingList<HtmlLine> {
 
   HtmlLines() : this.from(<HtmlLine>[]);
 
-  HtmlLines.from(List<HtmlLine> l)
-      : //_l = l,
-        super(l);
+  HtmlLines.from(super.l);
 }
 
 class PrinterLines extends DelegatingList<PrinterLine> {
@@ -172,9 +170,7 @@ class PrinterLines extends DelegatingList<PrinterLine> {
 
   PrinterLines() : this.from(<PrinterLine>[]);
 
-  PrinterLines.from(List<PrinterLine> l)
-      : //_l = l,
-        super(l);
+  PrinterLines.from(super.l);
 }
 
 class NodeLines extends DelegatingList<NodeLine> {
@@ -182,9 +178,7 @@ class NodeLines extends DelegatingList<NodeLine> {
 
   NodeLines() : this.from(<NodeLine>[]);
 
-  NodeLines.from(List<NodeLine> l)
-      : //_l = l,
-        super(l);
+  NodeLines.from(super.l);
 }
 
 //
