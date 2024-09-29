@@ -1,4 +1,4 @@
-library yacht.src.html_visitor;
+library;
 
 //import 'visitor.dart' as visitor;
 import 'package:html/dom.dart';

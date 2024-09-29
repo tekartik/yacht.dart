@@ -1,4 +1,4 @@
-library yacht.src.assetid_utils;
+library;
 
 import 'package:path/path.dart';
 

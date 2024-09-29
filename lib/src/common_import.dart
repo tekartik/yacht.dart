@@ -1,4 +1,4 @@
-library yacht.src.dev_utils;
+library;
 
 export 'dart:async';
 export 'dart:convert';

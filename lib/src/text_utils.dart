@@ -1,4 +1,4 @@
-library yacht.src.text_utils.dart;
+library;
 
 //
 // utils

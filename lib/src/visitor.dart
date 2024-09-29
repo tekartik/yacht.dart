@@ -1,4 +1,4 @@
-library yacht.src.visitor;
+library;
 
 import 'dart:async';
 

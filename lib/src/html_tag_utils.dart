@@ -1,4 +1,4 @@
-library yacht.src.html_tag_utils.dart;
+library;
 
 //
 // tags

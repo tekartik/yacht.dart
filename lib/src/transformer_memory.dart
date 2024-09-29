@@ -1,4 +1,4 @@
-library yacht.src.transformer_memory;
+library;
 
 import 'dart:async';
 import 'dart:collection';

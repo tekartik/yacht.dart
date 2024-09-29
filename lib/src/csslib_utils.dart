@@ -1,4 +1,4 @@
-library yacht.src.csslib_utils;
+library;
 
 import 'package:csslib/parser.dart';
 import 'package:csslib/visitor.dart';
