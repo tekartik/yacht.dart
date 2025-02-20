@@ -54,6 +54,17 @@ void groupVisitor(HtmlProvider htmlProvider) {
         //devPrint(builder.lines);
       });
 
+      test('element with children', () {
+        var element1 =
+            htmlProvider.createElementHtml('<ul><li></li><li></li></ul>');
+        var element2 =
+            htmlProvider.createElementHtml('<ul>\n<li></li>\n<li></li>\n</ul>');
+        var builder = HtmlElementNodeLinesBuilder();
+        builder.visitElement(element1);
+        builder = HtmlElementNodeLinesBuilder();
+        builder.visitElement(element2);
+      });
+
       test('element_with_innner_2', () {
         var element = htmlProvider.createElementHtml('<div>1<a>2</a>3</div>');
         expect(element.textContent, '123');

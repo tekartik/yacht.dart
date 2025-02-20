@@ -20,3 +20,4 @@ pubspec.lock
 .vscode/
 .local/
 /pubspec_overrides.yaml
+/example/output/

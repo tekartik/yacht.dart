@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:html/html_escape.dart';
+import 'package:html/dom_parsing.dart' show htmlSerializeEscape;
 import 'package:tekartik_common_utils/common_utils_import.dart';
 import 'package:tekartik_common_utils/env_utils.dart';
 import 'package:tekartik_html/html.dart';

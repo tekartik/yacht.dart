@@ -5,7 +5,7 @@ import 'package:tekartik_html/html_html5lib.dart';
 import 'package:yacht/yacht_common.dart';
 
 /// Tidy a file, if [dstFilePath] is ommited, original file is replaced
-Future tidyHtml(
+Future<void> tidyHtml(
     {required String srcFilePath,
     String? dstFilePath,
     HtmlProvider? htmlProvider}) async {
