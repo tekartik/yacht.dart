@@ -27,5 +27,13 @@ void groupYacht(HtmlProvider htmlProvider) {
 </html>
 ''');
     });
+    test('amp boilerplate', () async {
+      // ignore: unused_local_variable
+      var head = htmlProvider.createElementHtml(
+          '<head>$yachtAmpBoilerplate</head>',
+          noValidate: true);
+      // ignore: avoid_print
+      print(head.outerHtml);
+    });
   });
 }

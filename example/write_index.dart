@@ -51,18 +51,15 @@ Future<void> main(List<String> args) async {
   var head = index.head;
   var children = htmlProvider
       .createElementHtml('<head>$yachtAmpBoilerplate</head>', noValidate: true)
-      .children;
+      .childNodes;
   print(children);
   head.appendChild(htmlProvider.createTextNode('\n'));
-  for (var child in children) {
+  for (var child in List.of(children)) {
+    print(child);
     head.appendChild(child);
-    head.appendChild(htmlProvider.createTextNode('\n'));
+    //head.appendChild(htmlProvider.createTextNode('\n'));
   }
   head.appendChild(htmlProvider.createTextNode('\n'));
-  head.appendChild(htmlProvider.createElementHtml('<meta test="test">'));
-  head.appendChild(htmlProvider.createTextNode('\n'));
-  index.head.appendChild(htmlProviderHtml5Lib
-      .createElementHtml('<link rel="canonical" href="/index.html">'));
   appUlToBody();
   result = htmlPrintDocument(index,
       options: HtmlPrinterOptions(isWindows: Platform.isWindows));
