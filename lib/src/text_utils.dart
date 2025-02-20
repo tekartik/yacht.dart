@@ -28,15 +28,24 @@ bool isWhitespace(int rune) => ((rune >= 0x0009 && rune <= 0x000D) ||
     rune == 0x3000 ||
     rune == 0xFEFF);
 
-bool beginWithWhiteSpace(String text) {
+bool beginsWithWhitespaces(String text) {
+  if (text.isEmpty) {
+    return false;
+  }
   return isWhitespace(text.runes.first);
 }
 
-bool endWithWhiteSpace(String text) {
+bool endsWithWhitespaces(String text) {
+  if (text.isEmpty) {
+    return false;
+  }
   return isWhitespace(text.runes.last);
 }
 
 bool beginOrEndWithWhiteSpace(String text) {
+  if (text.isEmpty) {
+    return false;
+  }
   var runes = text.runes;
   return isWhitespace(runes.first) || isWhitespace(runes.last);
 }
@@ -53,4 +62,49 @@ bool isSingleLineText(String text) => !hasLineFeed(text);
 
 bool isWhitespaceLine(String text) {
   return text.trim().isEmpty;
+}
+
+List<String> _wordSplit(String input) {
+  var out = <String>[];
+  var sb = StringBuffer();
+
+  void addCurrent() {
+    if (sb.length > 0) {
+      out.add(sb.toString());
+      sb = StringBuffer();
+    }
+  }
+
+  for (var rune in input.runes) {
+    if (isWhitespace(rune)) {
+      addCurrent();
+    } else {
+      sb.writeCharCode(rune);
+    }
+  }
+  addCurrent();
+  return out;
+}
+
+/// Trim text
+String utilsTrimText(String text, [bool keepExternalSpaces = false]) {
+  if (text.isEmpty) {
+    return text;
+  }
+  // remove and/trailing space
+  var runes = text.runes;
+  var hasWhitespaceBefore = isWhitespace(runes.first);
+  var hasWhitespaceAfter = isWhitespace(runes.last);
+  var list = _wordSplit(text);
+  var sb = StringBuffer();
+  if (keepExternalSpaces && hasWhitespaceBefore) {
+    sb.write(' ');
+  }
+  if (list.isNotEmpty) {
+    sb.write(list.join(' '));
+    if (keepExternalSpaces && hasWhitespaceAfter) {
+      sb.write(' ');
+    }
+  }
+  return sb.toString();
 }

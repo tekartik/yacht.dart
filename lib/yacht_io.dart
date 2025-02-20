@@ -1,18 +1,19 @@
 import 'dart:io';
 
-import 'package:html/dom.dart';
 import 'package:path/path.dart';
-import 'package:yacht/src/html_printer.dart';
-import 'package:yacht/src/html_visitor.dart';
+import 'package:tekartik_html/html_html5lib.dart';
+import 'package:yacht/yacht_common.dart';
 
 /// Tidy a file, if [dstFilePath] is ommited, original file is replaced
-Future tidyHtml({required String srcFilePath, String? dstFilePath}) async {
+Future tidyHtml(
+    {required String srcFilePath,
+    String? dstFilePath,
+    HtmlProvider? htmlProvider}) async {
   dstFilePath ??= srcFilePath;
   var src = await File(srcFilePath).readAsString();
-  var builder = HtmlDocumentVisitor();
-  builder.visitDocument(Document.html(src));
+  htmlProvider ??= htmlProviderHtml5Lib;
+  var result = htmlProvider.yachtTidyHtml(src);
 
-  var result = htmlPrintDocument(Document.html(src));
   try {
     await Directory(dirname(dstFilePath)).create(recursive: true);
   } catch (_) {}

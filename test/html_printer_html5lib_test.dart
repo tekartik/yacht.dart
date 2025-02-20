@@ -1,7 +1,10 @@
 library;
 
-import 'package:tekartik_html/html_universal.dart';
-import 'package:yacht/src/html_printer_common.dart';
+import 'package:html/dom.dart';
+import 'package:yacht/src/html_printer_common.dart'
+    show HtmlLines, HtmlPrinterOptions, htmlDoctype, htmlLine, htmlPrintLines;
+import 'package:yacht/src/html_printer_html5lib.dart'
+    show HtmlDocumentPrinter, HtmlElementPrinter, htmlPrintDocument;
 
 import 'test_common.dart';
 
@@ -15,16 +18,9 @@ const String minHtml = '''
 const String minInHtml =
     '<!doctype html><html><head></head><body></body></html>';
 
-HtmlLines minHtmlLines1 = htmlLines([
-  [0, '<html>'],
-  [1, '<head></head>'],
-  [1, '<body></body>'],
-  [0, '</html>']
-]);
-
 HtmlLines minHtmlLines = htmlLines([
   [0, '<html>'],
-  [1, '<head><meta charset="utf-8"><title></title></head>'],
+  [1, '<head></head>'],
   [1, '<body></body>'],
   [0, '</html>']
 ]);
@@ -61,19 +57,16 @@ HtmlLines htmlMultiHtmlLines(List data) {
   return lines;
 }
 
-extension HtmlProviderPrinterExt on HtmlProvider {
-  HtmlLines htmlLinesFromElementHtml(String html,
-      {HtmlPrinterOptions? options}) {
-    var element = createElementHtml(html);
-    //print(element.outerHtml');
-    var printer = HtmlElementPrinterCommon();
-    if (options != null) {
-      printer.options = options;
-    }
-
-    printer.visitElement(element);
-    return printer.lines;
+HtmlLines htmlLinesFromElementHtml(String html, {HtmlPrinterOptions? options}) {
+  var element = Element.html(html);
+  //print(element.outerHtml');
+  var printer = HtmlElementPrinter();
+  if (options != null) {
+    printer.options = options;
   }
+
+  printer.visitElement(element);
+  return printer.lines;
 }
 // Allow for [[0,'<a>'],[0,'</a']]
 // ['<a>', '</a>']
@@ -100,25 +93,20 @@ HtmlLines htmlLines(Object? data) {
   return lines;
 }
 
-void main() {
-  groupPrinter(htmlProviderUniversal);
+void checkHtmlElement(String html, HtmlLines lines, [int? contentLength]) {
+  var options = HtmlPrinterOptions();
+  if (contentLength != null) {
+    options.contentLength = contentLength;
+  }
+  expect(htmlLinesFromElementHtml(html, options: options), lines,
+      reason: 'html: \'$html\'');
+  // reconvert result to be sure
+  var outHtml = htmlPrintLines(lines, options: options);
+  expect(htmlLinesFromElementHtml(outHtml, options: options), lines,
+      reason: 'outhtml: $outHtml\n/\n $html');
 }
 
-void groupPrinter(HtmlProvider htmlProvider) {
-  void checkHtmlElement(String html, HtmlLines lines, [int? contentLength]) {
-    var options = HtmlPrinterOptions();
-    if (contentLength != null) {
-      options.contentLength = contentLength;
-    }
-    expect(htmlProvider.htmlLinesFromElementHtml(html, options: options), lines,
-        reason: 'html: \'$html\'');
-    // reconvert result to be sure
-    var outHtml = htmlPrintLines(lines, options: options);
-    expect(
-        htmlProvider.htmlLinesFromElementHtml(outHtml, options: options), lines,
-        reason: 'outhtml: $outHtml\n/\n $html');
-  }
-
+void main() {
   group('html_line', () {
     test('equals', () {
       var line1 = htmlLine(null, null);
@@ -182,65 +170,52 @@ void groupPrinter(HtmlProvider htmlProvider) {
     });
   });
 
-  group('utils', () {
-    test('inlineText', () {
-      expect(utilsInlineText('a'), 'a');
-      expect(utilsInlineText(' '), ' ');
-      expect(utilsInlineText(' a'), ' a');
-      expect(utilsInlineText('a '), 'a ');
-      expect(utilsInlineText(' a '), ' a ');
-      expect(utilsInlineText('  a  '), ' a ');
-      expect(utilsInlineText('\r\na\t\r\n '), ' a ');
-    });
-  });
-
   group('html_printer', () {
     test('empty', () {
-      var printer = HtmlElementPrinterCommon();
+      var printer = HtmlElementPrinter();
       expect(printer.lines, isEmpty);
     });
 
     test('element', () {
-      var element = htmlProvider.createElementHtml('<a></a>');
+      var element = Element.html('<a></a>');
       expect(element.outerHtml, '<a></a>');
-      var printer = HtmlElementPrinterCommon();
+      var printer = HtmlElementPrinter();
       printer.visitElement(element);
       expect(printer.lines, htmlLines(['<a></a>']));
     });
 
     test('inner_element', () {
-      var element = htmlProvider.createElementHtml('<div><a></a></div>');
+      var element = Element.html('<div><a></a></div>');
       expect(element.outerHtml, '<div><a></a></div>');
       /*
       devPrint(element.innerHtml);
       devPrint(element.text);
       */
-      var printer = HtmlElementPrinterCommon();
+      var printer = HtmlElementPrinter();
       printer.visitElement(element);
       expect(printer.lines, htmlLines(['<div><a></a></div>']));
     });
 
     test('element_with_text_node', () {
-      var element = htmlProvider.createElementTag('div');
+      var element = Element.tag('div');
       element.text = '<a></a>';
-      var printer = HtmlElementPrinterCommon();
+      var printer = HtmlElementPrinter();
       printer.visitElement(element);
       expect(printer.lines, htmlLines(['<div>&lt;a&gt;&lt;/a&gt;</div>']));
     });
 
     test('element_html', () {
       try {
-        htmlProvider.createElementHtml('&lt;a&gt;&lt;/a&gt;');
+        Element.html('&lt;a&gt;&lt;/a&gt;');
         fail('should fail');
       } on ArgumentError catch (_) {
         //print(_);
         //print(_.runtimeType);
       }
-      var element =
-          htmlProvider.createElementHtml('<div>&lt;a&gt;&lt;/a&gt;</div>');
+      var element = Element.html('<div>&lt;a&gt;&lt;/a&gt;</div>');
       expect(element.outerHtml, '<div>&lt;a&gt;&lt;/a&gt;</div>');
       expect(element.text, '<a></a>');
-      var printer = HtmlElementPrinterCommon();
+      var printer = HtmlElementPrinter();
       printer.visitElement(element);
       expect(printer.lines, htmlLines(['<div>&lt;a&gt;&lt;/a&gt;</div>']));
     });
@@ -495,24 +470,17 @@ void groupPrinter(HtmlProvider htmlProvider) {
     });
 
     test('element_base_debug', () async {
-      if (htmlProvider is HtmlProviderWeb) {
-        // copy the test here and make it solo
-        checkHtmlElement(
-            '<head>\n<meta charset="utf-8">\n<title>Included Title</title>  </head>',
-            htmlLines(['<meta charset="utf-8">']));
-      } else {
-        // copy the test here and make it solo
-        checkHtmlElement(
-            '<head>\n<meta charset="utf-8">\n<title>Included Title</title>  </head>',
-            htmlLines([
-              '<head>',
-              [
-                1,
-                ['<meta charset="utf-8">', '<title>Included Title</title>']
-              ],
-              '</head>'
-            ]));
-      }
+      // copy the test here and make it solo
+      checkHtmlElement(
+          '<head>\n<meta charset="utf-8">\n<title>Included Title</title>  </head>',
+          htmlLines([
+            '<head>',
+            [
+              1,
+              ['<meta charset="utf-8">', '<title>Included Title</title>']
+            ],
+            '</head>'
+          ]));
     });
 
     test('anchor_with_inner_element', () {
@@ -520,9 +488,9 @@ void groupPrinter(HtmlProvider htmlProvider) {
     });
 
     test('element_with_text', () async {
-      var element = htmlProvider.createElementHtml('<a>link</a>');
+      var element = Element.html('<a>link</a>');
       expect(element.outerHtml, '<a>link</a>');
-      var printer = HtmlElementPrinterCommon();
+      var printer = HtmlElementPrinter();
       printer.visitElement(element);
       expect(printer.lines, htmlLines([0, '<a>link</a>']));
     });
@@ -530,46 +498,45 @@ void groupPrinter(HtmlProvider htmlProvider) {
 
   group('print_document', () {
     test('document', () async {
-      var document = htmlProvider.createDocument();
-      //expect(document.outerHtml, '');
-      var printer = HtmlDocumentPrinterCommon();
+      var document = Document();
+      expect(document.outerHtml, '');
+      var printer = HtmlDocumentPrinter();
       printer.visitDocument(document);
       //print(printer.lines);
-      expect(printer.lines, minHtmlLines);
+      expect(printer.lines, htmlLines([]));
     });
 
     test('document_html_empty', () async {
-      var document = htmlProvider.createDocument(html: '');
-      // expect(document.outerHtml, '<html><head></head><body></body></html>');
+      var document = Document.html('');
+      expect(document.outerHtml, '<html><head></head><body></body></html>');
 
       //print(document.outerHtml);
-      var builder = HtmlDocumentPrinterCommon();
+      var builder = HtmlDocumentPrinter();
       builder.visitDocument(document);
       expect(builder.lines, minHtmlLines);
       //print(builder.nodes);
     });
 
     test('document_html_basic', () async {
-      var document = htmlProvider.createDocument(
-          html: '<!DOCTYPE html><html><head></head><body></body></html>');
+      var document = Document.html(
+          '<!DOCTYPE html><html><head></head><body></body></html>');
 
       //print(document.outerHtml);
-      var builder = HtmlDocumentPrinterCommon();
+      var builder = HtmlDocumentPrinter();
       builder.visitDocument(document);
       expect(builder.lines, minHtmlLines);
       //print(builder.nodes);
     });
 
     test('document_html_tag_in_head', () async {
-      var document = htmlProvider.createDocument(
-          html:
-              '<!DOCTYPE html><html><head><my-tag></my-tag></head><body></body></html>');
+      var document = Document.html(
+          '<!DOCTYPE html><html><head><my-tag></my-tag></head><body></body></html>');
 
       // my-tag move to body!
-      expect(document.head.querySelector('my-tag'), isNull);
-      expect(document.body.querySelector('my-tag'), isNotNull);
+      expect(document.head!.querySelector('my-tag'), isNull);
+      expect(document.body!.querySelector('my-tag'), isNotNull);
       //print(document.outerHtml);
-      var builder = HtmlDocumentPrinterCommon();
+      var builder = HtmlDocumentPrinter();
       builder.visitDocument(document);
       //expect(builder.lines, minHtmlLines);
       //print(builder.nodes);
@@ -588,19 +555,14 @@ void groupPrinter(HtmlProvider htmlProvider) {
     });
 
     test('htmlPrintDocument', () async {
-      var document = htmlProvider.createDocument();
-      //expect(htmlPrintDocument(document), '$htmlDoctype\n');
-      //document = htmlProvider.createDocument(html: '');
-      expect(
-          htmlPrintDocument(document),
-          '<!doctype html>\n'
-          '<html>\n'
-          '<head><meta charset="utf-8"><title></title></head>\n'
-          '<body></body>\n'
-          '</html>\n');
+      var document = Document();
+      expect(htmlPrintDocument(document), '$htmlDoctype\n');
+      document = Document.html('');
+      expect(htmlPrintDocument(document),
+          '$htmlDoctype\n<html>\n<head></head>\n<body></body>\n</html>\n');
 
       //'${htmlDoctype}\n<html>\n<head></head>\n<body></body>\n</html>');
-      //document = new htmlProvider.createDocument('<!DOCTYPE html><html><head></head><body></body></html>\n');
+      //document = new Document.html('<!DOCTYPE html><html><head></head><body></body></html>\n');
       //expect(await htmlPrintDocument(document), '${htmlDoctype}\n<html>\n<head>\n</head>\n<body>\n</body>\n</html>\n');
       /*
       expect(htmlPrintLines(htmlLines([0, '<html/>'])),
@@ -613,8 +575,8 @@ void groupPrinter(HtmlProvider htmlProvider) {
     });
 
     test('htmlPrintDocument_min', () async {
-      var document = htmlProvider.createDocument(
-          html: '<!DOCTYPE html><html><head></head><body></body></html>\n');
+      var document = Document.html(
+          '<!DOCTYPE html><html><head></head><body></body></html>\n');
       expect(htmlPrintDocument(document), minHtml);
     }, skip: true);
   });
