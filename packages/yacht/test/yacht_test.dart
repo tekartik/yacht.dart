@@ -36,8 +36,32 @@ void groupYacht(HtmlProvider htmlProvider) {
         '<head>$yachtAmpBoilerplate</head>',
         noValidate: true,
       );
-      // ignore: avoid_print
-      print(head.outerHtml);
+      // ignore: unused_local_variable
+      var head2 = htmlProvider.createElementHtml(
+        '<div>$yachtAmpBoilerplate</div>',
+        noValidate: true,
+      );
+      if (htmlProvider is HtmlProviderWeb) {
+        // ignore: avoid_print
+        //print(head.outerHtml);
+        //print(head2.outerHtml);
+        expect(head.children.length, 0);
+        expect(head2.children.length, 5);
+        //expect(head.innerHtml, head2.innerHtml);
+      } else {
+        // ignore: avoid_print
+
+        expect(head.innerHtml, head2.innerHtml);
+      }
+    });
+    test('amp boilerplate', () async {
+      // ignore: unused_local_variable
+      var boilerplateElements = htmlProvider.createElementsHtml(
+        yachtAmpBoilerplate,
+      );
+      expect(boilerplateElements.length, 5);
+      var boilerplateNodes = htmlProvider.createNodesHtml(yachtAmpBoilerplate);
+      expect(boilerplateNodes.length, 8);
     });
   });
 }
