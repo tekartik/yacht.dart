@@ -1,0 +1,42 @@
+name: tekartik_yacht
+version: 0.4.1
+description: Yet another css/html transformer
+environment:
+  sdk: ^3.6.0
+publish_to: none
+
+dependencies:
+  build: any
+  # '>=0.9.3'
+  csslib: '>=0.13.6'
+  html: ">0.14.0"
+  fs_shim: ">=2.3.3+1"
+  tekartik_common_utils:
+    git:
+      url: https://github.com/tekartik/common_utils.dart
+      ref: dart3a
+    version: '>=0.9.3'
+  markdown: any
+  quiver: any
+  path: ">=1.9.0"
+  args: ">=2.6.0"
+  pub_semver: ">=2.1.4"
+  source_span: ">=1.10.0"
+  collection: ">=1.18.0"
+
+  tekartik_html:
+    git:
+      url: https://github.com/tekartik/html.dart
+      ref: dart3a
+dev_dependencies:
+#  sass_builder: any
+#  build_runner: any
+  test: ">=1.24.0"
+  dev_test: ">=1.0.0+4"
+  dev_build: ">=1.1.2"
+  process_run: ">=1.2.1+1"
+  build_runner: ">=2.4.13"
+  build_test: '>=0.10.2'
+
+#dependency_overrides:
+  # build: '>=0.9.3'
