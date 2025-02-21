@@ -20,7 +20,7 @@ List<String> voidTags = [
   'param',
   'source',
   'track',
-  'wbr'
+  'wbr',
 ];
 
 // source https://developer.mozilla.org/en/docs/Web/HTML/Inline_elemente
@@ -56,13 +56,13 @@ List<String> inlineTags = [
   'input',
   'label',
   'select',
-  'textarea'
+  'textarea',
 ];
 
 List<String> innerInlineTags = [
   'meta', 'title', 'link', // for head
   'h1', 'h2', 'h3', 'h4', 'h5', 'h6', // for title
-  ...inlineTags
+  ...inlineTags,
 ];
 
 // private definition

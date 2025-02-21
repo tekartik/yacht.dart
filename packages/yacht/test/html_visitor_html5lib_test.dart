@@ -132,7 +132,8 @@ void main() {
 
       test('document_html_basic', () async {
         var document = Document.html(
-            '<!DOCTYPE html><html><head></head><body></body></html>');
+          '<!DOCTYPE html><html><head></head><body></body></html>',
+        );
         var builder = HtmlDocumentNodeLinesPrinter();
         builder.visitDocument(document);
         expect(builder.lines, hasLength(3));
@@ -148,7 +149,8 @@ void main() {
       test('document_html_basic_new_line', () async {
         // somehow the last new line was get converted to body...
         var document = Document.html(
-            '<!DOCTYPE html><html><head></head><body></body></html>\n');
+          '<!DOCTYPE html><html><head></head><body></body></html>\n',
+        );
         var builder = HtmlDocumentNodeLinesPrinter();
         builder.visitDocument(document);
         //print(builder.lines);
@@ -168,7 +170,8 @@ void main() {
       test('document_html_tag_in_head', () async {
         // somehow the tag in head is moved to body
         var document = Document.html(
-            '<!DOCTYPE html><html><head><my-tag></my-tag></head><body></body></html>\n');
+          '<!DOCTYPE html><html><head><my-tag></my-tag></head><body></body></html>\n',
+        );
         var builder = HtmlDocumentNodeLinesPrinter();
         builder.visitDocument(document);
         //print(builder.lines);

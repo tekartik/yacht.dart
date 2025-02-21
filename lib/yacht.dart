@@ -1,5 +1,4 @@
 @Deprecated('Use tekartik_yacht')
 library;
 
-export 'src/html_printer_html5lib.dart' show htmlPrintDocument;
-export 'src/yacht.dart' show HtmlProviderYachtExt;
+export 'package:tekartik_yacht/yacht_html5lib.dart';

@@ -2,7 +2,7 @@ name: yacht
 version: 0.4.1
 description: Yet another css/html transformer
 environment:
-  sdk: ^3.6.0
+  sdk: ^3.7.0
 publish_to: none
 
 dependencies:
@@ -28,6 +28,11 @@ dependencies:
     git:
       url: https://github.com/tekartik/html.dart
       ref: dart3a
+  tekartik_yacht:
+    git:
+      url: https://github.com/tekartik/yacht.dart
+      ref: dart3a
+      path: packages/yacht
 dev_dependencies:
 #  sass_builder: any
 #  build_runner: any

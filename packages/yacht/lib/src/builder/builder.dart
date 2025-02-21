@@ -52,7 +52,7 @@ abstract class TransformBuilder implements build.Builder, common.Transformer {
   Future build(BuildStep buildStep) =>
       Future.sync(() => run(BuildStepTransform.wrap(buildStep)));
 
-/*
+  /*
   @override
   apply(brbck.Transform transform) => run(new BarbackTransform.wrap(transform));
 
@@ -84,7 +84,9 @@ class BarbackDeclaringTransform extends BarbackPrimaryTransform
 */
 
 /// Used in transformers
-class BuildStepTransform implements Transform //extends BarbackPrimaryTransform
+class BuildStepTransform
+    implements
+        Transform //extends BarbackPrimaryTransform
 //  implements common.Transform
 {
   build.BuildStep buildStep;
@@ -92,10 +94,16 @@ class BuildStepTransform implements Transform //extends BarbackPrimaryTransform
   BuildStepTransform.wrap(this.buildStep);
 
   @override
-  void addOutputFromString(common.AssetId assetId, String content,
-      {Encoding? encoding = utf8}) {
-    buildStep.writeAsString(_unwrapAssetId(assetId)!, content,
-        encoding: encoding!);
+  void addOutputFromString(
+    common.AssetId assetId,
+    String content, {
+    Encoding? encoding = utf8,
+  }) {
+    buildStep.writeAsString(
+      _unwrapAssetId(assetId)!,
+      content,
+      encoding: encoding!,
+    );
   }
 
   @override
@@ -115,15 +123,18 @@ class BuildStepTransform implements Transform //extends BarbackPrimaryTransform
   @override
   common.AssetId newAssetId(common.AssetId assetId, String path) {
     return _wrapAssetId(
-        build.AssetId.resolve(Uri.parse(path), from: _unwrapAssetId(assetId)));
+      build.AssetId.resolve(Uri.parse(path), from: _unwrapAssetId(assetId)),
+    );
   }
 
   @override
   common.AssetId get primaryId => _wrapAssetId(buildStep.inputId);
 
   @override
-  Future<String> readInputAsString(common.AssetId id,
-      {Encoding? encoding = utf8}) {
+  Future<String> readInputAsString(
+    common.AssetId id, {
+    Encoding? encoding = utf8,
+  }) {
     return buildStep.readAsString(_unwrapAssetId(id)!, encoding: encoding!);
   }
 
@@ -139,30 +150,42 @@ class BuildTransformLogger implements TransformLogger {
   // BuildTransformLogger();
 
   @override
-  void info(String message,
-          {common.AssetId? asset, source_span.SourceSpan? span}) =>
-      //_impl.info(message, asset: asset, span: span);
-      // ignore: avoid_print
-      print('INFO: $message');
+  void info(
+    String message, {
+    common.AssetId? asset,
+    source_span.SourceSpan? span,
+  }) =>
+  //_impl.info(message, asset: asset, span: span);
+  // ignore: avoid_print
+  print('INFO: $message');
 
   @override
-  void fine(String message,
-          {common.AssetId? asset, source_span.SourceSpan? span}) =>
-      //_impl.fine(message, asset: asset, span: span);
-      // ignore: avoid_print
-      print('FINE: $message');
+  void fine(
+    String message, {
+    common.AssetId? asset,
+    source_span.SourceSpan? span,
+  }) =>
+  //_impl.fine(message, asset: asset, span: span);
+  // ignore: avoid_print
+  print('FINE: $message');
 
   @override
-  void warning(String message,
-          {common.AssetId? asset, source_span.SourceSpan? span}) =>
-      //_impl.warning(message, asset: asset, span: span);
-      // ignore: avoid_print
-      print('WARN: $message');
+  void warning(
+    String message, {
+    common.AssetId? asset,
+    source_span.SourceSpan? span,
+  }) =>
+  //_impl.warning(message, asset: asset, span: span);
+  // ignore: avoid_print
+  print('WARN: $message');
 
   @override
-  void error(String message,
-          {common.AssetId? asset, source_span.SourceSpan? span}) =>
-      //_impl.error(message, asset: asset, span: span);
-      // ignore: avoid_print
-      print('ERR: $message');
+  void error(
+    String message, {
+    common.AssetId? asset,
+    source_span.SourceSpan? span,
+  }) =>
+  //_impl.error(message, asset: asset, span: span);
+  // ignore: avoid_print
+  print('ERR: $message');
 }

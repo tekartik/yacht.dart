@@ -55,10 +55,12 @@ void groupVisitor(HtmlProvider htmlProvider) {
       });
 
       test('element with children', () {
-        var element1 =
-            htmlProvider.createElementHtml('<ul><li></li><li></li></ul>');
-        var element2 =
-            htmlProvider.createElementHtml('<ul>\n<li></li>\n<li></li>\n</ul>');
+        var element1 = htmlProvider.createElementHtml(
+          '<ul><li></li><li></li></ul>',
+        );
+        var element2 = htmlProvider.createElementHtml(
+          '<ul>\n<li></li>\n<li></li>\n</ul>',
+        );
         var builder = HtmlElementNodeLinesBuilder();
         builder.visitElement(element1);
         builder = HtmlElementNodeLinesBuilder();
@@ -101,8 +103,9 @@ void groupVisitor(HtmlProvider htmlProvider) {
 
       // NO
       test('parse_element_with_html_text_node', () {
-        var element =
-            htmlProvider.createElementHtml('<div>&lt;a&gt;&lt;/a&gt;</div>');
+        var element = htmlProvider.createElementHtml(
+          '<div>&lt;a&gt;&lt;/a&gt;</div>',
+        );
         expect(element.textContent, '<a></a>');
         expect(element.childNodes.first.textContent, '<a></a>');
         expect(element.innerHtml, '&lt;a&gt;&lt;/a&gt;');
@@ -112,8 +115,9 @@ void groupVisitor(HtmlProvider htmlProvider) {
       });
 
       test('element_with_head', () async {
-        var element =
-            htmlProvider.createElementHtml('<div><head>link</head></div>');
+        var element = htmlProvider.createElementHtml(
+          '<div><head>link</head></div>',
+        );
         var builder = HtmlElementNodeLinesBuilder();
         builder.visitElement(element);
         expect(builder.lines, hasLength(2));
@@ -127,8 +131,9 @@ void groupVisitor(HtmlProvider htmlProvider) {
       test('head_element', () async {
         // The first meta is recognized
         // Remaining is ignored
-        var element = htmlProvider
-            .createElementHtml('<head><meta><div></div><meta></head>');
+        var element = htmlProvider.createElementHtml(
+          '<head><meta><div></div><meta></head>',
+        );
         var builder = HtmlElementNodeLinesBuilder();
         builder.visitElement(element);
         var node = builder.lines[0].node as Element;
@@ -183,7 +188,8 @@ void groupVisitor(HtmlProvider htmlProvider) {
 
       test('document_html_basic', () async {
         var document = htmlProvider.createDocument(
-            html: '<!DOCTYPE html><html><head></head><body></body></html>');
+          html: '<!DOCTYPE html><html><head></head><body></body></html>',
+        );
         var builder = HtmlDocumentNodeLinesPrinter();
         builder.visitDocument(document);
         // builder.debugDump();
@@ -214,7 +220,8 @@ void groupVisitor(HtmlProvider htmlProvider) {
       test('document_html_basic_new_line', () async {
         // somehow the last new line was get converted to body...
         var document = htmlProvider.createDocument(
-            html: '<!DOCTYPE html><html><head></head><body></body></html>\n');
+          html: '<!DOCTYPE html><html><head></head><body></body></html>\n',
+        );
         var builder = HtmlDocumentNodeLinesPrinter();
         builder.visitDocument(document);
         // print(builder.lines);
@@ -257,8 +264,9 @@ void groupVisitor(HtmlProvider htmlProvider) {
       test('document_html_tag_in_head', () async {
         // somehow the tag in head is moved to body
         var document = htmlProvider.createDocument(
-            html:
-                '<!DOCTYPE html><html><head><my-tag></my-tag></head><body></body></html>\n');
+          html:
+              '<!DOCTYPE html><html><head><my-tag></my-tag></head><body></body></html>\n',
+        );
         var builder = HtmlDocumentNodeLinesPrinter();
         builder.visitDocument(document);
         //builder.debugDump();

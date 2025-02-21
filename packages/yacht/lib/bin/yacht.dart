@@ -22,8 +22,12 @@ Future main(List<String> args) async {
   parser.addFlag(argDryRunFlag, abbr: 'd', help: 'Don\'t execute the command');
   addHelp(parser);
   parser.addFlag(argVersionFlag, help: 'Version', negatable: false);
-  parser.addFlag(argVerboseFlag,
-      abbr: 'v', help: 'verbose output', negatable: false);
+  parser.addFlag(
+    argVerboseFlag,
+    abbr: 'v',
+    help: 'verbose output',
+    negatable: false,
+  );
 
   var result = parser.parse(args);
 

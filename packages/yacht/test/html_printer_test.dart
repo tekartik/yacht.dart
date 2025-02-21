@@ -19,14 +19,14 @@ HtmlLines minHtmlLines1 = htmlLines([
   [0, '<html>'],
   [1, '<head></head>'],
   [1, '<body></body>'],
-  [0, '</html>']
+  [0, '</html>'],
 ]);
 
 HtmlLines minHtmlLines = htmlLines([
   [0, '<html>'],
   [1, '<head><meta charset="utf-8"><title></title></head>'],
   [1, '<body></body>'],
-  [0, '</html>']
+  [0, '</html>'],
 ]);
 // Allow for [0,'<a>'] or ['</a>'] or '<a>'
 void _addItem(HtmlLines lines, dynamic item) {
@@ -62,8 +62,10 @@ HtmlLines htmlMultiHtmlLines(List data) {
 }
 
 extension HtmlProviderPrinterExt on HtmlProvider {
-  HtmlLines htmlLinesFromElementHtml(String html,
-      {HtmlPrinterOptions? options}) {
+  HtmlLines htmlLinesFromElementHtml(
+    String html, {
+    HtmlPrinterOptions? options,
+  }) {
     var element = createElementHtml(html);
     //print(element.outerHtml');
     var printer = HtmlElementPrinterCommon();
@@ -110,13 +112,18 @@ void groupPrinter(HtmlProvider htmlProvider) {
     if (contentLength != null) {
       options.contentLength = contentLength;
     }
-    expect(htmlProvider.htmlLinesFromElementHtml(html, options: options), lines,
-        reason: 'html: \'$html\'');
+    expect(
+      htmlProvider.htmlLinesFromElementHtml(html, options: options),
+      lines,
+      reason: 'html: \'$html\'',
+    );
     // reconvert result to be sure
     var outHtml = htmlPrintLines(lines, options: options);
     expect(
-        htmlProvider.htmlLinesFromElementHtml(outHtml, options: options), lines,
-        reason: 'outhtml: $outHtml\n/\n $html');
+      htmlProvider.htmlLinesFromElementHtml(outHtml, options: options),
+      lines,
+      reason: 'outhtml: $outHtml\n/\n $html',
+    );
   }
 
   group('html_line', () {
@@ -144,7 +151,7 @@ void groupPrinter(HtmlProvider htmlProvider) {
     test('build', () {
       var lines = htmlLines([
         [0, 'test'],
-        [1, 'sub']
+        [1, 'sub'],
       ]);
       expect(lines[0], htmlLine(0, 'test'));
       expect(lines[1], htmlLine(1, 'sub'));
@@ -152,7 +159,7 @@ void groupPrinter(HtmlProvider htmlProvider) {
     });
     test('equals', () {
       var lines1 = htmlLines([
-        [0, 'test']
+        [0, 'test'],
       ]);
 
       var lines2 = htmlLines([0, 'test']);
@@ -162,23 +169,26 @@ void groupPrinter(HtmlProvider htmlProvider) {
       expect(lines1, htmlLines('test'));
       expect(lines1, htmlLines(['test']));
       expect(
-          lines1,
-          htmlLines([
-            ['test']
-          ]));
+        lines1,
+        htmlLines([
+          ['test'],
+        ]),
+      );
       expect(
-          lines1,
-          htmlLines([
-            [0, 'test']
-          ]));
+        lines1,
+        htmlLines([
+          [0, 'test'],
+        ]),
+      );
       expect(lines1, htmlLines([0, 'test']));
 
       expect(
-          lines1,
-          htmlLines([
-            0,
-            ['test']
-          ]));
+        lines1,
+        htmlLines([
+          0,
+          ['test'],
+        ]),
+      );
     });
   });
 
@@ -236,8 +246,9 @@ void groupPrinter(HtmlProvider htmlProvider) {
         //print(_);
         //print(_.runtimeType);
       }
-      var element =
-          htmlProvider.createElementHtml('<div>&lt;a&gt;&lt;/a&gt;</div>');
+      var element = htmlProvider.createElementHtml(
+        '<div>&lt;a&gt;&lt;/a&gt;</div>',
+      );
       expect(element.outerHtml, '<div>&lt;a&gt;&lt;/a&gt;</div>');
       expect(element.text, '<a></a>');
       var printer = HtmlElementPrinterCommon();
@@ -252,19 +263,21 @@ void groupPrinter(HtmlProvider htmlProvider) {
       checkHtmlElement('<a>  link</a>', htmlLines('<a> link</a>'));
       checkHtmlElement('<a>link </a>', htmlLines('<a>link </a>'));
       checkHtmlElement(
-          '<a> link </a>',
-          htmlLines([
-            '<a>',
-            [1, 'link'],
-            '</a>'
-          ]));
+        '<a> link </a>',
+        htmlLines([
+          '<a>',
+          [1, 'link'],
+          '</a>',
+        ]),
+      );
       checkHtmlElement(
-          '<a>\rlink\n</a>',
-          htmlLines([
-            '<a>',
-            [1, 'link'],
-            '</a>'
-          ]));
+        '<a>\rlink\n</a>',
+        htmlLines([
+          '<a>',
+          [1, 'link'],
+          '</a>',
+        ]),
+      );
       checkHtmlElement('<a>\n</a>', htmlLines(['<a>', '</a>']));
     });
 
@@ -280,26 +293,35 @@ void groupPrinter(HtmlProvider htmlProvider) {
 
     test('element_sub', () async {
       checkHtmlElement(
-          '<a><span></span></a>', htmlLines('<a><span></span></a>'));
+        '<a><span></span></a>',
+        htmlLines('<a><span></span></a>'),
+      );
       checkHtmlElement(
-          '<div><span></span></div>', htmlLines('<div><span></span></div>'));
+        '<div><span></span></div>',
+        htmlLines('<div><span></span></div>'),
+      );
       checkHtmlElement(
-          '<div><div></div></div>', htmlLines('<div><div></div></div>'));
-      checkHtmlElement('<div><div>text</div></div>',
-          htmlLines('<div><div>text</div></div>'));
+        '<div><div></div></div>',
+        htmlLines('<div><div></div></div>'),
+      );
+      checkHtmlElement(
+        '<div><div>text</div></div>',
+        htmlLines('<div><div>text</div></div>'),
+      );
     });
 
     test('style_element_with_empty_lines', () async {
       checkHtmlElement(
-          '<style>body {\n\r\tmargin: 0;\n}</style>',
-          htmlLines([
-            '<style>',
-            [
-              1,
-              ['body {', '\tmargin: 0;', '}']
-            ],
-            '</style>'
-          ]));
+        '<style>body {\n\r\tmargin: 0;\n}</style>',
+        htmlLines([
+          '<style>',
+          [
+            1,
+            ['body {', '\tmargin: 0;', '}'],
+          ],
+          '</style>',
+        ]),
+      );
     });
 
     test('style_empty', () async {
@@ -316,41 +338,55 @@ void groupPrinter(HtmlProvider htmlProvider) {
 
     test('style_linefeed_and_spaces', () {
       checkHtmlElement(
-          '<style>\n \n</style>', htmlLines(['<style>', '</style>']));
+        '<style>\n \n</style>',
+        htmlLines(['<style>', '</style>']),
+      );
     });
 
     test('style_multi_spaces', () async {
       checkHtmlElement(
-          '<style>\r \r</style>', htmlLines(['<style>', '</style>']));
+        '<style>\r \r</style>',
+        htmlLines(['<style>', '</style>']),
+      );
     });
 
     test('style_element_single_line', () {
       // from amp
-      checkHtmlElement('<style>body {opacity: 0}</style>',
-          htmlLines(['<style>body {opacity: 0}</style>']));
+      checkHtmlElement(
+        '<style>body {opacity: 0}</style>',
+        htmlLines(['<style>body {opacity: 0}</style>']),
+      );
     });
 
     test('style_no_escape', () {
       // from amp
-      checkHtmlElement('<style>div>a{color:red}</style>',
-          htmlLines(['<style>div>a{color:red}</style>']));
+      checkHtmlElement(
+        '<style>div>a{color:red}</style>',
+        htmlLines(['<style>div>a{color:red}</style>']),
+      );
     });
 
     test('script_no_escape', () {
       // from amp
-      checkHtmlElement('<script>if (2 > 1) print("hi");</script>',
-          htmlLines(['<script>if (2 > 1) print("hi");</script>']));
+      checkHtmlElement(
+        '<script>if (2 > 1) print("hi");</script>',
+        htmlLines(['<script>if (2 > 1) print("hi");</script>']),
+      );
     });
 
     test('style_element_with_line_feed', () {
       checkHtmlElement('<style>\n</style>', htmlLines(['<style>', '</style>']));
       checkHtmlElement(
-          '<style>\n\n</style>', htmlLines(['<style>', '</style>']));
+        '<style>\n\n</style>',
+        htmlLines(['<style>', '</style>']),
+      );
     });
 
     test('title_element', () {
       checkHtmlElement(
-          '<title>some  text</title>', htmlLines(['<title>some text</title>']));
+        '<title>some  text</title>',
+        htmlLines(['<title>some text</title>']),
+      );
     });
 
     test('input_element', () {
@@ -359,57 +395,66 @@ void groupPrinter(HtmlProvider htmlProvider) {
 
     test('paragraph_long', () {
       checkHtmlElement(
-          '<p>0123456789 012345678 012345678910 0123456 789 12345\n</p>',
-          htmlLines([
-            '<p>0123456789',
-            [
-              1,
-              ['012345678', '012345678910', '0123456', '789 12345 </p>']
-            ]
-          ]),
-          10);
+        '<p>0123456789 012345678 012345678910 0123456 789 12345\n</p>',
+        htmlLines([
+          '<p>0123456789',
+          [
+            1,
+            ['012345678', '012345678910', '0123456', '789 12345 </p>'],
+          ],
+        ]),
+        10,
+      );
     });
 
     test('paragraph_long_2', () {
       checkHtmlElement('<p>0123456789</p>', htmlLines('<p>0123456789</p>'), 10);
       checkHtmlElement(
-          '<p>\n0123456789</p>',
-          htmlLines([
-            '<p>',
-            [1, '0123456789</p>']
-          ]),
-          10);
+        '<p>\n0123456789</p>',
+        htmlLines([
+          '<p>',
+          [1, '0123456789</p>'],
+        ]),
+        10,
+      );
       checkHtmlElement(
-          '<p>0123456789\n</p>', htmlLines(['<p>0123456789 </p>']), 10);
+        '<p>0123456789\n</p>',
+        htmlLines(['<p>0123456789 </p>']),
+        10,
+      );
       checkHtmlElement(
-          '<p> 0123456789\n</p>',
-          htmlLines([
-            '<p>',
-            [1, '0123456789'],
-            '</p>'
-          ]),
-          10);
+        '<p> 0123456789\n</p>',
+        htmlLines([
+          '<p>',
+          [1, '0123456789'],
+          '</p>',
+        ]),
+        10,
+      );
       checkHtmlElement(
-          '<p>0123456 789</p>',
-          htmlLines([
-            '<p>0123456',
-            [1, '789</p>']
-          ]),
-          10);
+        '<p>0123456 789</p>',
+        htmlLines([
+          '<p>0123456',
+          [1, '789</p>'],
+        ]),
+        10,
+      );
       checkHtmlElement(
-          '<p>012 345 678</p>',
-          htmlLines([
-            '<p>012 345',
-            [1, '678</p>']
-          ]),
-          10);
+        '<p>012 345 678</p>',
+        htmlLines([
+          '<p>012 345',
+          [1, '678</p>'],
+        ]),
+        10,
+      );
       checkHtmlElement(
-          '<p>012 3456 78</p>',
-          htmlLines([
-            '<p>012',
-            [1, '3456 78</p>']
-          ]),
-          10);
+        '<p>012 3456 78</p>',
+        htmlLines([
+          '<p>012',
+          [1, '3456 78</p>'],
+        ]),
+        10,
+      );
     });
 
     test('paragraph', () {
@@ -417,101 +462,121 @@ void groupPrinter(HtmlProvider htmlProvider) {
     });
 
     test('paragraph_with_span', () {
-      checkHtmlElement('<p>some <span>text</span></p>',
-          htmlLines(['<p>some <span>text</span></p>']));
-      checkHtmlElement('<p>some <span>text\n</span></p>',
-          htmlLines(['<p>some <span>text </span></p>']));
-      checkHtmlElement('<p>some <span>text</span>\n</p>',
-          htmlLines(['<p>some <span>text</span>', '</p>']));
       checkHtmlElement(
-          '<p>\nsome <span>text</span>\n</p>',
-          htmlLines([
-            '<p>',
-            [1, 'some <span>text</span>'],
-            '</p>'
-          ]));
+        '<p>some <span>text</span></p>',
+        htmlLines(['<p>some <span>text</span></p>']),
+      );
+      checkHtmlElement(
+        '<p>some <span>text\n</span></p>',
+        htmlLines(['<p>some <span>text </span></p>']),
+      );
+      checkHtmlElement(
+        '<p>some <span>text</span>\n</p>',
+        htmlLines(['<p>some <span>text</span>', '</p>']),
+      );
+      checkHtmlElement(
+        '<p>\nsome <span>text</span>\n</p>',
+        htmlLines([
+          '<p>',
+          [1, 'some <span>text</span>'],
+          '</p>',
+        ]),
+      );
     });
 
     test('div', () {
       checkHtmlElement(
-          '<div>some  text\r</div>', htmlLines(['<div>some text </div>']));
+        '<div>some  text\r</div>',
+        htmlLines(['<div>some text </div>']),
+      );
     });
 
     test('div_inner_html', () {
-      checkHtmlElement('<div>&lt;link rel=prerender&gt</div>',
-          htmlLines(['<div>&lt;link rel=prerender&gt;</div>']));
+      checkHtmlElement(
+        '<div>&lt;link rel=prerender&gt</div>',
+        htmlLines(['<div>&lt;link rel=prerender&gt;</div>']),
+      );
     });
 
     test('code', () {
-      checkHtmlElement('<code>&lt;link rel=prerender&gt</code>',
-          htmlLines(['<code>&lt;link rel=prerender&gt;</code>']));
+      checkHtmlElement(
+        '<code>&lt;link rel=prerender&gt</code>',
+        htmlLines(['<code>&lt;link rel=prerender&gt;</code>']),
+      );
     });
 
     test('pre', () {
-      checkHtmlElement('<pre>&lt;link rel=prerender&gt</pre>',
-          htmlLines(['<pre>&lt;link rel=prerender&gt;</pre>']));
+      checkHtmlElement(
+        '<pre>&lt;link rel=prerender&gt</pre>',
+        htmlLines(['<pre>&lt;link rel=prerender&gt;</pre>']),
+      );
     });
 
     test('noscript', () {
       checkHtmlElement(
-          '<noscript><style>body { color: red; }</style></noscript>',
-          htmlLines(
-              ['<noscript><style>body { color: red; }</style></noscript>']));
+        '<noscript><style>body { color: red; }</style></noscript>',
+        htmlLines(['<noscript><style>body { color: red; }</style></noscript>']),
+      );
     });
 
     test('two_elements_no_break', () {
       checkHtmlElement(
-          '<div>\n<style></style><noscript></noscript>\n</div>',
-          htmlLines([
-            '<div>',
-            [1, '<style></style><noscript></noscript>'],
-            '</div>'
-          ]));
+        '<div>\n<style></style><noscript></noscript>\n</div>',
+        htmlLines([
+          '<div>',
+          [1, '<style></style><noscript></noscript>'],
+          '</div>',
+        ]),
+      );
     });
 
     test('two_elements_with_break', () {
       checkHtmlElement(
-          '<div>\n<style></style>\n<noscript></noscript>\n</div>',
-          htmlLines([
-            '<div>',
-            [
-              1,
-              ['<style></style>', '<noscript></noscript>']
-            ],
-            '</div>'
-          ]));
+        '<div>\n<style></style>\n<noscript></noscript>\n</div>',
+        htmlLines([
+          '<div>',
+          [
+            1,
+            ['<style></style>', '<noscript></noscript>'],
+          ],
+          '</div>',
+        ]),
+      );
     });
     test('two_elements_with_break', () {
       checkHtmlElement(
-          '<div>\n<style></style> \n <noscript></noscript>\n</div>',
-          htmlLines([
-            '<div>',
-            [
-              1,
-              ['<style></style>', '<noscript></noscript>']
-            ],
-            '</div>'
-          ]));
+        '<div>\n<style></style> \n <noscript></noscript>\n</div>',
+        htmlLines([
+          '<div>',
+          [
+            1,
+            ['<style></style>', '<noscript></noscript>'],
+          ],
+          '</div>',
+        ]),
+      );
     });
 
     test('element_base_debug', () async {
       if (htmlProvider is HtmlProviderWeb) {
         // copy the test here and make it solo
         checkHtmlElement(
-            '<head>\n<meta charset="utf-8">\n<title>Included Title</title>  </head>',
-            htmlLines(['<meta charset="utf-8">']));
+          '<head>\n<meta charset="utf-8">\n<title>Included Title</title>  </head>',
+          htmlLines(['<meta charset="utf-8">']),
+        );
       } else {
         // copy the test here and make it solo
         checkHtmlElement(
-            '<head>\n<meta charset="utf-8">\n<title>Included Title</title>  </head>',
-            htmlLines([
-              '<head>',
-              [
-                1,
-                ['<meta charset="utf-8">', '<title>Included Title</title>']
-              ],
-              '</head>'
-            ]));
+          '<head>\n<meta charset="utf-8">\n<title>Included Title</title>  </head>',
+          htmlLines([
+            '<head>',
+            [
+              1,
+              ['<meta charset="utf-8">', '<title>Included Title</title>'],
+            ],
+            '</head>',
+          ]),
+        );
       }
     });
 
@@ -551,7 +616,8 @@ void groupPrinter(HtmlProvider htmlProvider) {
 
     test('document_html_basic', () async {
       var document = htmlProvider.createDocument(
-          html: '<!DOCTYPE html><html><head></head><body></body></html>');
+        html: '<!DOCTYPE html><html><head></head><body></body></html>',
+      );
 
       //print(document.outerHtml);
       var builder = HtmlDocumentPrinterCommon();
@@ -562,8 +628,9 @@ void groupPrinter(HtmlProvider htmlProvider) {
 
     test('document_html_tag_in_head', () async {
       var document = htmlProvider.createDocument(
-          html:
-              '<!DOCTYPE html><html><head><my-tag></my-tag></head><body></body></html>');
+        html:
+            '<!DOCTYPE html><html><head><my-tag></my-tag></head><body></body></html>',
+      );
 
       // my-tag move to body!
       expect(document.head.querySelector('my-tag'), isNull);
@@ -580,11 +647,17 @@ void groupPrinter(HtmlProvider htmlProvider) {
     test('htmlPrintLines', () {
       expect(htmlPrintLines(htmlLines([])), '$htmlDoctype\n');
       expect(
-          htmlPrintLines(htmlLines([0, '<html/>'])), '$htmlDoctype\n<html/>\n');
+        htmlPrintLines(htmlLines([0, '<html/>'])),
+        '$htmlDoctype\n<html/>\n',
+      );
       expect(
-          htmlPrintLines(htmlLines([1, '<html/>'])), '$htmlDoctype\n<html/>\n');
-      expect(htmlPrintLines(htmlLines([2, '<html/>'])),
-          '$htmlDoctype\n  <html/>\n');
+        htmlPrintLines(htmlLines([1, '<html/>'])),
+        '$htmlDoctype\n<html/>\n',
+      );
+      expect(
+        htmlPrintLines(htmlLines([2, '<html/>'])),
+        '$htmlDoctype\n  <html/>\n',
+      );
     });
 
     test('htmlPrintDocument', () async {
@@ -592,12 +665,13 @@ void groupPrinter(HtmlProvider htmlProvider) {
       //expect(htmlPrintDocument(document), '$htmlDoctype\n');
       //document = htmlProvider.createDocument(html: '');
       expect(
-          htmlPrintDocument(document),
-          '<!doctype html>\n'
-          '<html>\n'
-          '<head><meta charset="utf-8"><title></title></head>\n'
-          '<body></body>\n'
-          '</html>\n');
+        htmlPrintDocument(document),
+        '<!doctype html>\n'
+        '<html>\n'
+        '<head><meta charset="utf-8"><title></title></head>\n'
+        '<body></body>\n'
+        '</html>\n',
+      );
 
       //'${htmlDoctype}\n<html>\n<head></head>\n<body></body>\n</html>');
       //document = new htmlProvider.createDocument('<!DOCTYPE html><html><head></head><body></body></html>\n');
@@ -614,7 +688,8 @@ void groupPrinter(HtmlProvider htmlProvider) {
 
     test('htmlPrintDocument_min', () async {
       var document = htmlProvider.createDocument(
-          html: '<!DOCTYPE html><html><head></head><body></body></html>\n');
+        html: '<!DOCTYPE html><html><head></head><body></body></html>\n',
+      );
       expect(htmlPrintDocument(document), minHtml);
     }, skip: true);
   });

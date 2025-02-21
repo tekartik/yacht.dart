@@ -20,7 +20,6 @@ class MemoryAssetId implements AssetId {
   MemoryAssetId(this.package, this.path);
 
   @override
-
   /// Returns a new [AssetId] with the same [package] and [path] as this one
   /// but with file extension [newExtension].
   AssetId changeExtension(String newExtension) =>
@@ -181,7 +180,7 @@ class StringTransform extends StringConsumableTransform implements Transform {
 
   // only string supported for now
   StringTransform(StringAsset asset, StringAssets inputAssets)
-      : super(asset.id) {
+    : super(asset.id) {
     inputAssets.forEach((id, asset) {
       assets[id] = asset;
     });

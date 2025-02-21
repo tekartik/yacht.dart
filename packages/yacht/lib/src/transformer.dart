@@ -253,8 +253,11 @@ abstract class Transform extends ConsumableTransform {
   Future<String?> readPrimaryAsString({Encoding? encoding});
 
   // add the content in a given asset
-  void addOutputFromString(AssetId assetId, String content,
-      {Encoding? encoding});
+  void addOutputFromString(
+    AssetId assetId,
+    String content, {
+    Encoding? encoding,
+  });
 
   //@deprecated
   //Asset get primaryInput;
@@ -403,8 +406,13 @@ class LogLevel {
   String toString() => name;
 }
 
-typedef LogFunction = void Function(
-    AssetId asset, LogLevel level, String message, source_span.SourceSpan span);
+typedef LogFunction =
+    void Function(
+      AssetId asset,
+      LogLevel level,
+      String message,
+      source_span.SourceSpan span,
+    );
 
 /// Object used to report warnings and errors encountered while running a
 /// transformer.

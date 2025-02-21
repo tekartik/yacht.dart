@@ -1,2 +1,4 @@
-export 'src/html_printer_common.dart' show htmlPrintDocument;
-export 'src/yacht.dart' show HtmlProviderYachtExt;
+@Deprecated('Use tekartik_yacht')
+library;
+
+export 'package:tekartik_yacht/yacht.dart';

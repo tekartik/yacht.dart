@@ -21,9 +21,7 @@ void _log(Object? message) {
 
 /// Printer options
 class HtmlPrinterOptions {
-  HtmlPrinterOptions({
-    this.isWindows = false,
-  });
+  HtmlPrinterOptions({this.isWindows = false});
 
   bool isWindows; // CRLF ending
   /// start for index min

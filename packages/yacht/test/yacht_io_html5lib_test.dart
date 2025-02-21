@@ -12,7 +12,9 @@ void main() {
     test('tidyHtml', () async {
       var dstFilePath = '.dart_tool/yacht/test/yacht_io/min.html';
       await tidyHtml(
-          srcFilePath: 'test/data/yacht_io/min.html', dstFilePath: dstFilePath);
+        srcFilePath: 'test/data/yacht_io/min.html',
+        dstFilePath: dstFilePath,
+      );
       expect(await File(dstFilePath).readAsString(), '''
 <!doctype html>
 <html>

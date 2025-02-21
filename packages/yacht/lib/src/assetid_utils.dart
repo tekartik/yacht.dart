@@ -6,5 +6,6 @@ import 'package:path/path.dart';
 String normalizePath(String path) {
   // Ugly...
   return posix.normalize(
-      posix.joinAll(posix.split(posix.joinAll(windows.split(path)))));
+    posix.joinAll(posix.split(posix.joinAll(windows.split(path)))),
+  );
 }

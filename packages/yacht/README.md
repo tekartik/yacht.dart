@@ -5,7 +5,6 @@
 * tidy hml (using [html](https://pub.dartlang.org/packages/html) package)
 * lightweight less/scss parser (using [csslib](https://pub.dartlang.org/packages/csslib) package)
 * script/css inlining
-* exported as transformer (using [barback](https://pub.dartlang.org/packages/barback) package)
 * pure dart
 
 [![Build Status](https://travis-ci.org/tekartik/yacht.dart.svg?branch=master)](https://travis-ci.org/tekartik/yacht.dart)
