@@ -15,8 +15,8 @@ class CssCompileResult {
   String? out;
 }
 
-// Compile the resulting css
-String compileCss(String input, {bool polyfill = true, bool pretty = true}) {
+/// Compile the resulting css (prefer polyfill = false and pretty = false
+String compileCss(String input, {bool polyfill = false, bool pretty = false}) {
   var styleSheet = compile(input, polyfill: polyfill);
   return printStyleSheet(styleSheet, pretty: pretty);
 }

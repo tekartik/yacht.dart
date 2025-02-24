@@ -1,37 +1,55 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:html/dom.dart';
-import 'package:path/path.dart';
-import 'package:tekartik_yacht/src/html_printer.dart';
+import 'package:tekartik_common_utils/env_utils.dart';
+import 'package:tekartik_html/html.dart';
+import 'package:tekartik_yacht/src/html_printer_common.dart';
+export 'html_css_inliner_html5lib.dart' show fixCssInline;
 
-Future fixCssInline(String srcHtmlFilePath, String dstHtmlFilePath) async {
-  var file = File(srcHtmlFilePath);
-  var html = await file.readAsString();
-  var doc = Document.html(html);
-  var elements = doc.querySelectorAll('.yacht-inline');
-  for (var element in elements) {
-    //element.replaceWith(otherNode)
-    if (element.localName == 'link') {
-      var cssPath = element.attributes['href'];
-      cssPath = normalize(join(dirname(srcHtmlFilePath), cssPath));
-      var css = await File(cssPath).readAsString();
-      var styleElement = Element.tag('style');
-      // Copy attributes but href, rel and type
-      element.attributes.forEach((key, value) {
-        if (key != 'href' && key != 'rel' && key != 'type' && key != 'class') {
-          styleElement.attributes[key] = value;
+typedef HtmlCssHrefInlinerFunction = Future<String?> Function(String href);
+
+/// Css inliner
+class HtmlCssInliner {
+  final HtmlCssHrefInlinerFunction inliner;
+  final HtmlProvider htmlProvider;
+
+  HtmlCssInliner({required this.htmlProvider, required this.inliner});
+  Future<String> build(String source) async {
+    var doc = htmlProvider.createDocument(html: source);
+    var elements = doc.html.queryAll(byClass: 'yacht-inline');
+    for (var element in List.of(elements)) {
+      //element.replaceWith(otherNode)
+      if (element.tagName == 'link') {
+        var cssPath = element.attributes['href'];
+        if (cssPath != null) {
+          var css = await inliner(cssPath);
+          if (css == null) {
+            if (isDebug) {
+              // ignore: avoid_print
+              print('Css not found: $cssPath');
+            }
+            continue;
+          }
+          var styleElement = htmlProvider.createElementTag('style');
+          // Copy attributes but href, rel and type
+          element.attributes.forEach((key, value) {
+            if (key != 'href' &&
+                key != 'rel' &&
+                key != 'type' &&
+                key != 'class') {
+              styleElement.attributes[key] = value;
+            }
+          });
+          if (css.contains('\n')) {
+            styleElement.text = '\n$css';
+          } else {
+            styleElement.text = css;
+          }
+          element.replaceWith(styleElement);
         }
-      });
-      if (css.contains('\n')) {
-        styleElement.text = '\n$css';
-      } else {
-        styleElement.text = css;
       }
-      element.replaceWith(styleElement);
     }
-  }
 
-  html = htmlPrintDocument(doc);
-  await File(dstHtmlFilePath).writeAsString(html);
+    var html = htmlPrintDocument(doc);
+    return html;
+  }
 }
