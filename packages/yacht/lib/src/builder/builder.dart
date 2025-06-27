@@ -155,9 +155,9 @@ class BuildTransformLogger implements TransformLogger {
     common.AssetId? asset,
     source_span.SourceSpan? span,
   }) =>
-  //_impl.info(message, asset: asset, span: span);
-  // ignore: avoid_print
-  print('INFO: $message');
+      //_impl.info(message, asset: asset, span: span);
+      // ignore: avoid_print
+      print('INFO: $message');
 
   @override
   void fine(
@@ -165,9 +165,9 @@ class BuildTransformLogger implements TransformLogger {
     common.AssetId? asset,
     source_span.SourceSpan? span,
   }) =>
-  //_impl.fine(message, asset: asset, span: span);
-  // ignore: avoid_print
-  print('FINE: $message');
+      //_impl.fine(message, asset: asset, span: span);
+      // ignore: avoid_print
+      print('FINE: $message');
 
   @override
   void warning(
@@ -175,9 +175,9 @@ class BuildTransformLogger implements TransformLogger {
     common.AssetId? asset,
     source_span.SourceSpan? span,
   }) =>
-  //_impl.warning(message, asset: asset, span: span);
-  // ignore: avoid_print
-  print('WARN: $message');
+      //_impl.warning(message, asset: asset, span: span);
+      // ignore: avoid_print
+      print('WARN: $message');
 
   @override
   void error(
@@ -185,7 +185,7 @@ class BuildTransformLogger implements TransformLogger {
     common.AssetId? asset,
     source_span.SourceSpan? span,
   }) =>
-  //_impl.error(message, asset: asset, span: span);
-  // ignore: avoid_print
-  print('ERR: $message');
+      //_impl.error(message, asset: asset, span: span);
+      // ignore: avoid_print
+      print('ERR: $message');
 }

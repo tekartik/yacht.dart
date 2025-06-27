@@ -11,12 +11,11 @@ Future<void> main(List<String> args) async {
   var body = index.body;
   body.appendChild(htmlProvider.createElementHtml('<h1>Yacht example</h1>'));
   var top = 'example';
-  var files =
-      await Directory(top)
-          .list(recursive: true)
-          .map((fse) => relative(fse.path, from: top))
-          .where((name) => extension(name) == '.html')
-          .toList();
+  var files = await Directory(top)
+      .list(recursive: true)
+      .map((fse) => relative(fse.path, from: top))
+      .where((name) => extension(name) == '.html')
+      .toList();
 
   void appUlToBody() {
     var ul = htmlProvider.createElementTag('ul');
@@ -58,13 +57,9 @@ Future<void> main(List<String> args) async {
     htmlProvider.createElementHtml('<h1>Amp Yacht example</h1>'),
   );
   var head = index.head;
-  var children =
-      htmlProvider
-          .createElementHtml(
-            '<head>$yachtAmpBoilerplate</head>',
-            noValidate: true,
-          )
-          .childNodes;
+  var children = htmlProvider
+      .createElementHtml('<head>$yachtAmpBoilerplate</head>', noValidate: true)
+      .childNodes;
   print(children);
   head.appendChild(htmlProvider.createTextNode('\n'));
   for (var child in List.of(children)) {
