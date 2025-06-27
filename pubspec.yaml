@@ -2,7 +2,7 @@ name: yacht
 version: 0.4.1
 description: Yet another css/html transformer
 environment:
-  sdk: ^3.7.0
+  sdk: ^3.8.0
 publish_to: none
 
 dependencies:
