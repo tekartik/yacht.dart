@@ -14,7 +14,6 @@ dependencies:
   tekartik_common_utils:
     git:
       url: https://github.com/tekartik/common_utils.dart
-      ref: dart3a
     version: '>=0.9.3'
   markdown: any
   quiver: any
@@ -27,11 +26,9 @@ dependencies:
   tekartik_html:
     git:
       url: https://github.com/tekartik/html.dart
-      ref: dart3a
   tekartik_yacht:
     git:
       url: https://github.com/tekartik/yacht.dart
-      ref: dart3a
       path: packages/yacht
 dev_dependencies:
 #  sass_builder: any

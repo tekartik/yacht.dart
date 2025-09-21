@@ -19,7 +19,6 @@ dependencies:
     git:
       url: https://github.com/tekartik/yacht.dart
       path: packages/yacht
-      ref: dart3a
 ...
 ```
 
