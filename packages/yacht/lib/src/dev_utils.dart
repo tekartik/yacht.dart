@@ -8,6 +8,7 @@ bool _devPrintEnabled = true;
 @Deprecated('Dev only')
 set devPrintEnabled(bool enabled) => _devPrintEnabled = enabled;
 
+/// Development print.
 @Deprecated('Dev only')
 void devPrint(Object object) {
   if (_devPrintEnabled) {
@@ -16,6 +17,7 @@ void devPrint(Object object) {
   }
 }
 
+/// Development warning.
 @Deprecated('Dev only')
 int? devWarning;
 
@@ -34,5 +36,6 @@ void _devError([String msg = '']) {
   }
 }
 
+/// Development error.
 @Deprecated('Dev only')
 void devError([String msg = '']) => _devError(msg);

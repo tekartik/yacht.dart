@@ -2,6 +2,7 @@ import 'package:tekartik_html/html.dart';
 
 import 'html_printer_common.dart';
 
+/// Yacht extension for HtmlProvider.
 extension HtmlProviderYachtExt on HtmlProvider {
   /// Tidy a file, if [dstFilePath] is ommited, original file is replaced
   String yachtTidyHtml(String src, {HtmlPrinterOptions? options}) {
@@ -11,6 +12,7 @@ extension HtmlProviderYachtExt on HtmlProvider {
   }
 }
 
+/// Yacht AMP boilerplate.
 const yachtAmpBoilerplate =
     '<meta name="viewport" content="width=device-width">\n'
     '<link rel="canonical" href="/article.html">\n'

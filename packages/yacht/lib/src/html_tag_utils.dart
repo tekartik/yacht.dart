@@ -4,6 +4,7 @@ library;
 // tags
 //
 
+/// HTML void tags.
 List<String> voidTags = [
   'area',
   'base',
@@ -24,6 +25,7 @@ List<String> voidTags = [
 ];
 
 // source https://developer.mozilla.org/en/docs/Web/HTML/Inline_elemente
+/// HTML inline tags.
 List<String> inlineTags = [
   'b',
   'big',
@@ -59,6 +61,7 @@ List<String> inlineTags = [
   'textarea',
 ];
 
+/// Tags that can be inner inline.
 List<String> innerInlineTags = [
   'meta', 'title', 'link', // for head
   'h1', 'h2', 'h3', 'h4', 'h5', 'h6', // for title
@@ -66,8 +69,10 @@ List<String> innerInlineTags = [
 ];
 
 // private definition
+/// HTML raw tags.
 List<String> rawTags = ['script', 'style'];
 
+/// Returns true if the tag is a head tag.
 bool isHeadTag(String tag) {
   switch (tag) {
     case 'meta':

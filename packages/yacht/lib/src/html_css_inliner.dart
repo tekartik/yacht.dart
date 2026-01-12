@@ -5,14 +5,21 @@ import 'package:tekartik_html/html.dart';
 import 'package:tekartik_yacht/src/html_printer_common.dart';
 export 'html_css_inliner_html5lib.dart' show fixCssInline;
 
+/// CSS href inliner function.
 typedef HtmlCssHrefInlinerFunction = Future<String?> Function(String href);
 
 /// Css inliner
 class HtmlCssInliner {
+  /// The inliner function.
   final HtmlCssHrefInlinerFunction inliner;
+
+  /// The HTML provider.
   final HtmlProvider htmlProvider;
 
+  /// Create a CSS inliner.
   HtmlCssInliner({required this.htmlProvider, required this.inliner});
+
+  /// Build the inlined HTML.
   Future<String> build(String source) async {
     var doc = htmlProvider.createDocument(html: source);
     var elements = doc.html.queryAll(byClass: 'yacht-inline');

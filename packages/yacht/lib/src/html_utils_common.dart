@@ -20,16 +20,20 @@ String getAndRemoveElementAttribute(Element element, String attribute) {
 }
 */
 
+/// Check and remove an attribute from an element.
 bool checkAndRemoveElementAttribute(Element element, String attribute) =>
     checkAndRemoveAttribute(element.attributes, attribute);
 
+/// Check and remove an attribute from a map of attributes.
 bool checkAndRemoveAttribute(Map attributes, String attribute) {
   var has = attributes.containsKey(attribute);
   attributes.remove(attribute);
   return has;
 }
 
+/// NoScript extension for HtmlProvider.
 extension HtmlProviderNoScriptExt on HtmlProvider {
+  /// Fix noscript issue.
   void noScriptFix(Element element, {bool? verbose}) {
     // Bug in current
     // noscript is interpreted as text!
@@ -56,6 +60,7 @@ extension HtmlProviderNoScriptExt on HtmlProvider {
   }
 }
 
+/// Fix noscript issue for an element.
 void noScriptFix(Element element) {
   element.htmlProvider.noScriptFix(element);
 }

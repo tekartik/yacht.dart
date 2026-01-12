@@ -10,9 +10,11 @@ import 'package:tekartik_yacht/src/transformer.dart' as common;
 export 'transformer.dart';
 */
 
+/// Builder asset id.
 class BuilderAssetId extends common.AssetId {
   build.AssetId? _impl;
 
+  /// Wrap a [build.AssetId].
   BuilderAssetId.wrap(build.AssetId assetId) {
     _impl = assetId;
   }
@@ -47,6 +49,7 @@ build.AssetId? _unwrapAssetId(common.AssetId id) {
 }
 
 // for declaration
+/// Transform builder.
 abstract class TransformBuilder implements build.Builder, common.Transformer {
   @override
   Future build(BuildStep buildStep) =>
@@ -89,8 +92,10 @@ class BuildStepTransform
         Transform //extends BarbackPrimaryTransform
 //  implements common.Transform
 {
+  /// Build step.
   build.BuildStep buildStep;
 
+  /// Wrap a [build.BuildStep].
   BuildStepTransform.wrap(this.buildStep);
 
   @override

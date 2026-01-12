@@ -5,12 +5,22 @@ import 'package:args/args.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:tekartik_yacht/src/common_import.dart';
 
+/// Help flag.
 const String argHelpFlag = 'help';
+
+/// Version flag.
 const String argVersionFlag = 'version';
+
+/// Verbose flag.
 const String argVerboseFlag = 'verbose';
+
+/// Offline flag.
 const String argOfflineFlag = 'offline';
+
+/// Dry run flag.
 const String argDryRunFlag = 'dry-run';
 
+/// Binary version.
 final Version binVersion = Version(0, 1, 0);
 
 Future main(List<String> args) async {

@@ -17,15 +17,18 @@ String getAndRemoveElementAttribute(Element element, String attribute) {
 }
 */
 
+/// Check and remove an attribute from an element.
 bool checkAndRemoveElementAttribute(Element element, String attribute) =>
     checkAndRemoveAttribute(element.attributes, attribute);
 
+/// Check and remove an attribute from a map of attributes.
 bool checkAndRemoveAttribute(Map attributes, String attribute) {
   var has = attributes.containsKey(attribute);
   attributes.remove(attribute);
   return has;
 }
 
+/// Fix noscript issue for an element.
 void noScriptFix(Element element) {
   // Bug in current
   // noscript is interpreted as text!

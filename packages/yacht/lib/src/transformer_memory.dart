@@ -10,6 +10,7 @@ import 'package:tekartik_yacht/src/assetid_utils.dart';
 
 import 'transformer.dart';
 
+/// Memory asset id.
 class MemoryAssetId implements AssetId {
   @override
   final String? package;
@@ -17,6 +18,7 @@ class MemoryAssetId implements AssetId {
   @override
   final String path;
 
+  /// Create a memory asset id.
   MemoryAssetId(this.package, this.path);
 
   @override
@@ -86,10 +88,15 @@ AssetId assetIdWithPath(AssetId? id, String path) {
   return MemoryAssetId(package, path);
 }
 
+/// String asset.
 class StringAsset {
+  /// Asset id.
   MemoryAssetId id;
+
+  /// Asset content.
   String? content;
 
+  /// Create a string asset.
   StringAsset(this.id, this.content);
 
   @override
@@ -107,7 +114,9 @@ class StringAsset {
   }
 }
 
+/// String assets.
 class StringAssets extends MapBase<AssetId, StringAsset> {
+  /// Internal assets map.
   Map<AssetId, StringAsset> assets = {};
 
   @override
@@ -128,27 +137,34 @@ class StringAssets extends MapBase<AssetId, StringAsset> {
   operator []=(AssetId key, StringAsset value) => assets[key] = value;
 }
 
+/// Create a string asset.
 StringAsset stringAsset(AssetId id, String? content) =>
     StringAsset(id as MemoryAssetId, content);
 
+/// String asset transform.
 class StringAssetTransform implements AssetTransform {
   @override
   final AssetId primaryId;
 
+  /// Create a string asset transform.
   StringAssetTransform(this.primaryId);
 
-  // implements
+  /// Create a new asset id.
   AssetId newAssetId(AssetId assetId, String path) {
     return assetIdWithPath(assetId, path);
   }
 }
 
+/// String consumable transform.
 class StringConsumableTransform extends StringAssetTransform
     implements ConsumableTransform {
+  /// If the primary asset is consumed.
   bool? isConsumed;
 
+  /// Logger.
   TransformLogger? get logger => null;
 
+  /// Create a string consumable transform.
   StringConsumableTransform(super.primaryId);
 
   @override
@@ -157,15 +173,20 @@ class StringConsumableTransform extends StringAssetTransform
   }
 }
 
+/// String is-primary transform.
 class StringIsPrimaryTransform extends StringAssetTransform
     implements IsPrimaryTransform {
+  /// Create a string is-primary transform.
   StringIsPrimaryTransform(super.primaryId);
 }
 
+/// String declaring transform.
 class StringDeclaringTransform extends StringConsumableTransform
     implements DeclaringTransform {
+  /// List of declared outputs.
   final List<AssetId> outputs = [];
 
+  /// Create a string declaring transform.
   StringDeclaringTransform(super.primaryId);
 
   @override
@@ -174,11 +195,15 @@ class StringDeclaringTransform extends StringConsumableTransform
   }
 }
 
+/// String transform.
 class StringTransform extends StringConsumableTransform implements Transform {
+  /// Input assets.
   final StringAssets assets = StringAssets();
+
+  /// Output assets.
   final StringAssets outputs = StringAssets();
 
-  // only string supported for now
+  /// Create a string transform.
   StringTransform(StringAsset asset, StringAssets inputAssets)
     : super(asset.id) {
     inputAssets.forEach((id, asset) {

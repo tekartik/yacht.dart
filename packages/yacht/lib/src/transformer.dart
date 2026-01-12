@@ -7,11 +7,16 @@ import 'dart:convert';
 //export 'package:barback/src/asset/asset_id.dart';
 import 'package:source_span/source_span.dart' as source_span;
 
+/// Asset id identifier.
 abstract class AssetId {
+  /// The path of the asset.
   String get path;
 
+  /// The package name of the asset (if any).
   String? get package;
 
+  /// Returns a new [AssetId] with the same [package] and [path] as this one
+  /// but with file extension [newExtension].
   AssetId changeExtension(String newExtension);
 }
 
@@ -41,6 +46,7 @@ abstract class AssetSet implements Iterable<Asset> {
   /// The ids of the assets in the set.
   Iterable<AssetId> get ids;
 
+  /// Create an empty asset set.
   AssetSet();
 
   /// Creates a new AssetSet from the contents of [other].
@@ -88,6 +94,7 @@ abstract class AssetSet implements Iterable<Asset> {
   void clear();
 }
 
+/// Transformer implementation.
 abstract class TransformerImpl {
   /// Run this transformer on the primary input specified by [transform].
   ///
@@ -165,12 +172,15 @@ Future<TransformerContext> transformerBuildDir(TransformerImpl transformer, Stri
 */
 
 // Super class must implement Transformer
+/// Transformer mixin.
 abstract class TransformerMixin implements Transformer {
   // can be overriden
+  /// The allowed extensions for the primary inputs.
   @override
   String? get allowedExtensions => null;
 
   // can be overriden
+  /// Returns true if [id] is a primary input for this transformer.
   bool isPrimary(AssetId id) {
     // Allow all files if [primaryExtensions] is not overridden.
     if (allowedExtensions == null) return true;
@@ -249,10 +259,10 @@ abstract class Transformer {
 /// the transformation. It lets the [Transformer] access inputs and generate
 /// outputs.
 abstract class Transform extends ConsumableTransform {
-  // Read the primary asset
+  /// Read the primary asset as a string.
   Future<String?> readPrimaryAsString({Encoding? encoding});
 
-  // add the content in a given asset
+  /// Add the content in a given asset.
   void addOutputFromString(
     AssetId assetId,
     String content, {
@@ -263,7 +273,6 @@ abstract class Transform extends ConsumableTransform {
   //Asset get primaryInput;
 
   /// A logger so that the [Transformer] can report build details.
-  //TransformLogger get logger => _aggregate.logger;
   TransformLogger? get logger;
 
   /*
@@ -286,15 +295,18 @@ abstract class Transform extends ConsumableTransform {
   /// asset is decoded using [encoding], which defaults to [utf8].
   ///
   /// If an input with [id] cannot be found, throws an [AssetNotFoundException].
+  /// Reads the input with [id] as a string.
   Future<String?> readInputAsString(AssetId id, {Encoding? encoding});
 
   /// A convenience method to return whether or not an asset exists.
   ///
   /// This is equivalent to calling [getInput] and catching an
   /// [AssetNotFoundException].
+  /// Returns whether or not the input with [id] exists.
   Future<bool> hasInput(AssetId id);
 
   // Create a new asset id
+  /// Create a new asset id.
   AssetId newAssetId(AssetId assetId, String path);
 
   /// Stores [output] as an output created by this transformation.
@@ -334,6 +346,7 @@ abstract class DeclaringTransformer extends PrimaryTransform {
 }
 */
 
+/// Consumable transform.
 abstract class ConsumableTransform extends AssetTransform {
   /// Consume the primary input so that it doesn't get processed by future
   /// phases or emitted once processing has finished.
@@ -345,6 +358,7 @@ abstract class ConsumableTransform extends AssetTransform {
   void consumePrimary();
 }
 
+/// Asset transform.
 abstract class AssetTransform {
   /// Gets the primary input asset id
   ///
@@ -358,6 +372,7 @@ abstract class AssetTransform {
   AssetId get primaryId;
 }
 
+/// Is-primary transform.
 abstract class IsPrimaryTransform extends AssetTransform {}
 
 ///abstract class DecratingTransform
@@ -380,32 +395,49 @@ abstract class DeclaringTransform extends ConsumableTransform {
 
 /// The severity of a logged message.
 class LogLevel {
+  /// Info log level.
   static const info = LogLevel('Info');
+
+  /// Fine log level.
   static const fine = LogLevel('Fine');
+
+  /// Warning log level.
   static const warning = LogLevel('Warning');
+
+  /// Error log level.
   static const error = LogLevel('Error');
 
-  // Deprecated since v0.4.0 2020-04-05
+  /// Deprecated info log level.
   @Deprecated('use info')
   // ignore: constant_identifier_names
   static const INFO = info;
+
+  /// Deprecated fine log level.
   @Deprecated('use fine')
   // ignore: constant_identifier_names
   static const FINE = fine;
+
+  /// Deprecated warning log level.
   @Deprecated('use warning')
   // ignore: constant_identifier_names
   static const WARNING = warning;
+
+  /// Deprecated error log level.
   @Deprecated('use error')
   // ignore: constant_identifier_names
   static const ERROR = error;
 
+  /// The name of the log level.
   final String name;
+
+  /// Create a log level.
   const LogLevel(this.name);
 
   @override
   String toString() => name;
 }
 
+/// Log function.
 typedef LogFunction =
     void Function(
       AssetId asset,

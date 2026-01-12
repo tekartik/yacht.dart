@@ -10,6 +10,7 @@ import 'html_utils.dart';
 import 'html_visitor.dart';
 import 'text_utils.dart';
 
+/// Print an HTML document.
 String htmlPrintDocument(Document doc, {HtmlPrinterOptions? options}) {
   options ??= HtmlPrinterOptions();
 
@@ -18,9 +19,12 @@ String htmlPrintDocument(Document doc, {HtmlPrinterOptions? options}) {
   return htmlPrintLines(printer.lines, options: options);
 }
 
+/// Node line.
 class NodeLine extends PrinterLine {
+  /// Associated node.
   final Node node;
 
+  /// Create a node line.
   NodeLine(int super.depth, this.node);
 
   @override
@@ -38,14 +42,18 @@ class NodeLine extends PrinterLine {
   }
 }
 
+/// Mixin for building node lines.
 abstract mixin class NodeLinesBuilderMixin {
+  /// The built lines.
   NodeLines lines = NodeLines();
+
+  /// Current depth.
   int depth = 0;
 
-  // implemented by BaseVisitor
+  /// Visit children of a node.
   Node visitChildren(Node node);
 
-  // @override
+  /// Visit a node.
   Node visit(Node node) {
     lines.add(NodeLine(depth, node));
     depth++;
@@ -55,17 +63,22 @@ abstract mixin class NodeLinesBuilderMixin {
   }
 }
 
+/// HTML element node lines builder.
 class HtmlElementNodeLinesBuilder extends HtmlElementVisitor
     with NodeLinesBuilderMixin {}
 
+/// HTML document node lines printer.
 class HtmlDocumentNodeLinesPrinter extends HtmlDocumentVisitor
     with NodeLinesBuilderMixin {}
 
+/// List of node lines.
 class NodeLines extends DelegatingList<NodeLine> {
   //final List<NodeLine> _l;
 
+  /// Create an empty list of node lines.
   NodeLines() : this.from(<NodeLine>[]);
 
+  /// Create a list of node lines from an existing list.
   NodeLines.from(super.l);
 }
 
@@ -114,6 +127,7 @@ bool _doNotEscapeContentForTag(String? tagName) {
   }
 }
 
+/// Get the begin tag of an element.
 String elementBeginTag(Element element) {
   var sb = StringBuffer();
   sb.write('<${element.localName}');
@@ -127,6 +141,7 @@ String elementBeginTag(Element element) {
   return sb.toString();
 }
 
+/// Get the end tag of an element.
 String? elementEndTag(Element element) {
   if (voidTags.contains(element.localName)) {
     return null;
@@ -157,13 +172,16 @@ List<String> _wordSplit(String input) {
   return out;
 }
 
+/// Mixin for building HTML lines.
 abstract mixin class HtmlLinesBuilderMixin {
   HtmlPrinterOptions? _options;
 
+  /// Set printer options.
   set options(HtmlPrinterOptions options) {
     _options = options;
   }
 
+  /// Get printer options.
   HtmlPrinterOptions get options {
     _options ??= HtmlPrinterOptions();
 
@@ -172,16 +190,19 @@ abstract mixin class HtmlLinesBuilderMixin {
 
   final _lines = HtmlLines();
 
+  /// Get the built lines.
   HtmlLines get lines {
     _addLine();
     return _lines;
   }
 
+  /// Current depth.
   int depth = 0;
 
-  // implemented by BaseVisitor
+  /// Visit children of a node.
   Node visitChildren(Node node);
 
+  /// Get the begin tag of an element.
   String elementBeginTag(Element element) {
     var sb = StringBuffer();
     sb.write('<${element.localName}');
@@ -195,16 +216,27 @@ abstract mixin class HtmlLinesBuilderMixin {
     return sb.toString();
   }
 
+  /// String buffer for current line.
   StringBuffer sb = StringBuffer();
 
-  // specified at the beginning
+  /// If a space is required before next content.
   bool spaceRequired = false;
 
+  /// Parent inline status.
   bool? parentInline;
+
+  /// Inline content status.
   bool? inlineContent;
+
+  /// Do not convert content status.
   bool? doNotConvertContent;
+
+  /// Do not escape content status.
   late bool doNotEscapeContent; // for style/script
+  /// Is raw tag status.
   bool? isRawTag;
+
+  /// Begin line depth.
   int? beginLineDepth;
 
   // only add if not at the beginning of a line
@@ -268,6 +300,7 @@ abstract mixin class HtmlLinesBuilderMixin {
     _addLine();
   }
 
+  /// Convert content in buffer.
   void inBufferConvertContent(String input, int contentLength) {
     var words = _wordSplit(input);
 
@@ -300,7 +333,7 @@ abstract mixin class HtmlLinesBuilderMixin {
     }
   }
 
-  // @override
+  /// Visit a node.
   Node visit(Node node) {
     if (node is Element) {
       var tag = node.localName;
@@ -429,6 +462,7 @@ abstract mixin class HtmlLinesBuilderMixin {
   }
 }
 
+/// Convert content to a list of lines.
 List<String> convertContent(String input, int contentLength) {
   var words = _wordSplit(input);
   var out = <String>[];
@@ -458,8 +492,10 @@ List<String> convertContent(String input, int contentLength) {
   return out;
 }
 
+/// HTML document printer.
 class HtmlDocumentPrinter extends HtmlDocumentVisitor
     with HtmlLinesBuilderMixin {}
 
+/// HTML element printer.
 class HtmlElementPrinter extends HtmlElementVisitor
     with HtmlLinesBuilderMixin {}

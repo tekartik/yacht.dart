@@ -9,8 +9,10 @@ import 'html_utils_common.dart';
 import 'html_visitor_common.dart';
 import 'text_utils.dart';
 
+/// HTML doctype.
 const String htmlDoctype = '<!doctype html>';
 
+/// HTML preprocessor options.
 class HtmlPreprocessorOptions {}
 
 // ignore: unused_element
@@ -19,13 +21,17 @@ void _log(Object? message) {
   print(message);
 }
 
-/// Printer options
+/// Printer options.
 class HtmlPrinterOptions {
+  /// Create printer options.
   HtmlPrinterOptions({this.isWindows = false});
 
+  /// Use Windows line endings (CRLF).
   bool isWindows; // CRLF ending
   /// start for index min
   int indentDepthMin = 2;
+
+  /// Indent string.
   String indent = '  ';
 
   /// Try to fit content in 80 chars when appropriate
@@ -60,12 +66,14 @@ String _htmlPrintLines(HtmlLines htmlLines, HtmlPrinterOptions options) {
   return sb.toString();
 }
 
+/// Print HTML lines.
 String htmlPrintLines(HtmlLines htmlLines, {HtmlPrinterOptions? options}) {
   options ??= HtmlPrinterOptions();
 
   return _htmlPrintLines(htmlLines, options);
 }
 
+/// Print an HTML document.
 String htmlPrintDocument(Document doc, {HtmlPrinterOptions? options}) {
   options ??= HtmlPrinterOptions();
 
@@ -86,11 +94,15 @@ String _indent(int depth, {String indent = '  '}) {
   return sb.toString();
 }
 
+/// Printer line.
 abstract class PrinterLine {
+  /// Depth.
   final int? depth;
 
+  /// Create a printer line.
   PrinterLine(this.depth);
 
+  /// Debug indent.
   @internal
   String get debugIndent => _indent(depth ?? 0);
   @override
@@ -108,7 +120,9 @@ abstract class PrinterLine {
   }
 }
 
+/// Node line.
 class NodeLine extends PrinterLine {
+  /// Associated node.
   final Node node;
 
   /// Only valid if node is an element
@@ -117,6 +131,7 @@ class NodeLine extends PrinterLine {
   /// Only valid if node is a text
   Text get textNode => node as Text;
 
+  /// Create a node line.
   NodeLine(int super.depth, this.node);
 
   @override
@@ -136,8 +151,10 @@ class NodeLine extends PrinterLine {
 
 /// an output line with a given depth
 class HtmlLine extends PrinterLine {
+  /// The content of the line.
   final String? content;
 
+  /// Create an HTML line.
   HtmlLine(super.depth, this.content);
 
   @override
@@ -155,14 +172,19 @@ class HtmlLine extends PrinterLine {
   }
 }
 
+/// Mixin for building node lines.
 abstract mixin class NodeLinesBuilderMixin {
+  /// The built lines.
   NodeLines lines = NodeLines();
+
+  /// Current depth.
   int depth = 0;
 
-  // implemented by BaseVisitor
+  /// Visit children of a node.
   Node visitChildren(Node node);
 
   // @override
+  /// Visit a node.
   Node visit(Node node) {
     lines.add(NodeLine(depth, node));
     depth++;
@@ -172,11 +194,14 @@ abstract mixin class NodeLinesBuilderMixin {
   }
 }
 
+/// HTML element node lines builder.
 class HtmlElementNodeLinesBuilder extends HtmlElementVisitor
     with NodeLinesBuilderMixin {}
 
+/// HTML document node lines printer.
 class HtmlDocumentNodeLinesPrinter extends HtmlDocumentVisitor
     with NodeLinesBuilderMixin {
+  /// Dump for debug.
   @doNotSubmit
   void debugDump() {
     for (var line in lines) {
@@ -190,27 +215,36 @@ class HtmlDocumentNodeLinesPrinter extends HtmlDocumentVisitor
 // lines
 //
 
+/// List of HTML lines.
 class HtmlLines extends DelegatingList<HtmlLine> {
   //final List<HtmlLine> _l;
 
+  /// Create an empty list of HTML lines.
   HtmlLines() : this.from(<HtmlLine>[]);
 
+  /// Create a list of HTML lines from an existing list.
   HtmlLines.from(super.l);
 }
 
+/// List of printer lines.
 class PrinterLines extends DelegatingList<PrinterLine> {
   //final List<PrinterLine> _l;
 
+  /// Create an empty list of printer lines.
   PrinterLines() : this.from(<PrinterLine>[]);
 
+  /// Create a list of printer lines from an existing list.
   PrinterLines.from(super.l);
 }
 
+/// List of node lines.
 class NodeLines extends DelegatingList<NodeLine> {
   //final List<NodeLine> _l;
 
+  /// Create an empty list of node lines.
   NodeLines() : this.from(<NodeLine>[]);
 
+  /// Create a list of node lines from an existing list.
   NodeLines.from(super.l);
 }
 
@@ -260,6 +294,7 @@ bool _doNotEscapeContentForTag(String? tagName) {
   }
 }
 
+/// Get the begin tag of an element.
 String elementBeginTag(Element element) {
   var sb = StringBuffer();
   sb.write('<${element.tagName}');
@@ -273,6 +308,7 @@ String elementBeginTag(Element element) {
   return sb.toString();
 }
 
+/// Get the end tag of an element (if any).
 String? elementEndTag(Element element) {
   if (voidTags.contains(element.tagName)) {
     return null;
@@ -281,6 +317,7 @@ String? elementEndTag(Element element) {
   }
 }
 
+/// Create an HTML line.
 HtmlLine htmlLine(int? depth, String? content) {
   return HtmlLine(depth, content);
 }
@@ -307,15 +344,19 @@ List<String> _wordSplit(String input) {
   return out;
 }
 
+/// Inline text (trim and replace with single space).
 String utilsInlineText(String text) => utilsTrimText(text, true);
 
+/// Mixin for building HTML lines.
 abstract mixin class HtmlLinesBuilderMixin {
   HtmlPrinterOptions? _options;
 
+  /// Set printer options.
   set options(HtmlPrinterOptions options) {
     _options = options;
   }
 
+  /// Get printer options.
   HtmlPrinterOptions get options {
     _options ??= HtmlPrinterOptions();
 
@@ -324,16 +365,19 @@ abstract mixin class HtmlLinesBuilderMixin {
 
   final _lines = HtmlLines();
 
+  /// Get the built lines.
   HtmlLines get lines {
     _addLine();
     return _lines;
   }
 
+  /// Current depth.
   int depth = 0;
 
-  // implemented by BaseVisitor
+  /// Visit children of a node.
   Node visitChildren(Node node);
 
+  /// Get the begin tag of an element.
   String elementBeginTag(Element element) {
     var sb = StringBuffer();
     sb.write('<${element.tagName}');
@@ -347,16 +391,27 @@ abstract mixin class HtmlLinesBuilderMixin {
     return sb.toString();
   }
 
+  /// String buffer for current line.
   StringBuffer sb = StringBuffer();
 
-  // specified at the beginning
+  /// If a space is required before next content.
   bool spaceRequired = false;
 
+  /// Parent inline status.
   bool? parentInline;
+
+  /// Inline content status.
   bool? inlineContent;
+
+  /// Do not convert content status.
   bool? doNotConvertContent;
+
+  /// Do not escape content status.
   late bool doNotEscapeContent; // for style/script
+  /// Is raw tag status.
   bool? isRawTag;
+
+  /// Begin line depth.
   int? beginLineDepth;
 
   // only add if not at the beginning of a line
@@ -420,6 +475,7 @@ abstract mixin class HtmlLinesBuilderMixin {
     _addLine();
   }
 
+  /// Convert content in buffer.
   void inBufferConvertContent(String input, int contentLength) {
     var words = _wordSplit(input);
 
@@ -453,6 +509,7 @@ abstract mixin class HtmlLinesBuilderMixin {
   }
 
   // @override
+  /// Visit a node.
   Node visit(Node node) {
     if (node is Element) {
       var tag = node.tagName;
@@ -581,6 +638,7 @@ abstract mixin class HtmlLinesBuilderMixin {
   }
 }
 
+/// Convert content to a list of lines.
 List<String> convertContent(String input, int contentLength) {
   var words = _wordSplit(input);
   var out = <String>[];
@@ -610,8 +668,10 @@ List<String> convertContent(String input, int contentLength) {
   return out;
 }
 
+/// HTML document printer common.
 class HtmlDocumentPrinterCommon extends HtmlDocumentVisitor
     with HtmlLinesBuilderMixin {}
 
+/// HTML element printer common.
 class HtmlElementPrinterCommon extends HtmlElementVisitor
     with HtmlLinesBuilderMixin {}

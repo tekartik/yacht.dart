@@ -2,14 +2,17 @@ library;
 
 import 'dart:async';
 
+/// Base node class.
 abstract class Node {}
 
+/// Visitor interface.
 abstract class Visitor<N> {
-  // can return a [Future<Node>] or [Node] or null
+  /// Visit a node.
   N visit(N node);
 }
 
+/// Async visitor interface.
 abstract class VisitorAsync<N> {
-  // can return a [Future<Node>] or [Node] or null
+  /// Visit a node asynchronously.
   Future<N> visit(N node);
 }

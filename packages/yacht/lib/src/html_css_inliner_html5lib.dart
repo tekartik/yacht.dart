@@ -5,6 +5,7 @@ import 'package:html/dom.dart';
 import 'package:path/path.dart';
 import 'package:tekartik_yacht/src/html_printer.dart';
 
+/// Inline CSS in an HTML file.
 Future fixCssInline(String srcHtmlFilePath, String dstHtmlFilePath) async {
   var file = File(srcHtmlFilePath);
   var html = await file.readAsString();

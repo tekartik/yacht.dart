@@ -2,7 +2,7 @@ library;
 
 import 'package:path/path.dart';
 
-// convert to posix
+/// Normalize a path to posix format.
 String normalizePath(String path) {
   // Ugly...
   return posix.normalize(

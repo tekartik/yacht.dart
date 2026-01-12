@@ -29,6 +29,7 @@ bool isWhitespace(int rune) =>
     rune == 0x3000 ||
     rune == 0xFEFF);
 
+/// Returns true if the text begins with a whitespace.
 bool beginsWithWhitespaces(String text) {
   if (text.isEmpty) {
     return false;
@@ -36,6 +37,7 @@ bool beginsWithWhitespaces(String text) {
   return isWhitespace(text.runes.first);
 }
 
+/// Returns true if the text ends with a whitespace.
 bool endsWithWhitespaces(String text) {
   if (text.isEmpty) {
     return false;
@@ -43,6 +45,7 @@ bool endsWithWhitespaces(String text) {
   return isWhitespace(text.runes.last);
 }
 
+/// Returns true if the text begins or ends with a whitespace.
 bool beginOrEndWithWhiteSpace(String text) {
   if (text.isEmpty) {
     return false;
@@ -55,12 +58,15 @@ bool beginOrEndWithWhiteSpace(String text) {
 const int _lf = 10;
 const int _cr = 13;
 
+/// Returns true if the text contains a line feed.
 bool hasLineFeed(String text) {
   return (text.codeUnits.contains(_cr) || text.codeUnits.contains(_lf));
 }
 
+/// Returns true if the text is a single line.
 bool isSingleLineText(String text) => !hasLineFeed(text);
 
+/// Returns true if the text is a whitespace line.
 bool isWhitespaceLine(String text) {
   return text.trim().isEmpty;
 }

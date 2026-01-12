@@ -11,7 +11,9 @@ String printStyleSheet(StyleSheet styleSheet, {bool pretty = true}) {
   return printer.toString();
 }
 
+/// Css compile result.
 class CssCompileResult {
+  /// Output css.
   String? out;
 }
 
