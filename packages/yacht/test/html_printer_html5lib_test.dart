@@ -68,6 +68,7 @@ HtmlLines htmlLinesFromElementHtml(String html, {HtmlPrinterOptions? options}) {
   printer.visitElement(element);
   return printer.lines;
 }
+
 // Allow for [[0,'<a>'],[0,'</a']]
 // ['<a>', '</a>']
 
