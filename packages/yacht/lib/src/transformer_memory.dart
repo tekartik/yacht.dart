@@ -85,6 +85,7 @@ AssetId assetIdWithPath(AssetId? id, String path) {
       }
     }
   }
+
   return MemoryAssetId(package, path);
 }
 

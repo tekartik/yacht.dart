@@ -67,6 +67,7 @@ abstract class TransformBuilder implements build.Builder, common.Transformer {
 }
 
 /*
+/// Class representing [BarbackDeclaringTransform].
 class BarbackDeclaringTransform extends BarbackPrimaryTransform
     implements common.DeclaringTransform {
   // either darback.Transform or

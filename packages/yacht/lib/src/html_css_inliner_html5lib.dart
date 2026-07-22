@@ -34,5 +34,6 @@ Future fixCssInline(String srcHtmlFilePath, String dstHtmlFilePath) async {
   }
 
   html = htmlPrintDocument(doc);
+
   await File(dstHtmlFilePath).writeAsString(html);
 }

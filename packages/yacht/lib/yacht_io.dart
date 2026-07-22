@@ -18,5 +18,6 @@ Future<void> tidyHtml({
   try {
     await Directory(dirname(dstFilePath)).create(recursive: true);
   } catch (_) {}
+
   await File(dstFilePath).writeAsString(result);
 }

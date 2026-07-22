@@ -340,6 +340,7 @@ List<String> _wordSplit(String input) {
       sb.writeCharCode(rune);
     }
   }
+
   addCurrent();
   return out;
 }
@@ -552,6 +553,7 @@ abstract mixin class HtmlLinesBuilderMixin {
         _addLine();
       }
       depth++;
+
       visitChildren(node);
       depth--;
 
@@ -664,6 +666,7 @@ List<String> convertContent(String input, int contentLength) {
     }
     sb.write(word);
   }
+
   addCurrent();
   return out;
 }

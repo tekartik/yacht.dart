@@ -4,7 +4,6 @@ library;
 // utils
 //
 
-///
 /// Returns `true` if [rune] represents a whitespace character.
 ///
 /// The definition of whitespace matches that used in [String.trim] which is
@@ -13,7 +12,6 @@ library;
 /// ECMAScript standard: http://ecma-international.org/ecma-262/5.1/#sec-15.10
 ///
 /// from quiver
-///
 bool isWhitespace(int rune) =>
     ((rune >= 0x0009 && rune <= 0x000D) ||
     rune == 0x0020 ||
@@ -34,6 +32,7 @@ bool beginsWithWhitespaces(String text) {
   if (text.isEmpty) {
     return false;
   }
+
   return isWhitespace(text.runes.first);
 }
 
@@ -42,6 +41,7 @@ bool endsWithWhitespaces(String text) {
   if (text.isEmpty) {
     return false;
   }
+
   return isWhitespace(text.runes.last);
 }
 
@@ -51,6 +51,7 @@ bool beginOrEndWithWhiteSpace(String text) {
     return false;
   }
   var runes = text.runes;
+
   return isWhitespace(runes.first) || isWhitespace(runes.last);
 }
 
@@ -89,6 +90,7 @@ List<String> _wordSplit(String input) {
       sb.writeCharCode(rune);
     }
   }
+
   addCurrent();
   return out;
 }

@@ -16,6 +16,7 @@ String htmlPrintDocument(Document doc, {HtmlPrinterOptions? options}) {
 
   var printer = HtmlDocumentPrinter();
   printer.visitDocument(doc);
+
   return htmlPrintLines(printer.lines, options: options);
 }
 
@@ -168,6 +169,7 @@ List<String> _wordSplit(String input) {
       sb.writeCharCode(rune);
     }
   }
+
   addCurrent();
   return out;
 }
@@ -376,6 +378,7 @@ abstract mixin class HtmlLinesBuilderMixin {
         _addLine();
       }
       depth++;
+
       visitChildren(node);
       depth--;
 
@@ -488,6 +491,7 @@ List<String> convertContent(String input, int contentLength) {
     }
     sb.write(word);
   }
+
   addCurrent();
   return out;
 }
