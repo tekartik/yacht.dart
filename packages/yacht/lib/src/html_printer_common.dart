@@ -301,7 +301,7 @@ String elementBeginTag(Element element) {
   element.attributes.forEach((key, value) {
     sb.write(' $key');
     if (value.isNotEmpty) {
-      sb.write('="$value"');
+      sb.write('="${htmlSerializeEscape(value, attributeMode: true)}"');
     }
   });
   sb.write('>');
@@ -385,7 +385,7 @@ abstract mixin class HtmlLinesBuilderMixin {
     element.attributes.forEach((key, value) {
       sb.write(' $key');
       if (value.isNotEmpty) {
-        sb.write('="$value"');
+        sb.write('="${htmlSerializeEscape(value, attributeMode: true)}"');
       }
     });
     sb.write('>');

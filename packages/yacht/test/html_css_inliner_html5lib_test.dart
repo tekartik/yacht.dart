@@ -32,5 +32,16 @@ void main() {
         contains('<style data-custom>body { color: red; }</style>'),
       );
     });
+    test('fixCssInline link without href', () async {
+      var src = join(outDir, 'no_href_src.html');
+      var dst = join(outDir, 'no_href.html');
+      await File(src).writeAsString(
+        '<!doctype html><html><head>'
+        '<link class="yacht-inline" rel="stylesheet">'
+        '</head><body></body></html>',
+      );
+      await fixCssInline(src, dst);
+      expect(await File(dst).readAsString(), contains('<link'));
+    });
   });
 }

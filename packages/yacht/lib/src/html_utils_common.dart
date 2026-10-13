@@ -6,14 +6,6 @@ void copyElementAttributes(Element srcElement, Element trgElement) {
   trgElement.attributes.addAll(srcElement.attributes);
 }
 
-/// Replace all nodes
-void replaceElementNodes(Element srcElement, Element trgElement) {
-  trgElement.children.clear();
-  for (var item in List.of(srcElement.childNodes)) {
-    trgElement.append(item);
-  }
-}
-
 /*
 String getAndRemoveElementAttribute(Element element, String attribute) {
   return element.attributes.remove(attribute);

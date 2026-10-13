@@ -687,6 +687,26 @@ void groupPrinter(HtmlProvider htmlProvider) {
           */
     });
 
+    test('htmlPrintDocument attribute escape', () async {
+      var document = htmlProvider.createDocument(
+        html:
+            '<!doctype html><html><head></head><body>'
+            '<img alt=\'Say "hi"\' src="?a=1&amp;b=2"></body></html>',
+      );
+      var html = htmlPrintDocument(document);
+      expect(
+        html,
+        contains('<img alt="Say &quot;hi&quot;" src="?a=1&amp;b=2">'),
+      );
+      // Reparse
+      var img = htmlProvider
+          .createDocument(html: html)
+          .body
+          .querySelector('img')!;
+      expect(img.attributes['alt'], 'Say "hi"');
+      expect(img.attributes['src'], '?a=1&b=2');
+    });
+
     test('htmlPrintDocument_min', () async {
       var document = htmlProvider.createDocument(
         html: '<!DOCTYPE html><html><head></head><body></body></html>\n',
