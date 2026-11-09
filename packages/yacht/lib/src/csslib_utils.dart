@@ -17,7 +17,11 @@ class CssCompileResult {
   String? out;
 }
 
-/// Compile the resulting css (prefer polyfill = false and pretty = false
+/// Compile [input] with csslib (nested rules and `@extend` resolved),
+/// minified on one line unless [pretty].
+///
+/// Keep [polyfill] false: on `var(--name)` it produces empty declarations.
+/// Invalid css does not throw, csslib drops what it cannot parse.
 String compileCss(String input, {bool polyfill = false, bool pretty = false}) {
   var styleSheet = compile(input, polyfill: polyfill);
 

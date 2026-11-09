@@ -5,10 +5,11 @@ import 'package:tekartik_html/html.dart';
 import 'package:tekartik_yacht/src/html_printer_common.dart';
 export 'html_css_inliner_html5lib.dart' show fixCssInline;
 
-/// CSS href inliner function.
+/// Returns the css text of a stylesheet `href`, null to keep the `<link>`.
 typedef HtmlCssHrefInlinerFunction = Future<String?> Function(String href);
 
-/// Css inliner
+/// Replaces the `<link>` elements with the `yacht-inline` class by a
+/// `<style>` holding the css returned by [inliner] for their `href`.
 class HtmlCssInliner {
   /// The inliner function.
   final HtmlCssHrefInlinerFunction inliner;
@@ -19,7 +20,8 @@ class HtmlCssInliner {
   /// Create a CSS inliner.
   HtmlCssInliner({required this.htmlProvider, required this.inliner});
 
-  /// Build the inlined HTML.
+  /// The html [source] with its marked stylesheets inlined, printed with
+  /// `htmlPrintDocument` (the whole page is re-formatted).
   Future<String> build(String source) async {
     var doc = htmlProvider.createDocument(html: source);
     var elements = doc.html.queryAll(byClass: 'yacht-inline');

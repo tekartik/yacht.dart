@@ -707,6 +707,23 @@ void groupPrinter(HtmlProvider htmlProvider) {
       expect(img.attributes['src'], '?a=1&b=2');
     });
 
+    test('htmlPrintDocument text after style or script escaped', () async {
+      for (var tag in ['style', 'script']) {
+        var document = htmlProvider.createDocument(
+          html:
+              '<!doctype html><html><head></head><body><p><$tag>a>b</$tag>'
+              ' 1 &lt; 2 &lt;img src=x onerror=alert(1)&gt;</p></body></html>',
+        );
+        var html = htmlPrintDocument(document);
+        // The raw content stays as is
+        expect(html, contains('<$tag>a>b</$tag>'));
+        // The text that follows is escaped, not turned into markup
+        expect(html, contains('1 &lt; 2 &lt;img src=x onerror=alert(1)&gt;'));
+        var reparsed = htmlProvider.createDocument(html: html).body;
+        expect(reparsed.querySelector('img'), isNull);
+      }
+    });
+
     test('htmlPrintDocument_min', () async {
       var document = htmlProvider.createDocument(
         html: '<!DOCTYPE html><html><head></head><body></body></html>\n',

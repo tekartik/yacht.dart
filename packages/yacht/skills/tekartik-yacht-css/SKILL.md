@@ -43,8 +43,8 @@ void main() {
   red } }` gives `body h1 { color: red }`, plus an empty `body {}` rule in
   pretty mode) and `@extend .selector` (the extended rule gets the
   extending selector: `.important, .super-important { color: red }`).
-* The README's "less style variable" `@name: value;` is not a variable:
-  csslib parses it as its legacy `var-name: value` declaration and `@name`
+* A less style variable `@name: value;` (in the former README) is not a
+  variable: csslib parses it as its legacy `var-name: value` declaration and `@name`
   usages print as `var(name)`, nothing is substituted. Standard custom
   properties (`--name: value` and `var(--name)`) pass through unchanged
   with `polyfill: false`.
@@ -232,7 +232,8 @@ void main() {
 
 ## More
 
-* Package README, "Css preprocessing" section (its `import:` and `ignore:`
-  transformer options are barback era and not implemented).
+* [Package README](../../README.md): getting started, libraries and
+  platforms (the barback era `import:` and `ignore:` transformer options
+  and less style variables no longer exist).
 * [../tekartik-yacht-html-tidy/SKILL.md](../tekartik-yacht-html-tidy/SKILL.md)
   for the printer rules applied to the inlined page.

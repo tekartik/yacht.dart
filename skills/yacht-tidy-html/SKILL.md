@@ -80,8 +80,9 @@ shim over `tekartik_yacht`, in `packages/yacht` of the same repository.
   `package:tekartik_yacht/yacht_css.dart`), the mvp helpers
   (`yacht_mvp.dart`) and the `yacht` command line tool are **not** reachable
   through `package:yacht/...` — depend on `tekartik_yacht` for those.
-* The barback transformer and the `pubspec.yaml` `transformers:` block of the
-  repository README are historical (barback has been removed from dart):
+* The barback transformer and its `pubspec.yaml` `transformers:` block (in
+  the former repository README) are historical (barback has been removed
+  from dart):
   today it is `tidyHtml`, the printers, and the builders inside
   `tekartik_yacht`.
 * `yachtAmpBoilerplate` is the constant AMP boilerplate (viewport meta,

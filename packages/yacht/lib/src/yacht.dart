@@ -4,7 +4,9 @@ import 'html_printer_common.dart';
 
 /// Yacht extension for HtmlProvider.
 extension HtmlProviderYachtExt on HtmlProvider {
-  /// Tidy a file, if [dstFilePath] is ommited, original file is replaced
+  /// Tidy the html text [src]: parsed with this provider (a missing charset
+  /// meta and title are added to the head), printed with
+  /// [htmlPrintDocument].
   String yachtTidyHtml(String src, {HtmlPrinterOptions? options}) {
     var doc = createDocument(html: src);
     var result = htmlPrintDocument(doc, options: options);

@@ -94,6 +94,9 @@ void main() {
 * Text is escaped on output (`<` in a text node prints `&lt;`); the content
   of `<style>` and `<script>` is not escaped and is copied line by line
   (blank lines dropped, `\r` removed); `<pre>` content is copied untouched.
+  The text that follows a `<style>` or `<script>` element in its parent is
+  escaped like any other text (before the 2026-11-09 fix it was printed
+  raw: `&lt;img ...&gt;` after a script came out as a live `<img>` tag).
 * Void elements print without slash (`<input />` becomes `<input>`,
   `<img/>` `<img>`), an attribute with an empty value prints bare
   (`<style amp-boilerplate>`); attribute order and quoting come from the
@@ -273,9 +276,9 @@ void main() {
 
 ## More
 
-* Package README for the git dependency snippet. Its "Html building"
-  section (barback transformer, `yacht-include`, `yacht-debug` and
-  `yacht-release` attributes, `import:`/`ignore:` options) describes a
-  former implementation: none of it exists in the current code.
+* [Package README](../../README.md): getting started, libraries and
+  platforms. The barback transformer features of the former `yacht`
+  package (`yacht-include`, `yacht-debug` and `yacht-release` attributes,
+  `import:`/`ignore:` options) no longer exist.
 * [../tekartik-yacht-css/SKILL.md](../tekartik-yacht-css/SKILL.md) for
   `compileCss`, `HtmlCssInliner` and `fixCssInline`.

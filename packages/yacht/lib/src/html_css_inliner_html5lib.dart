@@ -9,7 +9,8 @@ import 'package:tekartik_yacht/src/html_css_inliner.dart';
 ///
 /// `link` elements with the `yacht-inline` class are replaced by a `style`
 /// element with the content of the css file (href relative to the html file).
-/// A link without href is left as is.
+/// A link without href is left as is, a missing css file throws. `dart:io`
+/// only.
 Future fixCssInline(String srcHtmlFilePath, String dstHtmlFilePath) async {
   var html = await File(srcHtmlFilePath).readAsString();
   var inliner = HtmlCssInliner(

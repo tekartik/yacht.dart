@@ -73,7 +73,11 @@ String htmlPrintLines(HtmlLines htmlLines, {HtmlPrinterOptions? options}) {
   return _htmlPrintLines(htmlLines, options);
 }
 
-/// Print an HTML document.
+/// Print [doc] with the yacht layout: `<!doctype html>` first, two space
+/// indentation, inline elements kept on one line, text escaped (but the
+/// content of style and script).
+///
+/// Only the `indent` and `indentDepthMin` of [options] are used.
 String htmlPrintDocument(Document doc, {HtmlPrinterOptions? options}) {
   options ??= HtmlPrinterOptions();
 
@@ -407,8 +411,9 @@ abstract mixin class HtmlLinesBuilderMixin {
   /// Do not convert content status.
   bool? doNotConvertContent;
 
-  /// Do not escape content status.
-  late bool doNotEscapeContent; // for style/script
+  /// Do not escape content status, for the content of style/script only.
+  bool doNotEscapeContent = false;
+
   /// Is raw tag status.
   bool? isRawTag;
 
@@ -522,6 +527,7 @@ abstract mixin class HtmlLinesBuilderMixin {
 
       var parentInline = this.inlineContent;
       var parentDoNotConvertContent = doNotConvertContent;
+      var parentDoNotEscapeContent = doNotEscapeContent;
       var parentIsRawTag = isRawTag;
       doNotConvertContent = _doNotConvertContentForTag(tag);
       doNotEscapeContent = _doNotEscapeContentForTag(tag);
@@ -565,6 +571,8 @@ abstract mixin class HtmlLinesBuilderMixin {
       _add(elementEndTag(node));
 
       doNotConvertContent = parentDoNotConvertContent;
+      // The text following a style/script element is escaped again
+      doNotEscapeContent = parentDoNotEscapeContent;
       inlineContent = inlineContent || parentInline == true;
       isRawTag = parentIsRawTag;
       if (!inlineContent) {
